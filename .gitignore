@@ -19,3 +19,5 @@ ui-debug.log*
 .env.local
 .DS_Store
 Thumbs.db
+
+.vercel

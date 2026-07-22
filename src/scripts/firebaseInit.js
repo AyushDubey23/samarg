@@ -4,11 +4,17 @@ import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getFunctions, connectFunctionsEmulator } from "firebase/functions";
 import { getDatabase, connectDatabaseEmulator } from "firebase/database";
 
+const isLocal =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1";
+
 const firebaseConfig = {
   apiKey: "AIzaSyDYGKm3iQi6OZZgRaXAtfdUMCdwgKGPzuU",
   authDomain: "samarg-7be68.firebaseapp.com",
   projectId: "samarg-7be68",
-  databaseURL: "http://127.0.0.1:9000?ns=samarg-7be68",
+  databaseURL: isLocal
+    ? "http://127.0.0.1:9000?ns=samarg-7be68"
+    : "https://samarg-7be68-default-rtdb.firebaseio.com",
   storageBucket: "samarg-7be68.firebasestorage.app",
   messagingSenderId: "1085191434729",
   appId: "1:1085191434729:web:91d4ae0ed2679569149b78",
@@ -25,11 +31,7 @@ const functions = getFunctions(app);
 const rtdb = getDatabase(app);
 
 // Automatically connect to Local Emulators if running locally
-if (
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1" ||
-  window.location.port !== ""
-) {
+if (isLocal) {
   console.log("Local development environment detected. Wiring up Firebase Emulators.");
   try {
     connectAuthEmulator(auth, "http://localhost:9099", { disableWarnings: true });

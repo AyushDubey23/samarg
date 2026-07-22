@@ -133,6 +133,23 @@ window.showToast = function (message, isError = false) {
 };
 
 // Bootstrap Auth and Routing
+let hasResolvedInitialRoute = false;
+
+function initApp() {
+  if (hasResolvedInitialRoute) return;
+  hasResolvedInitialRoute = true;
+  isAuthInitialized = true;
+  resolveRoute();
+}
+
+// Fallback safety timer: Ensure route is resolved within 1.5s even if auth response is delayed
+setTimeout(() => {
+  if (!isAuthInitialized) {
+    console.warn("Auth initialization timed out, rendering route with fallback state.");
+    initApp();
+  }
+}, 1500);
+
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
     console.log("Bootstrapping anonymous session...");
@@ -140,27 +157,29 @@ onAuthStateChanged(auth, async (user) => {
       await signInAnonymously(auth);
     } catch (e) {
       console.error("Bootstrap anonymous login failed:", e);
+      initApp();
     }
   } else {
     updateAuthUI(user);
-    // Fetch global daily ticker statistics
-    try {
-      const docRef = doc(db, "aggregates", "global_ticker");
-      const docSnap = await getDoc(docRef);
-      const textEl = document.getElementById("ticker-text");
-      if (textEl) {
-        if (docSnap.exists() && docSnap.data().runsCount !== undefined) {
-          textEl.innerText = `${docSnap.data().runsCount.toLocaleString()} matches completed globally today!`;
-        } else {
-          textEl.innerText = "Start scouting and lead your XI to a perfect Samarg Run!";
+    // Non-blocking fetch for ticker statistics
+    getDoc(doc(db, "aggregates", "global_ticker"))
+      .then((docSnap) => {
+        const textEl = document.getElementById("ticker-text");
+        if (textEl) {
+          if (docSnap.exists() && docSnap.data().runsCount !== undefined) {
+            textEl.innerText = `${docSnap.data().runsCount.toLocaleString()} matches completed globally today!`;
+          } else {
+            textEl.innerText = "Start scouting and lead your XI to a perfect Samarg Run!";
+          }
         }
-      }
-    } catch (err) {
-      console.warn("Could not read ticker stats:", err);
-    }
+      })
+      .catch((err) => {
+        console.warn("Could not read ticker stats:", err);
+        const textEl = document.getElementById("ticker-text");
+        if (textEl) textEl.innerText = "Start scouting and lead your XI to a perfect Samarg Run!";
+      });
 
-    isAuthInitialized = true;
-    resolveRoute();
+    initApp();
   }
 });
 
