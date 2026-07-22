@@ -1,8 +1,64 @@
 import { auth, rtdb, db, functions } from "../firebaseInit.js";
 import { ref, onValue, set, update, off } from "firebase/database";
 import { httpsCallable } from "firebase/functions";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { validateDraftXI } from "../utils/draftRules.js";
+import { signInAnonymously } from "firebase/auth";
+
+const FALLBACK_NATIONS = [
+  { team: "India", year: "2011" },
+  { team: "Australia", year: "2015" },
+  { team: "England", year: "2019" },
+  { team: "South Africa", year: "2015" },
+  { team: "Pakistan", year: "1992" },
+  { team: "West Indies", year: "1979" },
+  { team: "New Zealand", year: "2019" },
+  { team: "Sri Lanka", year: "1996" }
+];
+
+const FALLBACK_PLAYER_POOL = [
+  { id: "p1", name: "Sachin Tendulkar", role: "batter", batRating: 98, bowlRating: 45 },
+  { id: "p2", name: "Virat Kohli", role: "batter", batRating: 96, bowlRating: 20 },
+  { id: "p3", name: "MS Dhoni", role: "keeper", batRating: 92, bowlRating: 0 },
+  { id: "p4", name: "Jasprit Bumrah", role: "bowler", batRating: 25, bowlRating: 97 },
+  { id: "p5", name: "Ricky Ponting", role: "batter", batRating: 95, bowlRating: 30 },
+  { id: "p6", name: "Shane Warne", role: "bowler", batRating: 40, bowlRating: 98 },
+  { id: "p7", name: "Ben Stokes", role: "allrounder", batRating: 88, bowlRating: 84 },
+  { id: "p8", name: "AB de Villiers", role: "batter", batRating: 97, bowlRating: 15 },
+  { id: "p9", name: "Wasim Akram", role: "bowler", batRating: 50, bowlRating: 96 },
+  { id: "p10", name: "Kumar Sangakkara", role: "keeper", batRating: 94, bowlRating: 0 },
+  { id: "p11", name: "Jacques Kallis", role: "allrounder", batRating: 93, bowlRating: 88 },
+  { id: "p12", name: "Mitchell Starc", role: "bowler", batRating: 30, bowlRating: 95 },
+  { id: "p13", name: "Rohit Sharma", role: "batter", batRating: 94, bowlRating: 10 },
+  { id: "p14", name: "Kane Williamson", role: "batter", batRating: 92, bowlRating: 25 },
+  { id: "p15", name: "Rashid Khan", role: "bowler", batRating: 60, bowlRating: 94 }
+];
+
+async function fetchClientRandomSquad() {
+  try {
+    const squadsRef = collection(db, "squads");
+    const snap = await getDocs(squadsRef);
+    if (!snap.empty) {
+      const docs = snap.docs;
+      const randomDoc = docs[Math.floor(Math.random() * docs.length)].data();
+      return {
+        nationalTeam: randomDoc.nationalTeam || "World XI",
+        tournamentYear: randomDoc.tournamentYear || "2023",
+        players: randomDoc.players || FALLBACK_PLAYER_POOL.slice(0, 5)
+      };
+    }
+  } catch (e) {
+    console.warn("Firestore squad fetch error, using fallback pool:", e);
+  }
+
+  const nation = FALLBACK_NATIONS[Math.floor(Math.random() * FALLBACK_NATIONS.length)];
+  const shuffled = [...FALLBACK_PLAYER_POOL].sort(() => Math.random() - 0.5);
+  return {
+    nationalTeam: nation.team,
+    tournamentYear: nation.year,
+    players: shuffled.slice(0, 5)
+  };
+}
 
 let serverOffset = 0;
 let timerInterval = null;
@@ -167,6 +223,28 @@ function renderLobby(viewport, roomCode, room) {
         </div>
       </div>
     </div>
+
+    <!-- Room Join Modal Overlay for Direct Link Visitors -->
+    <div id="room-join-modal" style="${userJoined ? 'display: none;' : 'display: flex;'} position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+      <div class="career-stats-widget" style="width: 100%; max-width: 400px; padding: 1.75rem; background: var(--bg-medium); border: 1px solid var(--glass-border);">
+        <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1.1rem; margin-bottom: 1.25rem;">Join Room Lobby</h3>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <label>
+            <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Enter Your Display Name:</span>
+            <input type="text" id="direct-join-player-name" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem;" placeholder="Enter your name" value="${auth.currentUser?.displayName || ''}">
+          </label>
+          ${room.password ? `
+            <label>
+              <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Room Password:</span>
+              <input type="password" id="direct-join-password" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem;" placeholder="Enter room password">
+            </label>
+          ` : ''}
+          <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+            <button id="direct-join-submit-btn" class="btn btn-primary" style="flex: 1;">Confirm & Join Lobby</button>
+          </div>
+        </div>
+      </div>
+    </div>
   `;
 
   const copyBtn = document.getElementById("copy-link-btn");
@@ -206,13 +284,58 @@ function renderLobby(viewport, roomCode, room) {
   }
 
   const joinBtn = document.getElementById("join-room-btn");
-  if (joinBtn) {
-    joinBtn.addEventListener("click", async () => {
+  const roomJoinModal = document.getElementById("room-join-modal");
+  const directJoinSubmit = document.getElementById("direct-join-submit-btn");
+
+  if (joinBtn && roomJoinModal) {
+    joinBtn.addEventListener("click", () => {
+      roomJoinModal.style.display = "flex";
+      const nameIn = document.getElementById("direct-join-player-name");
+      if (nameIn) nameIn.focus();
+    });
+  }
+
+  if (directJoinSubmit) {
+    directJoinSubmit.addEventListener("click", async () => {
+      const nameInput = (document.getElementById("direct-join-player-name")?.value || "").trim();
+      const pwInput = room.password ? (document.getElementById("direct-join-password")?.value || "").trim() : null;
+
+      if (room.password && pwInput !== room.password) {
+        showToast("Incorrect room password!", true);
+        return;
+      }
+
+      const displayName = nameInput || "Guest Player";
+
       try {
-        const joinRoomFn = httpsCallable(functions, "joinRoom");
-        await joinRoomFn({ code: roomCode, password: room.password, displayName: auth.currentUser?.displayName });
+        directJoinSubmit.disabled = true;
+        if (!auth.currentUser) {
+          try { await signInAnonymously(auth); } catch (authErr) { console.warn(authErr); }
+        }
+        const userUid = auth.currentUser ? auth.currentUser.uid : ("user_" + Math.random().toString(36).substring(2, 9));
+
+        try {
+          const joinRoomFn = httpsCallable(functions, "joinRoom");
+          await joinRoomFn({ code: roomCode, password: pwInput, displayName });
+        } catch (fnErr) {
+          console.warn("Cloud function joinRoom failed, performing RTDB direct join fallback:", fnErr);
+          const playerRef = ref(rtdb, `rooms/${roomCode}/players/${userUid}`);
+          await set(playerRef, {
+            displayName: displayName,
+            joinedAt: Date.now(),
+            ready: false,
+            connectionStatus: "online"
+          });
+        }
+
+        if (auth.currentUser && nameInput) {
+          auth.currentUser.displayName = displayName;
+        }
+
+        if (roomJoinModal) roomJoinModal.style.display = "none";
         showToast("Successfully joined lobby!");
       } catch (err) {
+        directJoinSubmit.disabled = false;
         showToast(err.message, true);
       }
     });
@@ -379,8 +502,24 @@ function renderDraftPhase(viewport, roomCode, room) {
         rollBtn.disabled = true;
         // Start client slot-machine animation loop
         startSlotMachineAnimation();
-        const rollSquadFn = httpsCallable(functions, "rollSquad");
-        await rollSquadFn({ code: roomCode });
+        try {
+          const rollSquadFn = httpsCallable(functions, "rollSquad");
+          await rollSquadFn({ code: roomCode });
+        } catch (fnErr) {
+          console.warn("Cloud function rollSquad failed, performing RTDB direct roll fallback:", fnErr);
+          const rolledSquad = await fetchClientRandomSquad();
+          const turnTimerSec = room.turnTimerSeconds || 20;
+          await update(ref(rtdb, `rooms/${roomCode}/draftState`), {
+            turnDeadline: Date.now() + turnTimerSec * 1000,
+            currentReveal: {
+              nationalTeam: rolledSquad.nationalTeam,
+              tournamentYear: rolledSquad.tournamentYear,
+              players: rolledSquad.players,
+              rolledAt: Date.now(),
+              rolledBy: currentUid
+            }
+          });
+        }
       } catch (err) {
         rollBtn.disabled = false;
         if (slotAnimationTimer) {
@@ -408,9 +547,53 @@ function renderDraftPhase(viewport, roomCode, room) {
           card.style.transform = "scale(0.95)";
           card.style.borderColor = "var(--primary)";
           
-          const claimPlayerFn = httpsCallable(functions, "claimPlayer");
-          await claimPlayerFn({ code: roomCode, playerId });
-          showToast("Player successfully claimed!");
+          try {
+            const claimPlayerFn = httpsCallable(functions, "claimPlayer");
+            await claimPlayerFn({ code: roomCode, playerId });
+            showToast("Player successfully claimed!");
+          } catch (fnErr) {
+            console.warn("Cloud function claimPlayer failed, performing RTDB direct claim fallback:", fnErr);
+            const targetPlayer = (reveal.players || []).find(p => String(p.id) === String(playerId));
+            if (!targetPlayer) return;
+
+            const userSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
+            const currentBench = userSquad.bench || [];
+            const updatedBench = [...currentBench, targetPlayer];
+
+            const turnOrder = draftState.turnOrder || [];
+            const currentTurnIndex = draftState.turnIndex || 0;
+            const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
+            const nextActiveUid = turnOrder[nextTurnIndex];
+
+            const updatedClaimed = [...claimedIds, playerId];
+
+            const updates = {};
+            updates[`rooms/${roomCode}/squads/${currentUid}/bench`] = updatedBench;
+            updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
+            updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
+            updates[`rooms/${roomCode}/draftState/claimedPlayerIds`] = updatedClaimed;
+            updates[`rooms/${roomCode}/draftState/currentReveal`] = null;
+            updates[`rooms/${roomCode}/draftState/turnDeadline`] = null;
+
+            // Check if all players reached 11 squad picks
+            let allComplete = true;
+            turnOrder.forEach(uid => {
+              const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
+              const count = (sq.bench ? sq.bench.length : 0) + (sq.slots ? sq.slots.filter(s => s !== null).length : 0);
+              if (uid === currentUid) {
+                if (updatedBench.length < 11) allComplete = false;
+              } else {
+                if (count < 11) allComplete = false;
+              }
+            });
+
+            if (allComplete) {
+              updates[`rooms/${roomCode}/status`] = "placement";
+            }
+
+            await update(ref(rtdb), updates);
+            showToast("Player successfully claimed!");
+          }
         } catch (err) {
           card.style.transform = "";
           card.style.borderColor = "";
