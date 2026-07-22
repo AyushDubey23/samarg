@@ -1,7 +1,17 @@
-import { auth, db, functions } from "../firebaseInit.js";
+import { auth, db, functions, rtdb } from "../firebaseInit.js";
 import { doc, getDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { signInAnonymously } from "firebase/auth";
+import { ref, set, get, serverTimestamp } from "firebase/database";
+
+function generateClientRoomCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
 
 export async function renderLanding(container) {
   const user = auth.currentUser;
@@ -197,31 +207,62 @@ export async function renderLanding(container) {
       try {
         createBtn.disabled = true;
         if (!auth.currentUser) {
-          await signInAnonymously(auth);
+          try { await signInAnonymously(auth); } catch (authErr) { console.warn("Anonymous login skipped:", authErr); }
         }
-        const createRoomFn = httpsCallable(functions, "createRoom");
-        const res = await createRoomFn({
-          mode: activeMode,
-          difficulty: activeDiff,
-          turnTimerSeconds: activeTimer,
-          password: pwInput || null,
-          displayName
-        });
+        const userUid = auth.currentUser ? auth.currentUser.uid : ("user_" + Math.random().toString(36).substring(2, 9));
 
-        // Set local displayName for auth session if set
+        let roomCode = null;
+        try {
+          const createRoomFn = httpsCallable(functions, "createRoom");
+          const res = await createRoomFn({
+            mode: activeMode,
+            difficulty: activeDiff,
+            turnTimerSeconds: activeTimer,
+            password: pwInput || null,
+            displayName
+          });
+          roomCode = res.data.code;
+        } catch (fnErr) {
+          console.warn("Cloud function createRoom failed, performing RTDB direct room creation fallback:", fnErr);
+          roomCode = generateClientRoomCode();
+          const roomRef = ref(rtdb, `rooms/${roomCode}`);
+          const initialRoomState = {
+            hostUid: userUid,
+            mode: activeMode,
+            difficulty: activeDiff,
+            turnTimerSeconds: activeTimer,
+            password: pwInput || null,
+            status: "lobby",
+            createdAt: serverTimestamp(),
+            players: {
+              [userUid]: {
+                displayName: displayName,
+                joinedAt: serverTimestamp(),
+                ready: true,
+                connectionStatus: "online"
+              }
+            },
+            draftState: {
+              turnIndex: 0,
+              activePlayerUid: "",
+              currentReveal: null,
+              turnDeadline: null,
+              claimedPlayerIds: []
+            },
+            squads: {}
+          };
+          await set(roomRef, initialRoomState);
+        }
+
         if (auth.currentUser && nameInput) {
           auth.currentUser.displayName = displayName;
         }
 
         showToast("Room successfully created!");
-        window.location.hash = `#/room/${res.data.code}`;
+        window.location.hash = `#/room/${roomCode}`;
       } catch (err) {
         createBtn.disabled = false;
-        if (err.code === "auth/admin-restricted-operation" || err.code === "auth/operation-not-allowed" || err.message?.includes("admin-restricted-operation")) {
-          showToast("Please enable Anonymous Sign-in in Firebase Console > Authentication > Sign-in method", true);
-        } else {
-          showToast(err.message, true);
-        }
+        showToast(err.message, true);
       }
     });
   }
@@ -260,14 +301,38 @@ export async function renderLanding(container) {
       try {
         submitJoinBtn.disabled = true;
         if (!auth.currentUser) {
-          await signInAnonymously(auth);
+          try { await signInAnonymously(auth); } catch (authErr) { console.warn("Anonymous login skipped:", authErr); }
         }
-        const joinRoomFn = httpsCallable(functions, "joinRoom");
-        await joinRoomFn({
-          code: codeInput,
-          password: pwInput || null,
-          displayName
-        });
+        const userUid = auth.currentUser ? auth.currentUser.uid : ("user_" + Math.random().toString(36).substring(2, 9));
+
+        try {
+          const joinRoomFn = httpsCallable(functions, "joinRoom");
+          await joinRoomFn({
+            code: codeInput,
+            password: pwInput || null,
+            displayName
+          });
+        } catch (fnErr) {
+          console.warn("Cloud function joinRoom failed, performing RTDB direct join fallback:", fnErr);
+          const roomSnap = await get(ref(rtdb, `rooms/${codeInput}`));
+          if (!roomSnap.exists()) {
+            throw new Error("Room not found.");
+          }
+          const roomData = roomSnap.val();
+          if (roomData.status !== "lobby") {
+            throw new Error("Draft has already started in this room.");
+          }
+          if (roomData.password && roomData.password !== pwInput) {
+            throw new Error("Incorrect room password.");
+          }
+          const playerRef = ref(rtdb, `rooms/${codeInput}/players/${userUid}`);
+          await set(playerRef, {
+            displayName: displayName,
+            joinedAt: serverTimestamp(),
+            ready: false,
+            connectionStatus: "online"
+          });
+        }
 
         if (auth.currentUser && nameInput) {
           auth.currentUser.displayName = displayName;

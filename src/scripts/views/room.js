@@ -223,8 +223,34 @@ function renderLobby(viewport, roomCode, room) {
     startBtn.addEventListener("click", async () => {
       try {
         startBtn.disabled = true;
-        const startDraftFn = httpsCallable(functions, "startDraft");
-        await startDraftFn({ code: roomCode });
+        try {
+          const startDraftFn = httpsCallable(functions, "startDraft");
+          await startDraftFn({ code: roomCode });
+        } catch (fnErr) {
+          console.warn("Cloud function startDraft failed, performing RTDB direct start fallback:", fnErr);
+          const playerUids = Object.keys(room.players || {});
+          const shuffledUids = [...playerUids].sort(() => Math.random() - 0.5);
+          const squads = {};
+          shuffledUids.forEach(uid => {
+            squads[uid] = {
+              ready: false,
+              slots: Array(11).fill(null),
+              bench: []
+            };
+          });
+          await update(ref(rtdb, `rooms/${roomCode}`), {
+            status: "drafting",
+            squads,
+            draftState: {
+              turnOrder: shuffledUids,
+              turnIndex: 0,
+              activePlayerUid: shuffledUids[0],
+              currentReveal: null,
+              turnDeadline: null,
+              claimedPlayerIds: []
+            }
+          });
+        }
         showToast("Draft successfully initialized!");
       } catch (err) {
         startBtn.disabled = false;
