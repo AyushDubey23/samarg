@@ -66,12 +66,6 @@ export async function renderLanding(container) {
           </h3>
 
           <div style="display: flex; flex-direction: column; gap: 1rem;">
-            <!-- Display Name -->
-            <label>
-              <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Your Display Name:</span>
-              <input type="text" id="player-display-name" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.5rem; color: white;" placeholder="Enter name" value="${user?.displayName || ''}">
-            </label>
-
             <!-- Mode Selector -->
             <div>
               <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Match Mode:</span>
@@ -109,7 +103,7 @@ export async function renderLanding(container) {
 
             <!-- Actions buttons -->
             <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
-              <button id="create-room-btn" class="btn btn-primary" style="flex: 1;">Create Room</button>
+              <button id="show-create-btn" class="btn btn-primary" style="flex: 1;">Create Room</button>
               <button id="show-join-btn" class="btn btn-secondary" style="flex: 1;">Join Room Code</button>
             </div>
           </div>
@@ -119,22 +113,45 @@ export async function renderLanding(container) {
       ${statsHTML}
     </div>
 
-    <!-- Hidden Join Dialog overlay -->
-    <div id="join-dialog-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
-      <div class="career-stats-widget" style="width: 100%; max-width: 400px; padding: 1.5rem; background: var(--bg-medium); border: 1px solid var(--glass-border);">
-        <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1rem; margin-bottom: 1.25rem;">Join Existing Room</h3>
+    <!-- Create Room Name Dialog overlay -->
+    <div id="create-dialog-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+      <div class="career-stats-widget" style="width: 100%; max-width: 400px; padding: 1.75rem; background: var(--bg-medium); border: 1px solid var(--glass-border);">
+        <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1.1rem; margin-bottom: 1.25rem;">Create Room — Enter Name</h3>
         
         <div style="display: flex; flex-direction: column; gap: 1rem;">
           <label>
-            <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Enter Room Code:</span>
-            <input type="text" id="join-room-code" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.5rem; color: white; text-transform: uppercase;" placeholder="e.g. AB12XY">
+            <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Your Display Name:</span>
+            <input type="text" id="create-player-name" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem;" placeholder="e.g. Captain Player" value="${user?.displayName || ''}">
+          </label>
+          
+          <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+            <button id="submit-create-btn" class="btn btn-primary" style="flex: 1;">Confirm & Create</button>
+            <button id="cancel-create-btn" class="btn btn-secondary" style="flex: 1;">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hidden Join Dialog overlay -->
+    <div id="join-dialog-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+      <div class="career-stats-widget" style="width: 100%; max-width: 400px; padding: 1.75rem; background: var(--bg-medium); border: 1px solid var(--glass-border);">
+        <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1.1rem; margin-bottom: 1.25rem;">Join Existing Room</h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <label>
+            <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Your Display Name:</span>
+            <input type="text" id="join-player-name" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem;" placeholder="e.g. Player Two" value="${user?.displayName || ''}">
           </label>
           <label>
-            <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Enter Password (If required):</span>
-            <input type="password" id="join-room-password" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.5rem; color: white;" placeholder="Leave blank if none">
+            <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Enter Room Code:</span>
+            <input type="text" id="join-room-code" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem; text-transform: uppercase;" placeholder="e.g. AB12XY">
           </label>
-          <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-            <button id="submit-join-btn" class="btn btn-primary" style="flex: 1;">Join Room</button>
+          <label>
+            <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Enter Password (If required):</span>
+            <input type="password" id="join-room-password" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem;" placeholder="Leave blank if none">
+          </label>
+          <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+            <button id="submit-join-btn" class="btn btn-primary" style="flex: 1;">Confirm & Join</button>
             <button id="cancel-join-btn" class="btn btn-secondary" style="flex: 1;">Cancel</button>
           </div>
         </div>
@@ -195,17 +212,35 @@ export async function renderLanding(container) {
     });
   });
 
-  // Action Click handlers
-  const createBtn = container.querySelector("#create-room-btn");
-  if (createBtn) {
-    createBtn.addEventListener("click", async () => {
-      const nameInput = container.querySelector("#player-display-name").value.trim();
+  // Create Room Dialog Triggers
+  const createOverlay = container.querySelector("#create-dialog-overlay");
+  const showCreateBtn = container.querySelector("#show-create-btn");
+  const cancelCreateBtn = container.querySelector("#cancel-create-btn");
+  const submitCreateBtn = container.querySelector("#submit-create-btn");
+
+  if (showCreateBtn && createOverlay) {
+    showCreateBtn.addEventListener("click", () => {
+      createOverlay.style.display = "flex";
+      const nameInput = container.querySelector("#create-player-name");
+      if (nameInput) nameInput.focus();
+    });
+  }
+
+  if (cancelCreateBtn && createOverlay) {
+    cancelCreateBtn.addEventListener("click", () => {
+      createOverlay.style.display = "none";
+    });
+  }
+
+  if (submitCreateBtn) {
+    submitCreateBtn.addEventListener("click", async () => {
+      const nameInput = container.querySelector("#create-player-name").value.trim();
       const pwInput = container.querySelector("#room-password").value.trim();
       
       const displayName = nameInput || "Host Player";
       
       try {
-        createBtn.disabled = true;
+        submitCreateBtn.disabled = true;
         if (!auth.currentUser) {
           try { await signInAnonymously(auth); } catch (authErr) { console.warn("Anonymous login skipped:", authErr); }
         }
@@ -258,36 +293,39 @@ export async function renderLanding(container) {
           auth.currentUser.displayName = displayName;
         }
 
+        createOverlay.style.display = "none";
         showToast("Room successfully created!");
         window.location.hash = `#/room/${roomCode}`;
       } catch (err) {
-        createBtn.disabled = false;
+        submitCreateBtn.disabled = false;
         showToast(err.message, true);
       }
     });
   }
 
-  // Join Overlay toggle triggers
-  const overlay = container.querySelector("#join-dialog-overlay");
+  // Join Room Dialog Triggers
+  const joinOverlay = container.querySelector("#join-dialog-overlay");
   const showJoinBtn = container.querySelector("#show-join-btn");
   const cancelJoinBtn = container.querySelector("#cancel-join-btn");
   const submitJoinBtn = container.querySelector("#submit-join-btn");
 
-  if (showJoinBtn && overlay) {
+  if (showJoinBtn && joinOverlay) {
     showJoinBtn.addEventListener("click", () => {
-      overlay.style.display = "flex";
+      joinOverlay.style.display = "flex";
+      const nameInput = container.querySelector("#join-player-name");
+      if (nameInput) nameInput.focus();
     });
   }
 
-  if (cancelJoinBtn && overlay) {
+  if (cancelJoinBtn && joinOverlay) {
     cancelJoinBtn.addEventListener("click", () => {
-      overlay.style.display = "none";
+      joinOverlay.style.display = "none";
     });
   }
 
   if (submitJoinBtn) {
     submitJoinBtn.addEventListener("click", async () => {
-      const nameInput = container.querySelector("#player-display-name").value.trim();
+      const nameInput = container.querySelector("#join-player-name").value.trim();
       const codeInput = container.querySelector("#join-room-code").value.trim().toUpperCase();
       const pwInput = container.querySelector("#join-room-password").value.trim();
       
@@ -338,8 +376,8 @@ export async function renderLanding(container) {
           auth.currentUser.displayName = displayName;
         }
 
+        joinOverlay.style.display = "none";
         showToast("Joined room successfully!");
-        overlay.style.display = "none";
         window.location.hash = `#/room/${codeInput}`;
       } catch (err) {
         submitJoinBtn.disabled = false;
