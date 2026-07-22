@@ -1,6 +1,7 @@
 import { auth, db, functions } from "../firebaseInit.js";
 import { doc, getDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
+import { signInAnonymously } from "firebase/auth";
 
 export async function renderLanding(container) {
   const user = auth.currentUser;
@@ -195,6 +196,9 @@ export async function renderLanding(container) {
       
       try {
         createBtn.disabled = true;
+        if (!auth.currentUser) {
+          await signInAnonymously(auth);
+        }
         const createRoomFn = httpsCallable(functions, "createRoom");
         const res = await createRoomFn({
           mode: activeMode,
@@ -251,6 +255,9 @@ export async function renderLanding(container) {
 
       try {
         submitJoinBtn.disabled = true;
+        if (!auth.currentUser) {
+          await signInAnonymously(auth);
+        }
         const joinRoomFn = httpsCallable(functions, "joinRoom");
         await joinRoomFn({
           code: codeInput,

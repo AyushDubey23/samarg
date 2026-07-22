@@ -4,9 +4,13 @@ const { getFirestore } = require("firebase-admin/firestore");
 const { getDatabase } = require("firebase-admin/database");
 const admin = require("firebase-admin");
 
+const isEmulator = process.env.FUNCTIONS_EMULATOR === "true" || !!process.env.FIREBASE_DATABASE_EMULATOR_HOST;
+
 // Initialize Firebase Admin
 admin.initializeApp({
-  databaseURL: "http://127.0.0.1:9000?ns=samarg-7be68"
+  databaseURL: isEmulator
+    ? "http://127.0.0.1:9000?ns=samarg-7be68"
+    : "https://samarg-7be68-default-rtdb.firebaseio.com"
 });
 const db = getFirestore();
 const rtdb = getDatabase();
