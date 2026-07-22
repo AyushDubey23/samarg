@@ -1,0 +1,274 @@
+import { auth, db, functions } from "../firebaseInit.js";
+import { doc, getDoc } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
+
+export async function renderLanding(container) {
+  const user = auth.currentUser;
+  let statsHTML = "";
+
+  if (user) {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        const stats = userSnap.data().stats;
+        if (stats && stats.totalCampaigns > 0) {
+          statsHTML = `
+            <div class="user-stats-card">
+              <h3>Your Career Stats</h3>
+              <div class="stats-grid">
+                <div class="stat-item">
+                  <span class="stat-val">${stats.totalCampaigns}</span>
+                  <span class="stat-lbl">Campaigns</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-val text-gold">${stats.perfectRuns}</span>
+                  <span class="stat-lbl">Perfect Runs</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-val">${stats.bestNRR > 0 ? "+" : ""}${stats.bestNRR.toFixed(3)}</span>
+                  <span class="stat-lbl">Best NRR</span>
+                </div>
+              </div>
+              <a href="#/profile" class="btn btn-secondary mt-2" style="width:100%;">View History</a>
+            </div>
+          `;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not load user stats for landing:", err);
+    }
+  }
+
+  container.innerHTML = `
+    <div class="landing-hero">
+      <div class="hero-content">
+        <h1>SAMARG</h1>
+        <p class="hero-sub">
+          Draft cricket legends from real World Cups. Race your friends to a perfect undefeated campaign!
+        </p>
+
+        <!-- Multiplayer game creator configurations card -->
+        <div class="career-stats-widget" style="padding: 1.5rem; max-width: 500px; margin-top: 1.5rem;">
+          <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1rem; margin-bottom: 1.25rem;">
+            Create Room or Join Lobby
+          </h3>
+
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Display Name -->
+            <label>
+              <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Your Display Name:</span>
+              <input type="text" id="player-display-name" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.5rem; color: white;" placeholder="Enter name" value="${user?.displayName || ''}">
+            </label>
+
+            <!-- Mode Selector -->
+            <div>
+              <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Match Mode:</span>
+              <div class="speed-buttons">
+                <button class="speed-btn mode-select-btn active" data-mode="duel">2-Player Duel</button>
+                <button class="speed-btn mode-select-btn" data-mode="cup">4-Player Cup</button>
+                <button class="speed-btn mode-select-btn" data-mode="solo">Solo Campaign</button>
+              </div>
+            </div>
+
+            <!-- Difficulty Selector -->
+            <div>
+              <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Draft Difficulty:</span>
+              <div class="speed-buttons">
+                <button class="speed-btn diff-select-btn active" data-diff="openBook">Open Book (Classic)</button>
+                <button class="speed-btn diff-select-btn" data-diff="blindScout">Blind Scout (Memory)</button>
+              </div>
+            </div>
+
+            <!-- Turn Timer Picker -->
+            <div>
+              <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Pick Time Limit:</span>
+              <div class="speed-buttons">
+                <button class="speed-btn timer-select-btn active" data-timer="20">20 Seconds</button>
+                <button class="speed-btn timer-select-btn" data-timer="30">30 Seconds</button>
+                <button class="speed-btn timer-select-btn" data-timer="45">45 Seconds</button>
+              </div>
+            </div>
+
+            <!-- Password -->
+            <label>
+              <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Room Password (Optional):</span>
+              <input type="password" id="room-password" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.5rem; color: white;" placeholder="Leave blank for open room">
+            </label>
+
+            <!-- Actions buttons -->
+            <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+              <button id="create-room-btn" class="btn btn-primary" style="flex: 1;">Create Room</button>
+              <button id="show-join-btn" class="btn btn-secondary" style="flex: 1;">Join Room Code</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      ${statsHTML}
+    </div>
+
+    <!-- Hidden Join Dialog overlay -->
+    <div id="join-dialog-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+      <div class="career-stats-widget" style="width: 100%; max-width: 400px; padding: 1.5rem; background: var(--bg-medium); border: 1px solid var(--glass-border);">
+        <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1rem; margin-bottom: 1.25rem;">Join Existing Room</h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <label>
+            <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Enter Room Code:</span>
+            <input type="text" id="join-room-code" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.5rem; color: white; text-transform: uppercase;" placeholder="e.g. AB12XY">
+          </label>
+          <label>
+            <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Enter Password (If required):</span>
+            <input type="password" id="join-room-password" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.5rem; color: white;" placeholder="Leave blank if none">
+          </label>
+          <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+            <button id="submit-join-btn" class="btn btn-primary" style="flex: 1;">Join Room</button>
+            <button id="cancel-join-btn" class="btn btn-secondary" style="flex: 1;">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="landing-steps mt-4">
+      <h2>Multiplayer Drafting</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3>Draft turns rotate</h3>
+          <p>Roll squads simultaneously and draft players on active turns. Other players watch live.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3>Manual placements</h3>
+          <p>Place drafted players into specific zones on your pitch stadium. Designate Captain & VC.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3>Synced Simulation</h3>
+          <p>Once all squads lock, watch the match simulation playing highlights at the same second!</p>
+        </div>
+      </div>
+    </section>
+  `;
+
+  // UI state toggles logic
+  let activeMode = "duel";
+  let activeDiff = "openBook";
+  let activeTimer = 20;
+
+  const modeBtns = container.querySelectorAll(".mode-select-btn");
+  modeBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      modeBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeMode = btn.getAttribute("data-mode");
+    });
+  });
+
+  const diffBtns = container.querySelectorAll(".diff-select-btn");
+  diffBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      diffBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeDiff = btn.getAttribute("data-diff");
+    });
+  });
+
+  const timerBtns = container.querySelectorAll(".timer-select-btn");
+  timerBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      timerBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      activeTimer = parseInt(btn.getAttribute("data-timer"), 10);
+    });
+  });
+
+  // Action Click handlers
+  const createBtn = container.querySelector("#create-room-btn");
+  if (createBtn) {
+    createBtn.addEventListener("click", async () => {
+      const nameInput = container.querySelector("#player-display-name").value.trim();
+      const pwInput = container.querySelector("#room-password").value.trim();
+      
+      const displayName = nameInput || "Host Player";
+      
+      try {
+        createBtn.disabled = true;
+        const createRoomFn = httpsCallable(functions, "createRoom");
+        const res = await createRoomFn({
+          mode: activeMode,
+          difficulty: activeDiff,
+          turnTimerSeconds: activeTimer,
+          password: pwInput || null,
+          displayName
+        });
+
+        // Set local displayName for auth session if set
+        if (auth.currentUser && nameInput) {
+          auth.currentUser.displayName = displayName;
+        }
+
+        showToast("Room successfully created!");
+        window.location.hash = `#/room/${res.data.code}`;
+      } catch (err) {
+        createBtn.disabled = false;
+        showToast(err.message, true);
+      }
+    });
+  }
+
+  // Join Overlay toggle triggers
+  const overlay = container.querySelector("#join-dialog-overlay");
+  const showJoinBtn = container.querySelector("#show-join-btn");
+  const cancelJoinBtn = container.querySelector("#cancel-join-btn");
+  const submitJoinBtn = container.querySelector("#submit-join-btn");
+
+  if (showJoinBtn && overlay) {
+    showJoinBtn.addEventListener("click", () => {
+      overlay.style.display = "flex";
+    });
+  }
+
+  if (cancelJoinBtn && overlay) {
+    cancelJoinBtn.addEventListener("click", () => {
+      overlay.style.display = "none";
+    });
+  }
+
+  if (submitJoinBtn) {
+    submitJoinBtn.addEventListener("click", async () => {
+      const nameInput = container.querySelector("#player-display-name").value.trim();
+      const codeInput = container.querySelector("#join-room-code").value.trim().toUpperCase();
+      const pwInput = container.querySelector("#join-room-password").value.trim();
+      
+      if (!codeInput) {
+        showToast("Please enter a room code!", true);
+        return;
+      }
+
+      const displayName = nameInput || "Guest Player";
+
+      try {
+        submitJoinBtn.disabled = true;
+        const joinRoomFn = httpsCallable(functions, "joinRoom");
+        await joinRoomFn({
+          code: codeInput,
+          password: pwInput || null,
+          displayName
+        });
+
+        if (auth.currentUser && nameInput) {
+          auth.currentUser.displayName = displayName;
+        }
+
+        showToast("Joined room successfully!");
+        overlay.style.display = "none";
+        window.location.hash = `#/room/${codeInput}`;
+      } catch (err) {
+        submitJoinBtn.disabled = false;
+        showToast(err.message, true);
+      }
+    });
+  }
+}

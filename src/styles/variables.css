@@ -1,0 +1,54 @@
+:root {
+  /* Color Palette */
+  --bg-dark: hsl(140, 45%, 6%);
+  --bg-medium: hsl(140, 35%, 11%);
+  --bg-light: hsl(140, 25%, 17%);
+  
+  --primary: hsl(140, 50%, 42%);
+  --primary-hover: hsl(140, 55%, 36%);
+  
+  --chalk-white: hsl(0, 0%, 96%);
+  --chalk-white-dim: hsl(140, 10%, 70%);
+  --chalk-white-dark: hsl(140, 10%, 50%);
+  
+  --willow-tan: hsl(35, 38%, 52%);
+  --willow-tan-dark: hsl(35, 35%, 22%);
+  
+  --accent-gold: hsl(45, 90%, 52%);
+  --accent-gold-glow: hsla(45, 90%, 52%, 0.15);
+  
+  --accent-red: hsl(355, 75%, 55%);
+  --accent-red-glow: hsla(355, 75%, 55%, 0.15);
+  
+  --accent-blue: hsl(205, 80%, 55%);
+
+  /* Typography */
+  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', Courier, monospace;
+
+  /* Layout and Sizing */
+  --container-max-width: 1100px;
+  --border-radius-sm: 6px;
+  --border-radius-md: 12px;
+  --border-radius-lg: 20px;
+  
+  /* Shadow & Glassmorphism */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 35px rgba(0, 0, 0, 0.6);
+  --glass-bg: rgba(14, 30, 20, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-medium: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0s;
+    --transition-medium: 0s;
+    --transition-slow: 0s;
+  }
+}

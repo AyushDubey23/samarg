@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SAMARG — Cricket Draft & World Cup Simulator</title>
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="./styles/variables.css">
+  <link rel="stylesheet" href="./styles/base.css">
+  <link rel="stylesheet" href="./styles/draft.css">
+  <link rel="stylesheet" href="./styles/match.css">
+  <link rel="stylesheet" href="./styles/pitch.css">
+  <link rel="stylesheet" href="./styles/leaderboard.css">
+  <link rel="stylesheet" href="./styles/components.css">
+</head>
+<body>
+
+  <!-- Top App Header -->
+  <header id="app-header">
+    <div id="logo">
+      SAMARG <span>XI</span>
+      <div id="logo-sub">Cricket Draft & WC Sim</div>
+    </div>
+    <nav class="nav-links">
+      <a href="#/" class="nav-link">Home</a>
+      <a href="#/leaderboard" class="nav-link">Leaderboard</a>
+      <button id="share-game-btn" class="btn btn-secondary btn-sm" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Share 🔗</button>
+      <a href="#/draft" id="draft-nav-btn" class="btn btn-accent btn-sm" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Scout XI</a>
+      <div id="auth-status-container">
+        <!-- Will be filled by Auth state -->
+        <span style="font-size: 0.85rem; color: var(--chalk-white-dim);">Connecting...</span>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Global Stats Daily Ticker -->
+  <div id="global-ticker">
+    <span class="ticker-dot" style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--primary); display: inline-block;"></span>
+    <span id="ticker-text">Loading daily stats...</span>
+  </div>
+
+  <!-- Main Single Page View Container -->
+  <main id="app-viewport">
+    <div class="text-center" style="margin-top: 10vh;">
+      <h2 style="font-size: 2rem;">Loading SAMARG...</h2>
+      <p style="color: var(--chalk-white-dim); margin-top: 1rem;">Setting up simulation parameters</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer id="app-footer">
+    <div class="footer-content">
+      <p>&copy; 2026 SAMARG Cricket. Built for ultimate realistic simulation.</p>
+    </div>
+  </footer>
+
+  <!-- Toasts for warnings/success -->
+  <div id="toast-container"></div>
+
+  <!-- Entry Script -->
+  <script type="module" src="./scripts/router.js"></script>
+</body>
+</html>

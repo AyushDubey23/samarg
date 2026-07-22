@@ -1,0 +1,108 @@
+{
+  "dot": [
+    "{bowler} to {batter}, no run. Solid defensive block.",
+    "{bowler} to {batter}, beaten! Beautiful line just outside off-stump.",
+    "{bowler} to {batter}, no run. Pushed gently back to the bowler.",
+    "{bowler} to {batter}, left alone. Comfortably through to the wicketkeeper.",
+    "{bowler} to {batter}, dot ball. Bouncer! Underneath it goes the batsman.",
+    "{bowler} to {batter}, no run. Tucked away to the mid-wicket fielder.",
+    "{bowler} to {batter}, swing and a miss! Beaten by the extra pace.",
+    "{bowler} to {batter}, dot ball. Struck on the pad, mild appeal but sliding down leg.",
+    "{bowler} to {batter}, no run. Played with a straight face, straight to mid-on.",
+    "{bowler} to {batter}, beaten! Slower ball catches the batsman completely off guard."
+  ],
+  "single": [
+    "{bowler} to {batter}, 1 run. Driven down to long-on for an easy single.",
+    "{bowler} to {batter}, 1 run. Tapped into the gap at cover for a quick run.",
+    "{bowler} to {batter}, 1 run. Guided down to third man to rotate the strike.",
+    "{bowler} to {batter}, 1 run. Flicked off the pads to deep square leg.",
+    "{bowler} to {batter}, 1 run. Squeezed into the offside, they scramble a single.",
+    "{bowler} to {batter}, 1 run. Short ball pulled away to deep mid-wicket for one.",
+    "{bowler} to {batter}, 1 run. Pushed to mid-off, quick off the mark.",
+    "{bowler} to {batter}, 1 run. Thick edge flies down to third man.",
+    "{bowler} to {batter}, 1 run. Slower delivery, nudged softly into the leg side.",
+    "{bowler} to {batter}, 1 run. Steered past point to keep the scoreboard ticking."
+  ],
+  "two": [
+    "{bowler} to {batter}, 2 runs. Clipped off the toes, excellent running for two!",
+    "{bowler} to {batter}, 2 runs. Driven wide of long-off, they push hard and come back for the second.",
+    "{bowler} to {batter}, 2 runs. Swept away fine, great fielding prevents the boundary.",
+    "{bowler} to {batter}, 2 runs. Slashed through point, they hustle back for a brace.",
+    "{bowler} to {batter}, 2 runs. Soft hands into the vacant mid-wicket region, they scan the field and run hard.",
+    "{bowler} to {batter}, 2 runs. Pulled into the gap at deep mid-wicket, comfortable double.",
+    "{bowler} to {batter}, 2 runs. Played with soft wrists, they scamper back for two.",
+    "{bowler} to {batter}, 2 runs. Lofted over extra cover, doesn't quite time it but gets two.",
+    "{bowler} to {batter}, 2 runs. Played away through square leg, fielders have to chase it down."
+  ],
+  "three": [
+    "{bowler} to {batter}, 3 runs. Beautiful cover drive, fielders chase and pull it back just inside the rope.",
+    "{bowler} to {batter}, 3 runs. Flicked off the pads, runs down the slope, they run three excellent runs!",
+    "{bowler} to {batter}, 3 runs. Straight drive deflected off the stumps, they run three while the fielder retrieves.",
+    "{bowler} to {batter}, 3 runs. Cut hard through point, great slide at the boundary prevents four.",
+    "{bowler} to {batter}, 3 runs. Thick outside edge past slip, runs away, they hustle for three."
+  ],
+  "four": [
+    "{bowler} to {batter}, FOUR! Pure class. Overpitched and driven straight through the covers!",
+    "{bowler} to {batter}, FOUR! Cracked away! Short ball hammered past point.",
+    "{bowler} to {batter}, FOUR! Shot! Flicked off the hips and races away through fine leg.",
+    "{bowler} to {batter}, FOUR! Edged, but runs fine! Flies past slip and into the boundary.",
+    "{bowler} to {batter}, FOUR! Lofted over mid-on, one bounce and over the rope.",
+    "{bowler} to {batter}, FOUR! Beautifully timed sweep shot, pierces the square leg boundary.",
+    "{bowler} to {batter}, FOUR! Welcomed with a short ball, pulled away imperiously.",
+    "{bowler} to {batter}, FOUR! Exquisite timing, punch drive past mid-off. Boundary!",
+    "{bowler} to {batter}, FOUR! Slashed away! Thick slice over backward point.",
+    "{bowler} to {batter}, FOUR! Inside edge but misses the stumps and races to the fine leg boundary."
+  ],
+  "six": [
+    "{bowler} to {batter}, SIX! Magnificent! Lofted straight back over the bowler's head!",
+    "{bowler} to {batter}, SIX! Out of the park! Hammered over deep mid-wicket!",
+    "{bowler} to {batter}, SIX! Picked up off the pads and dispatched into the stands!",
+    "{bowler} to {batter}, SIX! Tremendous shot! Slog sweep clears the deep square leg boundary with ease.",
+    "{bowler} to {batter}, SIX! Absolute monster of a hit! Clean connection, sails over long-on.",
+    "{bowler} to {batter}, SIX! Short ball, pulled high and handsome over backward square leg!",
+    "{bowler} to {batter}, SIX! Dance down the track, meets it on the volley, and sends it 95 meters!",
+    "{bowler} to {batter}, SIX! Back of a length, hit with brute force over extra cover!",
+    "{bowler} to {batter}, SIX! Switch hit! Sails over the third-man boundary, unbelievable!",
+    "{bowler} to {batter}, SIX! Hook shot! Top edge carries all the way over the fine leg boundary!"
+  ],
+  "wicket_bowled": [
+    "{bowler} to {batter}, OUT! BOWLED HIM! Clean bowled! Beaten for pace, stumps cartwheeling!",
+    "{bowler} to {batter}, OUT! BOWLED! Goes for the big drive, gets an inside edge onto the stumps!",
+    "{bowler} to {batter}, OUT! BOWLED! Yorker! Perfect delivery, sneaks under the bat and rattles the woodwork!",
+    "{bowler} to {batter}, OUT! BOWLED! Left alone but it jaggs back! Struck off stump. Shock on the batter's face!",
+    "{bowler} to {batter}, OUT! BOWLED! Beaten by the slower ball, through the gate and knocks the bail off!"
+  ],
+  "wicket_caught": [
+    "{bowler} to {batter}, OUT! CAUGHT! Edged and taken! Safe hands by the wicketkeeper.",
+    "{bowler} to {batter}, OUT! CAUGHT! Sliced high in the air, fielder at deep cover settles under it and makes no mistake.",
+    "{bowler} to {batter}, OUT! CAUGHT! Leading edge, loops up softly to mid-off. Soft dismissal.",
+    "{bowler} to {batter}, OUT! CAUGHT! Hammered flat but straight to the fielder at deep mid-wicket. Unbelievable catch!",
+    "{bowler} to {batter}, OUT! CAUGHT! Tried to clear long-on, didn't get the distance. Taken right on the boundary!"
+  ],
+  "wicket_lbw": [
+    "{bowler} to {batter}, OUT! LBW! Up goes the finger! Struck right in front, dead plumb.",
+    "{bowler} to {batter}, OUT! LBW! Yorker strikes the toe, loud appeal and the umpire raises the finger!",
+    "{bowler} to {batter}, OUT! LBW! Inside edge? No, struck the pad first, inline with the stumps. Gone!",
+    "{bowler} to {batter}, OUT! LBW! Attempted sweep misses, wrapped on the back pad, umpire has no hesitation."
+  ],
+  "wicket_runout": [
+    "{bowler} to {batter}, OUT! RUN OUT! Chaos in the middle! Direct hit at the bowler's end, and he is well short!",
+    "{bowler} to {batter}, OUT! RUN OUT! Miscommunication! Both batsmen at the same end, fielder throws it to the keeper who whips the bails off.",
+    "{bowler} to {batter}, OUT! RUN OUT! Quick single attempted, brilliant pick up and throw, batsman is gone by a yard."
+  ],
+  "wicket_stumped": [
+    "{bowler} to {batter}, OUT! STUMPED! Dragged forward, beaten by the turn, and the keeper does the rest with lightning speed!",
+    "{bowler} to {batter}, OUT! STUMPED! Batsman goes for the charge, misses the spin, keeper whips the bails off before he can get back!"
+  ],
+  "wide": [
+    "{bowler} to {batter}, 1 wide. Way down the leg side, keeper does well to collect.",
+    "{bowler} to {batter}, 1 wide. Straying too far outside off stump, called wide.",
+    "{bowler} to {batter}, 1 wide. Short delivery sails over the batsman's head, called wide for height.",
+    "{bowler} to {batter}, 1 wide. Down the leg side again, bowler needs to check his line."
+  ],
+  "noball": [
+    "{bowler} to {batter}, 1 no ball. Overstepped! Called no-ball. Free hit coming up!",
+    "{bowler} to {batter}, 1 no ball. High full toss above the waist, batsman ducks. No-ball!",
+    "{bowler} to {batter}, 1 no ball. Front foot over the line. Free hit awarded."
+  ]
+}

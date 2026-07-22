@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+functions/node_modules/
+
+# Production output
+dist/
+.vite/
+
+# Firebase & Debug logs
+*.log
+firebase-debug.log*
+firestore-debug.log*
+database-debug.log*
+ui-debug.log*
+.emulator_console_auth_token
+
+# Environment & OS files
+.env
+.env.local
+.DS_Store
+Thumbs.db

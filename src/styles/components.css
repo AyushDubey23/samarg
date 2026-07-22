@@ -1,0 +1,219 @@
+/* Shared Component Styles */
+
+/* Badges for Player Roles */
+.role-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  display: inline-block;
+  background: var(--bg-light);
+  color: var(--chalk-white-dim);
+}
+
+.role-badge.opener {
+  background: rgba(35, 100, 205, 0.15);
+  color: var(--accent-blue);
+  border: 1px solid rgba(35, 100, 205, 0.3);
+}
+
+.role-badge.top-order {
+  background: rgba(35, 100, 205, 0.15);
+  color: var(--accent-blue);
+  border: 1px solid rgba(35, 100, 205, 0.3);
+}
+
+.role-badge.keeper {
+  background: rgba(255, 176, 31, 0.1);
+  color: var(--accent-gold);
+  border: 1px solid rgba(255, 176, 31, 0.25);
+}
+
+.role-badge.all-rounder {
+  background: rgba(184, 157, 112, 0.15);
+  color: var(--willow-tan);
+  border: 1px solid rgba(184, 157, 112, 0.3);
+}
+
+.role-badge.spinner {
+  background: rgba(46, 117, 72, 0.15);
+  color: var(--primary);
+  border: 1px solid rgba(46, 117, 72, 0.3);
+}
+
+.role-badge.pacer {
+  background: rgba(224, 60, 60, 0.1);
+  color: var(--accent-red);
+  border: 1px solid rgba(224, 60, 60, 0.25);
+}
+
+/* Stat Pill */
+.stat-pill {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  color: var(--chalk-white-dim);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Smaller buttons */
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+/* Landing specific cards */
+.landing-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 3rem;
+  padding: 3rem 0;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+@media (max-width: 860px) {
+  .landing-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem 0;
+    gap: 1.5rem;
+  }
+}
+
+.hero-content {
+  flex: 3;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 640px) {
+  .hero-content h1 {
+    font-size: 2.2rem;
+  }
+}
+
+.hero-sub {
+  font-size: 1.1rem;
+  color: var(--chalk-white-dim);
+  margin-bottom: 2rem;
+  max-width: 640px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.user-stats-card {
+  flex: 2;
+  background: var(--bg-medium);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  min-width: 280px;
+  width: 100%;
+}
+
+.user-stats-card h3 {
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: var(--chalk-white-dark);
+  margin-bottom: 1rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: var(--font-family-mono);
+}
+
+.stat-lbl {
+  font-size: 0.7rem;
+  color: var(--chalk-white-dark);
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+/* Steps Grid */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.step-card {
+  background: var(--bg-light);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-md);
+  padding: 1.5rem;
+  position: relative;
+}
+
+.step-num {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.03);
+  line-height: 1;
+}
+
+.step-card h3 {
+  font-size: 1.15rem;
+  margin-bottom: 0.5rem;
+  color: var(--willow-tan);
+}
+
+.step-card p {
+  font-size: 0.9rem;
+  color: var(--chalk-white-dim);
+}
+
+/* Details Section */
+.landing-details {
+  background: linear-gradient(135deg, var(--bg-medium) 0%, rgba(14, 40, 20, 0.3) 100%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius-lg);
+  padding: 2.5rem;
+}
+.landing-details h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.landing-details p {
+  color: var(--chalk-white-dim);
+  font-size: 0.95rem;
+  max-width: 800px;
+}
