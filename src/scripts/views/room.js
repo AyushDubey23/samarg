@@ -41,10 +41,36 @@ async function fetchClientRandomSquad() {
     if (!snap.empty) {
       const docs = snap.docs;
       const randomDoc = docs[Math.floor(Math.random() * docs.length)].data();
+
+      // Squad docs store playerIds (references), not embedded player objects.
+      // Fetch actual player documents from the "players" collection.
+      const playerIds = randomDoc.playerIds || [];
+      let players = [];
+      if (playerIds.length > 0) {
+        const playerFetches = playerIds.map(pid => getDoc(doc(db, "players", pid)));
+        const playerSnaps = await Promise.all(playerFetches);
+        players = playerSnaps
+          .filter(ps => ps.exists())
+          .map(ps => ({
+            id: ps.id,
+            name: ps.data().name,
+            nationalTeam: ps.data().nationalTeam,
+            tournamentEdition: ps.data().tournamentEdition,
+            role: ps.data().role,
+            isWicketkeeper: ps.data().isWicketkeeper,
+            batRating: ps.data().batRating,
+            bowlRating: ps.data().bowlRating
+          }));
+      }
+
+      if (players.length === 0) {
+        players = FALLBACK_PLAYER_POOL.slice(0, 5);
+      }
+
       return {
         nationalTeam: randomDoc.nationalTeam || "World XI",
         tournamentYear: randomDoc.tournamentYear || "2023",
-        players: randomDoc.players || FALLBACK_PLAYER_POOL.slice(0, 5)
+        players
       };
     }
   } catch (e) {
