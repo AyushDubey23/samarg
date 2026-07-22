@@ -157,6 +157,9 @@ onAuthStateChanged(auth, async (user) => {
       await signInAnonymously(auth);
     } catch (e) {
       console.error("Bootstrap anonymous login failed:", e);
+      if (e.code === "auth/admin-restricted-operation" || e.code === "auth/operation-not-allowed") {
+        showToast("Enable Anonymous Sign-In in Firebase Console > Authentication > Sign-in method", true);
+      }
       initApp();
     }
   } else {

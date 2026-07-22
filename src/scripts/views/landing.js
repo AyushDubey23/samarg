@@ -217,7 +217,11 @@ export async function renderLanding(container) {
         window.location.hash = `#/room/${res.data.code}`;
       } catch (err) {
         createBtn.disabled = false;
-        showToast(err.message, true);
+        if (err.code === "auth/admin-restricted-operation" || err.code === "auth/operation-not-allowed" || err.message?.includes("admin-restricted-operation")) {
+          showToast("Please enable Anonymous Sign-in in Firebase Console > Authentication > Sign-in method", true);
+        } else {
+          showToast(err.message, true);
+        }
       }
     });
   }
