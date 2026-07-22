@@ -640,13 +640,89 @@ function renderDraftPhase(viewport, roomCode, room) {
       timerBadge.innerText = `${secondsLeft}s`;
 
       if (secondsLeft === 0 && isActiveTurn) {
-        // Trigger server turn expiry call
+        // Timer expired — auto-claim a random unclaimed player from the revealed squad
         clearInterval(timerInterval);
         try {
-          const expireTurnFn = httpsCallable(functions, "expireTurn");
-          await expireTurnFn({ code: roomCode });
+          if (reveal && reveal.players && reveal.players.length > 0) {
+            // Find unclaimed players in this reveal
+            const claimedIds = draftState.claimedPlayerIds || [];
+            const availablePlayers = reveal.players.filter(p => !claimedIds.includes(p.id));
+
+            if (availablePlayers.length > 0) {
+              // Pick a random unclaimed player
+              const randomPick = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+
+              // Auto-claim using direct RTDB write (same as manual claim fallback)
+              const userSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
+              const currentBench = userSquad.bench || [];
+              const updatedBench = [...currentBench, randomPick];
+
+              const turnOrder = draftState.turnOrder || [];
+              const currentTurnIndex = draftState.turnIndex || 0;
+              const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
+              const nextActiveUid = turnOrder[nextTurnIndex];
+
+              const updatedClaimed = [...claimedIds, randomPick.id];
+
+              const updates = {};
+              updates[`rooms/${roomCode}/squads/${currentUid}/bench`] = updatedBench;
+              updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
+              updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
+              updates[`rooms/${roomCode}/draftState/claimedPlayerIds`] = updatedClaimed;
+              updates[`rooms/${roomCode}/draftState/currentReveal`] = null;
+              updates[`rooms/${roomCode}/draftState/turnDeadline`] = null;
+
+              // Check if all players reached 11 squad picks
+              let allComplete = true;
+              turnOrder.forEach(uid => {
+                const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
+                const count = (sq.bench ? sq.bench.length : 0) + (sq.slots ? sq.slots.filter(s => s !== null).length : 0);
+                if (uid === currentUid) {
+                  if (updatedBench.length < 11) allComplete = false;
+                } else {
+                  if (count < 11) allComplete = false;
+                }
+              });
+
+              if (allComplete) {
+                updates[`rooms/${roomCode}/status`] = "placement";
+              }
+
+              await update(ref(rtdb), updates);
+              showToast(`⏱ Time's up! Auto-picked ${randomPick.name}`, false);
+            } else {
+              // All players in this reveal are claimed — just clear the reveal and advance turn
+              const turnOrder = draftState.turnOrder || [];
+              const currentTurnIndex = draftState.turnIndex || 0;
+              const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
+              const nextActiveUid = turnOrder[nextTurnIndex];
+
+              await update(ref(rtdb, `rooms/${roomCode}/draftState`), {
+                currentReveal: null,
+                turnDeadline: null,
+                turnIndex: nextTurnIndex,
+                activePlayerUid: nextActiveUid
+              });
+              showToast("⏱ Time's up! No unclaimed players left — turn skipped.", false);
+            }
+          } else {
+            // No squad was revealed (player never rolled) — skip the turn
+            const turnOrder = draftState.turnOrder || [];
+            const currentTurnIndex = draftState.turnIndex || 0;
+            const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
+            const nextActiveUid = turnOrder[nextTurnIndex];
+
+            await update(ref(rtdb, `rooms/${roomCode}/draftState`), {
+              currentReveal: null,
+              turnDeadline: null,
+              turnIndex: nextTurnIndex,
+              activePlayerUid: nextActiveUid
+            });
+            showToast("⏱ Time's up! You didn't roll — turn skipped.", false);
+          }
         } catch (err) {
-          console.warn("Timer expire check error:", err);
+          console.warn("Timer auto-pick error:", err);
+          showToast("Auto-pick failed: " + err.message, true);
         }
       }
     }, 250);
