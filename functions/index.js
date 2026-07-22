@@ -282,10 +282,23 @@ exports.rollSquad = onCall({ cors: true }, async (request) => {
     // Fetch players of this squad
     const playerRefs = selectedSquad.playerIds.map(pid => db.collection("players").doc(pid));
     const playersSnap = await db.getAll(...playerRefs);
-    const players = playersSnap.map(doc => {
-      const data = doc.data();
-      // Respect Difficulty Masking at draft reveal
-      if (room.difficulty === "blindScout") {
+    const players = playersSnap
+      .filter(doc => doc.exists)
+      .map(doc => {
+        const data = doc.data();
+        // Respect Difficulty Masking at draft reveal
+        if (room.difficulty === "blindScout") {
+          return {
+            id: doc.id,
+            name: data.name,
+            nationalTeam: data.nationalTeam,
+            tournamentEdition: data.tournamentEdition,
+            role: data.role,
+            isWicketkeeper: data.isWicketkeeper,
+            batRating: "?", // Masked
+            bowlRating: "?" // Masked
+          };
+        }
         return {
           id: doc.id,
           name: data.name,
@@ -293,21 +306,10 @@ exports.rollSquad = onCall({ cors: true }, async (request) => {
           tournamentEdition: data.tournamentEdition,
           role: data.role,
           isWicketkeeper: data.isWicketkeeper,
-          batRating: "?", // Masked
-          bowlRating: "?" // Masked
+          batRating: data.batRating,
+          bowlRating: data.bowlRating
         };
-      }
-      return {
-        id: doc.id,
-        name: data.name,
-        nationalTeam: data.nationalTeam,
-        tournamentEdition: data.tournamentEdition,
-        role: data.role,
-        isWicketkeeper: data.isWicketkeeper,
-        batRating: data.batRating,
-        bowlRating: data.bowlRating
-      };
-    });
+      });
 
     const turnTimer = parseInt(room.turnTimerSeconds, 10) || 20;
     const updates = {

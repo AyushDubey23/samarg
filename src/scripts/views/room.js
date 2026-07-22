@@ -5,33 +5,143 @@ import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { validateDraftXI } from "../utils/draftRules.js";
 import { signInAnonymously } from "firebase/auth";
 
-const FALLBACK_NATIONS = [
-  { team: "India", year: "2011" },
-  { team: "Australia", year: "2015" },
-  { team: "England", year: "2019" },
-  { team: "South Africa", year: "2015" },
-  { team: "Pakistan", year: "1992" },
-  { team: "West Indies", year: "1979" },
-  { team: "New Zealand", year: "2019" },
-  { team: "Sri Lanka", year: "1996" }
-];
-
-const FALLBACK_PLAYER_POOL = [
-  { id: "p1", name: "Sachin Tendulkar", role: "batter", batRating: 98, bowlRating: 45 },
-  { id: "p2", name: "Virat Kohli", role: "batter", batRating: 96, bowlRating: 20 },
-  { id: "p3", name: "MS Dhoni", role: "keeper", batRating: 92, bowlRating: 0 },
-  { id: "p4", name: "Jasprit Bumrah", role: "bowler", batRating: 25, bowlRating: 97 },
-  { id: "p5", name: "Ricky Ponting", role: "batter", batRating: 95, bowlRating: 30 },
-  { id: "p6", name: "Shane Warne", role: "bowler", batRating: 40, bowlRating: 98 },
-  { id: "p7", name: "Ben Stokes", role: "allrounder", batRating: 88, bowlRating: 84 },
-  { id: "p8", name: "AB de Villiers", role: "batter", batRating: 97, bowlRating: 15 },
-  { id: "p9", name: "Wasim Akram", role: "bowler", batRating: 50, bowlRating: 96 },
-  { id: "p10", name: "Kumar Sangakkara", role: "keeper", batRating: 94, bowlRating: 0 },
-  { id: "p11", name: "Jacques Kallis", role: "allrounder", batRating: 93, bowlRating: 88 },
-  { id: "p12", name: "Mitchell Starc", role: "bowler", batRating: 30, bowlRating: 95 },
-  { id: "p13", name: "Rohit Sharma", role: "batter", batRating: 94, bowlRating: 10 },
-  { id: "p14", name: "Kane Williamson", role: "batter", batRating: 92, bowlRating: 25 },
-  { id: "p15", name: "Rashid Khan", role: "bowler", batRating: 60, bowlRating: 94 }
+const AUTHENTIC_FALLBACK_SQUADS = [
+  {
+    nationalTeam: "India",
+    tournamentYear: "2011",
+    players: [
+      { id: "2011_ind_1", name: "Sachin Tendulkar", role: "opener", batRating: 98, bowlRating: 45, isWicketkeeper: false },
+      { id: "2011_ind_2", name: "Virender Sehwag", role: "opener", batRating: 94, bowlRating: 30, isWicketkeeper: false },
+      { id: "2011_ind_3", name: "Gautam Gambhir", role: "topOrder", batRating: 91, bowlRating: 0, isWicketkeeper: false },
+      { id: "2011_ind_4", name: "Virat Kohli", role: "topOrder", batRating: 96, bowlRating: 20, isWicketkeeper: false },
+      { id: "2011_ind_5", name: "Yuvraj Singh", role: "allRounder", batRating: 90, bowlRating: 82, isWicketkeeper: false },
+      { id: "2011_ind_6", name: "MS Dhoni", role: "keeper", batRating: 92, bowlRating: 0, isWicketkeeper: true },
+      { id: "2011_ind_7", name: "Suresh Raina", role: "middleOrder", batRating: 86, bowlRating: 50, isWicketkeeper: false },
+      { id: "2011_ind_8", name: "Harbhajan Singh", role: "bowler", batRating: 45, bowlRating: 88, isWicketkeeper: false },
+      { id: "2011_ind_9", name: "Zaheer Khan", role: "bowler", batRating: 30, bowlRating: 94, isWicketkeeper: false },
+      { id: "2011_ind_10", name: "Munaf Patel", role: "bowler", batRating: 15, bowlRating: 85, isWicketkeeper: false },
+      { id: "2011_ind_11", name: "Ashish Nehra", role: "bowler", batRating: 18, bowlRating: 84, isWicketkeeper: false }
+    ]
+  },
+  {
+    nationalTeam: "Australia",
+    tournamentYear: "2015",
+    players: [
+      { id: "2015_aus_1", name: "David Warner", role: "opener", batRating: 95, bowlRating: 10, isWicketkeeper: false },
+      { id: "2015_aus_2", name: "Aaron Finch", role: "opener", batRating: 89, bowlRating: 15, isWicketkeeper: false },
+      { id: "2015_aus_3", name: "Steve Smith", role: "topOrder", batRating: 96, bowlRating: 35, isWicketkeeper: false },
+      { id: "2015_aus_4", name: "Michael Clarke", role: "topOrder", batRating: 92, bowlRating: 25, isWicketkeeper: false },
+      { id: "2015_aus_5", name: "Shane Watson", role: "allRounder", batRating: 89, bowlRating: 84, isWicketkeeper: false },
+      { id: "2015_aus_6", name: "Glenn Maxwell", role: "allRounder", batRating: 91, bowlRating: 72, isWicketkeeper: false },
+      { id: "2015_aus_7", name: "Brad Haddin", role: "keeper", batRating: 84, bowlRating: 0, isWicketkeeper: true },
+      { id: "2015_aus_8", name: "James Faulkner", role: "allRounder", batRating: 82, bowlRating: 87, isWicketkeeper: false },
+      { id: "2015_aus_9", name: "Mitchell Johnson", role: "bowler", batRating: 40, bowlRating: 94, isWicketkeeper: false },
+      { id: "2015_aus_10", name: "Mitchell Starc", role: "bowler", batRating: 30, bowlRating: 97, isWicketkeeper: false },
+      { id: "2015_aus_11", name: "Josh Hazlewood", role: "bowler", batRating: 20, bowlRating: 91, isWicketkeeper: false }
+    ]
+  },
+  {
+    nationalTeam: "England",
+    tournamentYear: "2019",
+    players: [
+      { id: "2019_eng_1", name: "Jason Roy", role: "opener", batRating: 91, bowlRating: 10, isWicketkeeper: false },
+      { id: "2019_eng_2", name: "Jonny Bairstow", role: "opener", batRating: 92, bowlRating: 0, isWicketkeeper: false },
+      { id: "2019_eng_3", name: "Joe Root", role: "topOrder", batRating: 94, bowlRating: 40, isWicketkeeper: false },
+      { id: "2019_eng_4", name: "Eoin Morgan", role: "middleOrder", batRating: 89, bowlRating: 0, isWicketkeeper: false },
+      { id: "2019_eng_5", name: "Ben Stokes", role: "allRounder", batRating: 92, bowlRating: 86, isWicketkeeper: false },
+      { id: "2019_eng_6", name: "Jos Buttler", role: "keeper", batRating: 93, bowlRating: 0, isWicketkeeper: true },
+      { id: "2019_eng_7", name: "Chris Woakes", role: "allRounder", batRating: 78, bowlRating: 88, isWicketkeeper: false },
+      { id: "2019_eng_8", name: "Liam Plunkett", role: "bowler", batRating: 35, bowlRating: 86, isWicketkeeper: false },
+      { id: "2019_eng_9", name: "Jofra Archer", role: "bowler", batRating: 30, bowlRating: 95, isWicketkeeper: false },
+      { id: "2019_eng_10", name: "Adil Rashid", role: "bowler", batRating: 40, bowlRating: 89, isWicketkeeper: false },
+      { id: "2019_eng_11", name: "Mark Wood", role: "bowler", batRating: 20, bowlRating: 91, isWicketkeeper: false }
+    ]
+  },
+  {
+    nationalTeam: "Pakistan",
+    tournamentYear: "1992",
+    players: [
+      { id: "1992_pak_1", name: "Aamer Sohail", role: "opener", batRating: 87, bowlRating: 30, isWicketkeeper: false },
+      { id: "1992_pak_2", name: "Rameez Raja", role: "opener", batRating: 86, bowlRating: 0, isWicketkeeper: false },
+      { id: "1992_pak_3", name: "Imran Khan", role: "allRounder", batRating: 91, bowlRating: 93, isWicketkeeper: false },
+      { id: "1992_pak_4", name: "Javed Miandad", role: "topOrder", batRating: 95, bowlRating: 20, isWicketkeeper: false },
+      { id: "1992_pak_5", name: "Inzamam-ul-Haq", role: "middleOrder", batRating: 90, bowlRating: 0, isWicketkeeper: false },
+      { id: "1992_pak_6", name: "Wasim Akram", role: "allRounder", batRating: 75, bowlRating: 98, isWicketkeeper: false },
+      { id: "1992_pak_7", name: "Moin Khan", role: "keeper", batRating: 82, bowlRating: 0, isWicketkeeper: true },
+      { id: "1992_pak_8", name: "Mushtaq Ahmed", role: "bowler", batRating: 30, bowlRating: 90, isWicketkeeper: false },
+      { id: "1992_pak_9", name: "Aqib Javed", role: "bowler", batRating: 20, bowlRating: 88, isWicketkeeper: false },
+      { id: "1992_pak_10", name: "Ijaz Ahmed", role: "middleOrder", batRating: 84, bowlRating: 35, isWicketkeeper: false },
+      { id: "1992_pak_11", name: "Zahid Fazal", role: "middleOrder", batRating: 78, bowlRating: 0, isWicketkeeper: false }
+    ]
+  },
+  {
+    nationalTeam: "West Indies",
+    tournamentYear: "1975",
+    players: [
+      { id: "1975_wi_1", name: "Gordon Greenidge", role: "opener", batRating: 93, bowlRating: 0, isWicketkeeper: false },
+      { id: "1975_wi_2", name: "Roy Fredericks", role: "opener", batRating: 88, bowlRating: 10, isWicketkeeper: false },
+      { id: "1975_wi_3", name: "Alvin Kallicharran", role: "topOrder", batRating: 90, bowlRating: 0, isWicketkeeper: false },
+      { id: "1975_wi_4", name: "Rohan Kanhai", role: "topOrder", batRating: 91, bowlRating: 0, isWicketkeeper: false },
+      { id: "1975_wi_5", name: "Clive Lloyd", role: "middleOrder", batRating: 94, bowlRating: 30, isWicketkeeper: false },
+      { id: "1975_wi_6", name: "Viv Richards", role: "topOrder", batRating: 97, bowlRating: 40, isWicketkeeper: false },
+      { id: "1975_wi_7", name: "Deryck Murray", role: "keeper", batRating: 80, bowlRating: 0, isWicketkeeper: true },
+      { id: "1975_wi_8", name: "Keith Boyce", role: "allRounder", batRating: 70, bowlRating: 87, isWicketkeeper: false },
+      { id: "1975_wi_9", name: "Bernard Julien", role: "allRounder", batRating: 68, bowlRating: 86, isWicketkeeper: false },
+      { id: "1975_wi_10", name: "Andy Roberts", role: "bowler", batRating: 25, bowlRating: 94, isWicketkeeper: false },
+      { id: "1975_wi_11", name: "Lance Gibbs", role: "bowler", batRating: 15, bowlRating: 92, isWicketkeeper: false }
+    ]
+  },
+  {
+    nationalTeam: "Sri Lanka",
+    tournamentYear: "1996",
+    players: [
+      { id: "1996_sl_1", name: "Sanath Jayasuriya", role: "opener", batRating: 94, bowlRating: 84, isWicketkeeper: false },
+      { id: "1996_sl_2", name: "Romesh Kaluwitharana", role: "keeper", batRating: 86, bowlRating: 0, isWicketkeeper: true },
+      { id: "1996_sl_3", name: "Asanka Gurusinha", role: "topOrder", batRating: 88, bowlRating: 30, isWicketkeeper: false },
+      { id: "1996_sl_4", name: "Aravinda de Silva", role: "topOrder", batRating: 96, bowlRating: 75, isWicketkeeper: false },
+      { id: "1996_sl_5", name: "Arjuna Ranatunga", role: "middleOrder", batRating: 91, bowlRating: 20, isWicketkeeper: false },
+      { id: "1996_sl_6", name: "Roshan Mahanama", role: "middleOrder", batRating: 84, bowlRating: 0, isWicketkeeper: false },
+      { id: "1996_sl_7", name: "Hashan Tillakaratne", role: "middleOrder", batRating: 83, bowlRating: 0, isWicketkeeper: false },
+      { id: "1996_sl_8", name: "Kumar Dharmasena", role: "allRounder", batRating: 65, bowlRating: 85, isWicketkeeper: false },
+      { id: "1996_sl_9", name: "Chaminda Vaas", role: "bowler", batRating: 45, bowlRating: 92, isWicketkeeper: false },
+      { id: "1996_sl_10", name: "Muttiah Muralitharan", role: "bowler", batRating: 20, bowlRating: 98, isWicketkeeper: false },
+      { id: "1996_sl_11", name: "Pramodya Wickramasinghe", role: "bowler", batRating: 15, bowlRating: 82, isWicketkeeper: false }
+    ]
+  },
+  {
+    nationalTeam: "South Africa",
+    tournamentYear: "2015",
+    players: [
+      { id: "2015_sa_1", name: "Hashim Amla", role: "opener", batRating: 95, bowlRating: 0, isWicketkeeper: false },
+      { id: "2015_sa_2", name: "Quinton de Kock", role: "keeper", batRating: 92, bowlRating: 0, isWicketkeeper: true },
+      { id: "2015_sa_3", name: "Faf du Plessis", role: "topOrder", batRating: 91, bowlRating: 20, isWicketkeeper: false },
+      { id: "2015_sa_4", name: "AB de Villiers", role: "topOrder", batRating: 98, bowlRating: 30, isWicketkeeper: false },
+      { id: "2015_sa_5", name: "David Miller", role: "middleOrder", batRating: 89, bowlRating: 0, isWicketkeeper: false },
+      { id: "2015_sa_6", name: "JP Duminy", role: "allRounder", batRating: 85, bowlRating: 70, isWicketkeeper: false },
+      { id: "2015_sa_7", name: "Farhaan Behardien", role: "allRounder", batRating: 78, bowlRating: 60, isWicketkeeper: false },
+      { id: "2015_sa_8", name: "Dale Steyn", role: "bowler", batRating: 35, bowlRating: 97, isWicketkeeper: false },
+      { id: "2015_sa_9", name: "Morne Morkel", role: "bowler", batRating: 20, bowlRating: 93, isWicketkeeper: false },
+      { id: "2015_sa_10", name: "Imran Tahir", role: "bowler", batRating: 15, bowlRating: 94, isWicketkeeper: false },
+      { id: "2015_sa_11", name: "Kyle Abbott", role: "bowler", batRating: 20, bowlRating: 86, isWicketkeeper: false }
+    ]
+  },
+  {
+    nationalTeam: "New Zealand",
+    tournamentYear: "2019",
+    players: [
+      { id: "2019_nz_1", name: "Martin Guptill", role: "opener", batRating: 90, bowlRating: 15, isWicketkeeper: false },
+      { id: "2019_nz_2", name: "Henry Nicholls", role: "opener", batRating: 84, bowlRating: 0, isWicketkeeper: false },
+      { id: "2019_nz_3", name: "Kane Williamson", role: "topOrder", batRating: 96, bowlRating: 35, isWicketkeeper: false },
+      { id: "2019_nz_4", name: "Ross Taylor", role: "middleOrder", batRating: 92, bowlRating: 0, isWicketkeeper: false },
+      { id: "2019_nz_5", name: "Tom Latham", role: "keeper", batRating: 86, bowlRating: 0, isWicketkeeper: true },
+      { id: "2019_nz_6", name: "James Neesham", role: "allRounder", batRating: 85, bowlRating: 82, isWicketkeeper: false },
+      { id: "2019_nz_7", name: "Colin de Grandhomme", role: "allRounder", batRating: 82, bowlRating: 84, isWicketkeeper: false },
+      { id: "2019_nz_8", name: "Mitchell Santner", role: "bowler", batRating: 60, bowlRating: 88, isWicketkeeper: false },
+      { id: "2019_nz_9", name: "Matt Henry", role: "bowler", batRating: 25, bowlRating: 91, isWicketkeeper: false },
+      { id: "2019_nz_10", name: "Trent Boult", role: "bowler", batRating: 20, bowlRating: 96, isWicketkeeper: false },
+      { id: "2019_nz_11", name: "Lockie Ferguson", role: "bowler", batRating: 15, bowlRating: 93, isWicketkeeper: false }
+    ]
+  }
 ];
 
 async function fetchClientRandomSquad() {
@@ -63,26 +173,24 @@ async function fetchClientRandomSquad() {
           }));
       }
 
-      if (players.length === 0) {
-        players = FALLBACK_PLAYER_POOL.slice(0, 5);
+      if (players.length >= 5) {
+        return {
+          nationalTeam: randomDoc.nationalTeam || "World XI",
+          tournamentYear: randomDoc.tournamentYear || "2023",
+          players
+        };
       }
-
-      return {
-        nationalTeam: randomDoc.nationalTeam || "World XI",
-        tournamentYear: randomDoc.tournamentYear || "2023",
-        players
-      };
     }
   } catch (e) {
-    console.warn("Firestore squad fetch error, using fallback pool:", e);
+    console.warn("Firestore squad fetch error, using authentic fallback squad:", e);
   }
 
-  const nation = FALLBACK_NATIONS[Math.floor(Math.random() * FALLBACK_NATIONS.length)];
-  const shuffled = [...FALLBACK_PLAYER_POOL].sort(() => Math.random() - 0.5);
+  // Pick a complete, authentic squad from fallback pool
+  const chosenSquad = AUTHENTIC_FALLBACK_SQUADS[Math.floor(Math.random() * AUTHENTIC_FALLBACK_SQUADS.length)];
   return {
-    nationalTeam: nation.team,
-    tournamentYear: nation.year,
-    players: shuffled.slice(0, 5)
+    nationalTeam: chosenSquad.nationalTeam,
+    tournamentYear: chosenSquad.tournamentYear,
+    players: chosenSquad.players
   };
 }
 
