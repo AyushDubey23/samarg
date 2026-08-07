@@ -1,9 +1,10 @@
 import { auth, rtdb, db, functions } from "../firebaseInit.js";
-import { ref, onValue, set, update, off } from "firebase/database";
+import { ref, onValue, set, update, off, get } from "firebase/database";
 import { httpsCallable } from "firebase/functions";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { validateDraftXI } from "../utils/draftRules.js";
 import { signInAnonymously } from "firebase/auth";
+import { BallEngine } from "../engine/ballEngine.js";
 
 const AUTHENTIC_FALLBACK_SQUADS = [
   {
@@ -1247,17 +1248,20 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
               captainId: cId,
               viceCaptainId: vcId
             });
+          }
 
-            // Check if all squads ready
-            const updatedRoomSnap = await get(ref(rtdb, `rooms/${roomCode}`));
-            const updatedRoom = updatedRoomSnap.val();
-            const allReady = Object.values(updatedRoom.squads || {}).every(s => s.ready);
-            if (allReady) {
-              await update(ref(rtdb, `rooms/${roomCode}`), {
-                status: "simulating"
-              });
+          // Verify if all players in room have locked their squad
+          const updatedRoomSnap = await get(ref(rtdb, `rooms/${roomCode}`));
+          const updatedRoom = updatedRoomSnap.val();
+          if (updatedRoom) {
+            const playerUids = Object.keys(updatedRoom.players || {});
+            const allReady = playerUids.length > 0 && playerUids.every(uid => updatedRoom.squads?.[uid]?.ready);
+
+            if (allReady && !updatedRoom.simulation?.matches) {
+              await runClientSimulationFallback(roomCode, updatedRoom);
             }
           }
+
           showToast("Roster locked successfully!");
         } catch (err) {
           lockBtn.disabled = false;
@@ -1265,6 +1269,132 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
         }
       });
     }
+
+    // Auto check if all players ready in placing phase
+    const playerUids = Object.keys(room.players || {});
+    const allReady = playerUids.length > 0 && playerUids.every(uid => room.squads?.[uid]?.ready);
+    if (allReady && !room.simulation?.matches) {
+      runClientSimulationFallback(roomCode, room);
+    }
+  }
+}
+
+async function runClientSimulationFallback(roomCode, room) {
+  try {
+    const players = room.players || {};
+    const squads = room.squads || {};
+    const uids = Object.keys(players);
+    const engine = new BallEngine(Math.floor(Math.random() * 2147483647));
+    const simulatedMatches = [];
+
+    if (room.mode === "solo") {
+      const playerUid = uids[0];
+      const playerXI = squads[playerUid]?.slots || [];
+      const playerTeam = {
+        id: playerUid,
+        name: players[playerUid]?.displayName || "Player",
+        players: playerXI
+      };
+
+      const defaultAITeams = [
+        { name: "Australia (2015)", country: "AUS" },
+        { name: "England (2019)", country: "ENG" },
+        { name: "Pakistan (1992)", country: "PAK" },
+        { name: "West Indies (1975)", country: "WI" },
+        { name: "Sri Lanka (1996)", country: "SL" },
+        { name: "South Africa (2015)", country: "RSA" },
+        { name: "New Zealand (2019)", country: "NZ" }
+      ];
+
+      defaultAITeams.forEach((tm, idx) => {
+        const aiPlayers = [
+          { id: `ai_${idx}_1`, name: "Opener A", role: "opener", batRating: 85, bowlRating: 0, isWicketkeeper: false },
+          { id: `ai_${idx}_2`, name: "Opener B", role: "opener", batRating: 82, bowlRating: 0, isWicketkeeper: false },
+          { id: `ai_${idx}_3`, name: "Batter C", role: "topOrder", batRating: 88, bowlRating: 0, isWicketkeeper: false },
+          { id: `ai_${idx}_4`, name: "Batter D", role: "topOrder", batRating: 84, bowlRating: 0, isWicketkeeper: false },
+          { id: `ai_${idx}_5`, name: "Keeper E", role: "keeper", batRating: 80, bowlRating: 0, isWicketkeeper: true },
+          { id: `ai_${idx}_6`, name: "All Rounder F", role: "allRounder", batRating: 78, bowlRating: 75, bowlingType: "pace-medium" },
+          { id: `ai_${idx}_7`, name: "All Rounder G", role: "allRounder", batRating: 75, bowlRating: 78, bowlingType: "off-spin" },
+          { id: `ai_${idx}_8`, name: "Spinner H", role: "spinner", batRating: 40, bowlRating: 85, bowlingType: "leg-spin" },
+          { id: `ai_${idx}_9`, name: "Pacer I", role: "pacer", batRating: 25, bowlRating: 88, bowlingType: "pace-fast" },
+          { id: `ai_${idx}_10`, name: "Pacer J", role: "pacer", batRating: 20, bowlRating: 86, bowlingType: "pace-fast" },
+          { id: `ai_${idx}_11`, name: "Pacer K", role: "pacer", batRating: 15, bowlRating: 84, bowlingType: "left-arm-pace" }
+        ];
+
+        const opp = { id: `ai_team_${idx + 1}`, name: tm.name, players: aiPlayers };
+        const sim = engine.simulateMatch(playerTeam, opp, false);
+        simulatedMatches.push({
+          matchId: `${roomCode}_match_${idx + 1}`,
+          round: idx + 1,
+          teamAId: playerTeam.id,
+          teamAName: playerTeam.name,
+          teamBId: opp.id,
+          teamBName: opp.name,
+          ...sim
+        });
+      });
+
+    } else if (room.mode === "duel") {
+      const p1Uid = uids[0];
+      const p2Uid = uids[1] || uids[0];
+      const teamA = { id: p1Uid, name: players[p1Uid]?.displayName || "Player 1", players: squads[p1Uid]?.slots || [] };
+      const teamB = { id: p2Uid, name: players[p2Uid]?.displayName || "Player 2", players: squads[p2Uid]?.slots || [] };
+
+      const sim = engine.simulateMatch(teamA, teamB, true);
+      simulatedMatches.push({
+        matchId: `${roomCode}_match_1`,
+        round: 1,
+        teamAId: p1Uid,
+        teamAName: teamA.name,
+        teamBId: p2Uid,
+        teamBName: teamB.name,
+        ...sim
+      });
+    }
+
+    const standings = uids.map(uid => ({
+      teamId: uid,
+      teamName: players[uid]?.displayName || "Player",
+      wins: 0, losses: 0, ties: 0, points: 0, nrr: 0.0,
+      runsScored: 0, ballsFaced: 0, runsConceded: 0, ballsBowled: 0
+    }));
+
+    if (room.mode === "solo") {
+      for (let i = 1; i <= 7; i++) {
+        standings.push({
+          teamId: `ai_team_${i}`,
+          teamName: simulatedMatches[i - 1]?.teamBName || `AI Team ${i}`,
+          wins: 0, losses: 0, ties: 0, points: 0, nrr: 0.0,
+          runsScored: 0, ballsFaced: 0, runsConceded: 0, ballsBowled: 0
+        });
+      }
+    }
+
+    simulatedMatches.forEach(m => {
+      const tA = standings.find(s => s.teamId === m.teamAId);
+      const tB = standings.find(s => s.teamId === m.teamBId);
+      if (tA && tB) {
+        if (m.result.winner === "tie") {
+          tA.ties++; tB.ties++; tA.points += 1; tB.points += 1;
+        } else {
+          const winnerId = m.result.winner === m.teamAName ? m.teamAId : m.teamBId;
+          if (winnerId === m.teamAId) { tA.wins++; tB.losses++; tA.points += 2; }
+          else { tB.wins++; tA.losses++; tB.points += 2; }
+        }
+      }
+    });
+
+    standings.sort((a, b) => b.points - a.points);
+
+    const startsAt = Date.now() + 2000;
+    await update(ref(rtdb, `rooms/${roomCode}`), {
+      status: "simulating",
+      "simulation/matches": simulatedMatches,
+      "simulation/standingsTable": standings,
+      "simulation/startsAt": startsAt
+    });
+  } catch (err) {
+    console.error("Client simulation error:", err);
   }
 }
 

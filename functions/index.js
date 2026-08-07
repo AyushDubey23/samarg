@@ -707,11 +707,20 @@ exports.finalizeSquad = onCall({ cors: true }, async (request) => {
     // Check if ALL players are ready. If so, automatically simulate matches!
     const updatedSnap = await roomRef.get();
     const updatedRoom = updatedSnap.val();
-    const allSquadsReady = Object.values(updatedRoom.squads || {}).every(s => s.ready);
+    const playerUids = Object.keys(updatedRoom.players || {});
+    const squadsMap = updatedRoom.squads || {};
+
+    const allSquadsReady = playerUids.length > 0 && playerUids.every(uid => {
+      const sq = squadsMap[uid];
+      return sq && sq.ready === true && Array.isArray(sq.slots) && sq.slots.filter(s => s !== null).length === 11;
+    });
 
     if (allSquadsReady) {
-      // Trigger simulation automatically
-      await simulateRoomMatches(code, updatedRoom);
+      try {
+        await simulateRoomMatches(code, updatedRoom);
+      } catch (simErr) {
+        console.error("simulateRoomMatches failed inside finalizeSquad:", simErr);
+      }
     }
 
     return { success: true };
@@ -740,24 +749,78 @@ async function simulateRoomMatches(code, room) {
 
     const allSquadsSnap = await db.collection("squads").get();
     const allSquads = [];
-    allSquadsSnap.forEach(doc => {
-      allSquads.push({ id: doc.id, ...doc.data() });
-    });
-
-    const shuffled = allSquads.sort(() => 0.5 - Math.random());
-    const aiSquads = shuffled.slice(0, 7);
+    if (!allSquadsSnap.empty) {
+      allSquadsSnap.forEach(doc => {
+        allSquads.push({ id: doc.id, ...doc.data() });
+      });
+    }
 
     const opponentTeams = [];
     let aiCounter = 1;
-    for (const squad of aiSquads) {
-      const playerRefs = squad.playerIds.map(pid => db.collection("players").doc(pid));
-      const playersSnap = await db.getAll(...playerRefs);
-      const playersList = playersSnap.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      // Sort to guarantee a valid squad
-      playersList.sort((a, b) => {
-        const keeperA = a.role === "keeper" || a.isWicketkeeper ? 1 : 0;
-        const keeperB = b.role === "keeper" || b.isWicketkeeper ? 1 : 0;
+    if (allSquads.length >= 7) {
+      const shuffled = allSquads.sort(() => 0.5 - Math.random());
+      const aiSquads = shuffled.slice(0, 7);
+
+      for (const squad of aiSquads) {
+        const playerRefs = (squad.playerIds || []).map(pid => db.collection("players").doc(pid));
+        let playersList = [];
+        if (playerRefs.length > 0) {
+          const playersSnap = await db.getAll(...playerRefs);
+          playersList = playersSnap.filter(d => d.exists).map(doc => ({ id: doc.id, ...doc.data() }));
+        }
+
+        playersList.sort((a, b) => {
+          const keeperA = a.role === "keeper" || a.isWicketkeeper ? 1 : 0;
+          const keeperB = b.role === "keeper" || b.isWicketkeeper ? 1 : 0;
+          if (keeperA !== keeperB) return keeperB - keeperA;
+          const bowlA = a.bowlingType ? 1 : 0;
+          const bowlB = b.bowlingType ? 1 : 0;
+          return bowlB - bowlA;
+        });
+
+        opponentTeams.push({
+          id: `ai_team_${aiCounter}`,
+          name: `${squad.nationalTeam} (${squad.tournamentYear})`,
+          players: playersList.slice(0, 11)
+        });
+        aiCounter++;
+      }
+    }
+
+    // Fallback AI opponent generator if Firestore squads < 7
+    const defaultAITeams = [
+      { name: "Australia (2015)", country: "AUS", year: 2015 },
+      { name: "England (2019)", country: "ENG", year: 2019 },
+      { name: "Pakistan (1992)", country: "PAK", year: 1992 },
+      { name: "West Indies (1975)", country: "WI", year: 1975 },
+      { name: "Sri Lanka (1996)", country: "SL", year: 1996 },
+      { name: "South Africa (2015)", country: "RSA", year: 2015 },
+      { name: "New Zealand (2019)", country: "NZ", year: 2019 }
+    ];
+
+    while (opponentTeams.length < 7) {
+      const idx = opponentTeams.length;
+      const tm = defaultAITeams[idx] || defaultAITeams[0];
+      const aiPlayers = [
+        { id: `ai_${idx}_1`, name: "Opener A", role: "opener", batRating: 85, bowlRating: 0, isWicketkeeper: false },
+        { id: `ai_${idx}_2`, name: "Opener B", role: "opener", batRating: 82, bowlRating: 0, isWicketkeeper: false },
+        { id: `ai_${idx}_3`, name: "Batter C", role: "topOrder", batRating: 88, bowlRating: 0, isWicketkeeper: false },
+        { id: `ai_${idx}_4`, name: "Batter D", role: "topOrder", batRating: 84, bowlRating: 0, isWicketkeeper: false },
+        { id: `ai_${idx}_5`, name: "Keeper E", role: "keeper", batRating: 80, bowlRating: 0, isWicketkeeper: true },
+        { id: `ai_${idx}_6`, name: "All Rounder F", role: "allRounder", batRating: 78, bowlRating: 75, bowlingType: "pace-medium" },
+        { id: `ai_${idx}_7`, name: "All Rounder G", role: "allRounder", batRating: 75, bowlRating: 78, bowlingType: "off-spin" },
+        { id: `ai_${idx}_8`, name: "Spinner H", role: "spinner", batRating: 40, bowlRating: 85, bowlingType: "leg-spin" },
+        { id: `ai_${idx}_9`, name: "Pacer I", role: "pacer", batRating: 25, bowlRating: 88, bowlingType: "pace-fast" },
+        { id: `ai_${idx}_10`, name: "Pacer J", role: "pacer", batRating: 20, bowlRating: 86, bowlingType: "pace-fast" },
+        { id: `ai_${idx}_11`, name: "Pacer K", role: "pacer", batRating: 15, bowlRating: 84, bowlingType: "left-arm-pace" }
+      ];
+      opponentTeams.push({
+        id: `ai_team_${idx + 1}`,
+        name: tm.name,
+        players: aiPlayers
+      });
+    }
         if (keeperA !== keeperB) return keeperB - keeperA;
 
         const bowlA = a.bowlingType ? 1 : 0;
