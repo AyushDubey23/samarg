@@ -21,7 +21,11 @@ const AUTHENTIC_FALLBACK_SQUADS = [
       { id: "2011_ind_8", name: "Harbhajan Singh", role: "spinner", batRating: 45, bowlRating: 88, isWicketkeeper: false, battingAverage: 13.3, strikeRate: 81.0, economyRate: 4.3, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2011 },
       { id: "2011_ind_9", name: "Zaheer Khan", role: "pacer", batRating: 30, bowlRating: 94, isWicketkeeper: false, battingAverage: 12.0, strikeRate: 72.0, economyRate: 4.9, bowlingType: "left-arm-pace", nationalTeam: "IND", tournamentYear: 2011 },
       { id: "2011_ind_10", name: "Munaf Patel", role: "pacer", batRating: 15, bowlRating: 85, isWicketkeeper: false, battingAverage: 7.1, strikeRate: 52.0, economyRate: 4.9, bowlingType: "pace-medium", nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_11", name: "Ashish Nehra", role: "pacer", batRating: 18, bowlRating: 84, isWicketkeeper: false, battingAverage: 5.8, strikeRate: 58.0, economyRate: 5.2, bowlingType: "left-arm-pace", nationalTeam: "IND", tournamentYear: 2011 }
+      { id: "2011_ind_11", name: "Ashish Nehra", role: "pacer", batRating: 18, bowlRating: 84, isWicketkeeper: false, battingAverage: 5.8, strikeRate: 58.0, economyRate: 5.2, bowlingType: "left-arm-pace", nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_12", name: "Yusuf Pathan", role: "allRounder", batRating: 84, bowlRating: 72, isWicketkeeper: false, battingAverage: 27.0, strikeRate: 113.6, economyRate: 5.5, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_13", name: "S. Sreesanth", role: "pacer", batRating: 15, bowlRating: 82, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 50.0, economyRate: 5.6, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_14", name: "Piyush Chawla", role: "spinner", batRating: 30, bowlRating: 78, isWicketkeeper: false, battingAverage: 14.2, strikeRate: 75.0, economyRate: 5.1, bowlingType: "leg-spin", nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_15", name: "Ravichandran Ashwin", role: "spinner", batRating: 55, bowlRating: 86, isWicketkeeper: false, battingAverage: 16.4, strikeRate: 86.8, economyRate: 4.9, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2011 }
     ]
   },
   {
@@ -39,7 +43,11 @@ const AUTHENTIC_FALLBACK_SQUADS = [
       { id: "2015_aus_8", name: "James Faulkner", role: "allRounder", batRating: 82, bowlRating: 87, isWicketkeeper: false, battingAverage: 34.4, strikeRate: 104.2, economyRate: 5.5, bowlingType: "left-arm-pace", nationalTeam: "AUS", tournamentYear: 2015 },
       { id: "2015_aus_9", name: "Mitchell Johnson", role: "pacer", batRating: 40, bowlRating: 94, isWicketkeeper: false, battingAverage: 16.1, strikeRate: 93.0, economyRate: 4.8, bowlingType: "left-arm-pace", nationalTeam: "AUS", tournamentYear: 2015 },
       { id: "2015_aus_10", name: "Mitchell Starc", role: "pacer", batRating: 30, bowlRating: 97, isWicketkeeper: false, battingAverage: 11.2, strikeRate: 85.0, economyRate: 5.1, bowlingType: "left-arm-pace", nationalTeam: "AUS", tournamentYear: 2015 },
-      { id: "2015_aus_11", name: "Josh Hazlewood", role: "pacer", batRating: 20, bowlRating: 91, isWicketkeeper: false, battingAverage: 7.2, strikeRate: 60.0, economyRate: 4.7, bowlingType: "pace-fast", nationalTeam: "AUS", tournamentYear: 2015 }
+      { id: "2015_aus_11", name: "Josh Hazlewood", role: "pacer", batRating: 20, bowlRating: 91, isWicketkeeper: false, battingAverage: 7.2, strikeRate: 60.0, economyRate: 4.7, bowlingType: "pace-fast", nationalTeam: "AUS", tournamentYear: 2015 },
+      { id: "2015_aus_12", name: "George Bailey", role: "middleOrder", batRating: 84, bowlRating: 0, isWicketkeeper: false, battingAverage: 40.5, strikeRate: 83.5, economyRate: null, bowlingType: null, nationalTeam: "AUS", tournamentYear: 2015 },
+      { id: "2015_aus_13", name: "Pat Cummins", role: "pacer", batRating: 35, bowlRating: 90, isWicketkeeper: false, battingAverage: 16.5, strikeRate: 82.0, economyRate: 5.2, bowlingType: "pace-fast", nationalTeam: "AUS", tournamentYear: 2015 },
+      { id: "2015_aus_14", name: "Xavier Doherty", role: "spinner", batRating: 15, bowlRating: 78, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 55.0, economyRate: 4.9, bowlingType: "left-arm-orthodox", nationalTeam: "AUS", tournamentYear: 2015 },
+      { id: "2015_aus_15", name: "Mitchell Marsh", role: "allRounder", batRating: 85, bowlRating: 80, isWicketkeeper: false, battingAverage: 35.8, strikeRate: 94.0, economyRate: 5.4, bowlingType: "pace-fast", nationalTeam: "AUS", tournamentYear: 2015 }
     ]
   },
   {
@@ -57,7 +65,11 @@ const AUTHENTIC_FALLBACK_SQUADS = [
       { id: "2019_eng_8", name: "Liam Plunkett", role: "pacer", batRating: 35, bowlRating: 86, isWicketkeeper: false, battingAverage: 21.0, strikeRate: 98.0, economyRate: 5.8, bowlingType: "pace-fast", nationalTeam: "ENG", tournamentYear: 2019 },
       { id: "2019_eng_9", name: "Jofra Archer", role: "pacer", batRating: 30, bowlRating: 95, isWicketkeeper: false, battingAverage: 11.8, strikeRate: 90.0, economyRate: 4.6, bowlingType: "pace-fast", nationalTeam: "ENG", tournamentYear: 2019 },
       { id: "2019_eng_10", name: "Adil Rashid", role: "spinner", batRating: 40, bowlRating: 89, isWicketkeeper: false, battingAverage: 18.2, strikeRate: 85.0, economyRate: 5.6, bowlingType: "leg-spin", nationalTeam: "ENG", tournamentYear: 2019 },
-      { id: "2019_eng_11", name: "Mark Wood", role: "pacer", batRating: 20, bowlRating: 91, isWicketkeeper: false, battingAverage: 8.5, strikeRate: 70.0, economyRate: 5.5, bowlingType: "pace-fast", nationalTeam: "ENG", tournamentYear: 2019 }
+      { id: "2019_eng_11", name: "Mark Wood", role: "pacer", batRating: 20, bowlRating: 91, isWicketkeeper: false, battingAverage: 8.5, strikeRate: 70.0, economyRate: 5.5, bowlingType: "pace-fast", nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_12", name: "James Vince", role: "topOrder", batRating: 80, bowlRating: 0, isWicketkeeper: false, battingAverage: 30.0, strikeRate: 85.0, economyRate: null, bowlingType: null, nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_13", name: "Moeen Ali", role: "allRounder", batRating: 82, bowlRating: 82, isWicketkeeper: false, battingAverage: 25.1, strikeRate: 99.4, economyRate: 5.3, bowlingType: "off-spin", nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_14", name: "Tom Curran", role: "allRounder", batRating: 70, bowlRating: 80, isWicketkeeper: false, battingAverage: 20.0, strikeRate: 85.0, economyRate: 5.7, bowlingType: "pace-medium", nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_15", name: "Liam Livingstone", role: "allRounder", batRating: 85, bowlRating: 78, isWicketkeeper: false, battingAverage: 28.5, strikeRate: 112.0, economyRate: 5.7, bowlingType: "off-spin", nationalTeam: "ENG", tournamentYear: 2019 }
     ]
   },
   {
@@ -75,7 +87,11 @@ const AUTHENTIC_FALLBACK_SQUADS = [
       { id: "1992_pak_8", name: "Mushtaq Ahmed", role: "spinner", batRating: 30, bowlRating: 90, isWicketkeeper: false, battingAverage: 8.5, strikeRate: 55.0, economyRate: 4.3, bowlingType: "leg-spin", nationalTeam: "PAK", tournamentYear: 1992 },
       { id: "1992_pak_9", name: "Aqib Javed", role: "pacer", batRating: 20, bowlRating: 88, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 50.0, economyRate: 4.3, bowlingType: "pace-fast", nationalTeam: "PAK", tournamentYear: 1992 },
       { id: "1992_pak_10", name: "Ijaz Ahmed", role: "middleOrder", batRating: 84, bowlRating: 35, isWicketkeeper: false, battingAverage: 32.3, strikeRate: 80.3, economyRate: 4.7, bowlingType: "pace-medium", nationalTeam: "PAK", tournamentYear: 1992 },
-      { id: "1992_pak_11", name: "Zahid Fazal", role: "middleOrder", batRating: 78, bowlRating: 0, isWicketkeeper: false, battingAverage: 25.0, strikeRate: 65.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 1992 }
+      { id: "1992_pak_11", name: "Zahid Fazal", role: "middleOrder", batRating: 78, bowlRating: 0, isWicketkeeper: false, battingAverage: 25.0, strikeRate: 65.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_12", name: "Saleem Malik", role: "middleOrder", batRating: 85, bowlRating: 40, isWicketkeeper: false, battingAverage: 32.9, strikeRate: 76.4, economyRate: 4.6, bowlingType: "off-spin", nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_13", name: "Waqar Younis", role: "pacer", batRating: 20, bowlRating: 95, isWicketkeeper: false, battingAverage: 10.3, strikeRate: 68.0, economyRate: 4.7, bowlingType: "pace-fast", nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_14", name: "Rashid Latif", role: "keeper", batRating: 70, bowlRating: 0, isWicketkeeper: true, battingAverage: 19.0, strikeRate: 76.2, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_15", name: "Saeed Anwar", role: "opener", batRating: 88, bowlRating: 30, isWicketkeeper: false, battingAverage: 39.2, strikeRate: 80.6, economyRate: 4.8, bowlingType: "left-arm-orthodox", nationalTeam: "PAK", tournamentYear: 1992 }
     ]
   },
   {
@@ -93,7 +109,77 @@ const AUTHENTIC_FALLBACK_SQUADS = [
       { id: "1975_wi_8", name: "Keith Boyce", role: "allRounder", batRating: 70, bowlRating: 87, isWicketkeeper: false, battingAverage: 20.0, strikeRate: 75.0, economyRate: 3.5, bowlingType: "pace-medium", nationalTeam: "WI", tournamentYear: 1975 },
       { id: "1975_wi_9", name: "Bernard Julien", role: "allRounder", batRating: 68, bowlRating: 86, isWicketkeeper: false, battingAverage: 18.0, strikeRate: 70.0, economyRate: 3.6, bowlingType: "left-arm-pace", nationalTeam: "WI", tournamentYear: 1975 },
       { id: "1975_wi_10", name: "Andy Roberts", role: "pacer", batRating: 25, bowlRating: 94, isWicketkeeper: false, battingAverage: 10.0, strikeRate: 55.0, economyRate: 3.4, bowlingType: "pace-fast", nationalTeam: "WI", tournamentYear: 1975 },
-      { id: "1975_wi_11", name: "Lance Gibbs", role: "spinner", batRating: 15, bowlRating: 92, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 40.0, economyRate: 2.7, bowlingType: "off-spin", nationalTeam: "WI", tournamentYear: 1975 }
+      { id: "1975_wi_11", name: "Lance Gibbs", role: "spinner", batRating: 15, bowlRating: 92, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 40.0, economyRate: 2.7, bowlingType: "off-spin", nationalTeam: "WI", tournamentYear: 1975 },
+      { id: "1975_wi_12", name: "Desmond Haynes", role: "opener", batRating: 89, bowlRating: 0, isWicketkeeper: false, battingAverage: 41.4, strikeRate: 63.1, economyRate: null, bowlingType: null, nationalTeam: "WI", tournamentYear: 1975 },
+      { id: "1975_wi_13", name: "Michael Holding", role: "pacer", batRating: 20, bowlRating: 95, isWicketkeeper: false, battingAverage: 9.0, strikeRate: 60.0, economyRate: 3.3, bowlingType: "pace-fast", nationalTeam: "WI", tournamentYear: 1975 },
+      { id: "1975_wi_14", name: "Joel Garner", role: "pacer", batRating: 20, bowlRating: 96, isWicketkeeper: false, battingAverage: 9.5, strikeRate: 65.0, economyRate: 3.0, bowlingType: "pace-fast", nationalTeam: "WI", tournamentYear: 1975 },
+      { id: "1975_wi_15", name: "Jeff Dujon", role: "keeper", batRating: 75, bowlRating: 0, isWicketkeeper: true, battingAverage: 23.2, strikeRate: 67.0, economyRate: null, bowlingType: null, nationalTeam: "WI", tournamentYear: 1975 }
+    ]
+  },
+  {
+    nationalTeam: "Sri Lanka",
+    tournamentYear: "1996",
+    tournamentEdition: "1996 World Cup",
+    players: [
+      { id: "1996_sl_1", name: "Sanath Jayasuriya", role: "opener", batRating: 94, bowlRating: 84, isWicketkeeper: false, battingAverage: 32.3, strikeRate: 91.2, economyRate: 4.8, bowlingType: "left-arm-orthodox", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_2", name: "Romesh Kaluwitharana", role: "keeper", batRating: 86, bowlRating: 0, isWicketkeeper: true, battingAverage: 22.2, strikeRate: 78.1, economyRate: null, bowlingType: null, nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_3", name: "Asanka Gurusinha", role: "topOrder", batRating: 88, bowlRating: 30, isWicketkeeper: false, battingAverage: 28.2, strikeRate: 60.0, economyRate: 4.5, bowlingType: "pace-medium", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_4", name: "Aravinda de Silva", role: "topOrder", batRating: 96, bowlRating: 75, isWicketkeeper: false, battingAverage: 34.9, strikeRate: 81.1, economyRate: 4.8, bowlingType: "off-spin", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_5", name: "Arjuna Ranatunga", role: "middleOrder", batRating: 91, bowlRating: 20, isWicketkeeper: false, battingAverage: 35.8, strikeRate: 77.9, economyRate: 4.7, bowlingType: "pace-medium", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_6", name: "Roshan Mahanama", role: "middleOrder", batRating: 84, bowlRating: 0, isWicketkeeper: false, battingAverage: 29.5, strikeRate: 60.5, economyRate: null, bowlingType: null, nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_7", name: "Hashan Tillakaratne", role: "middleOrder", batRating: 83, bowlRating: 0, isWicketkeeper: false, battingAverage: 29.6, strikeRate: 65.2, economyRate: null, bowlingType: null, nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_8", name: "Kumar Dharmasena", role: "allRounder", batRating: 65, bowlRating: 85, isWicketkeeper: false, battingAverage: 20.0, strikeRate: 65.0, economyRate: 4.3, bowlingType: "off-spin", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_9", name: "Chaminda Vaas", role: "pacer", batRating: 45, bowlRating: 92, isWicketkeeper: false, battingAverage: 13.7, strikeRate: 72.0, economyRate: 4.2, bowlingType: "left-arm-pace", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_10", name: "Muttiah Muralitharan", role: "spinner", batRating: 20, bowlRating: 98, isWicketkeeper: false, battingAverage: 6.8, strikeRate: 75.0, economyRate: 3.9, bowlingType: "off-spin", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_11", name: "Pramodya Wickramasinghe", role: "pacer", batRating: 15, bowlRating: 82, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 50.0, economyRate: 4.8, bowlingType: "pace-fast", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_12", name: "Marvan Atapattu", role: "opener", batRating: 88, bowlRating: 0, isWicketkeeper: false, battingAverage: 37.5, strikeRate: 67.7, economyRate: null, bowlingType: null, nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_13", name: "Kumar Sangakkara", role: "keeper", batRating: 95, bowlRating: 0, isWicketkeeper: true, battingAverage: 41.9, strikeRate: 78.8, economyRate: null, bowlingType: null, nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_14", name: "Mahela Jayawardene", role: "topOrder", batRating: 92, bowlRating: 20, isWicketkeeper: false, battingAverage: 33.3, strikeRate: 78.9, economyRate: 4.8, bowlingType: "pace-medium", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_15", name: "Lasith Malinga", role: "pacer", batRating: 20, bowlRating: 96, isWicketkeeper: false, battingAverage: 6.2, strikeRate: 72.0, economyRate: 5.2, bowlingType: "pace-fast", nationalTeam: "SL", tournamentYear: 1996 }
+    ]
+  },
+  {
+    nationalTeam: "South Africa",
+    tournamentYear: "2015",
+    tournamentEdition: "2015 World Cup",
+    players: [
+      { id: "2015_sa_1", name: "Hashim Amla", role: "opener", batRating: 95, bowlRating: 0, isWicketkeeper: false, battingAverage: 49.4, strikeRate: 88.3, economyRate: null, bowlingType: null, nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_2", name: "Quinton de Kock", role: "keeper", batRating: 92, bowlRating: 0, isWicketkeeper: true, battingAverage: 45.7, strikeRate: 96.6, economyRate: null, bowlingType: null, nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_3", name: "Faf du Plessis", role: "topOrder", batRating: 91, bowlRating: 20, isWicketkeeper: false, battingAverage: 47.4, strikeRate: 88.6, economyRate: 5.2, bowlingType: "leg-spin", nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_4", name: "AB de Villiers", role: "topOrder", batRating: 98, bowlRating: 30, isWicketkeeper: false, battingAverage: 53.5, strikeRate: 101.2, economyRate: null, bowlingType: null, nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_5", name: "David Miller", role: "middleOrder", batRating: 89, bowlRating: 0, isWicketkeeper: false, battingAverage: 42.6, strikeRate: 103.3, economyRate: null, bowlingType: null, nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_6", name: "JP Duminy", role: "allRounder", batRating: 85, bowlRating: 70, isWicketkeeper: false, battingAverage: 36.8, strikeRate: 84.5, economyRate: 4.6, bowlingType: "off-spin", nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_7", name: "Farhaan Behardien", role: "allRounder", batRating: 78, bowlRating: 60, isWicketkeeper: false, battingAverage: 30.0, strikeRate: 80.0, economyRate: 5.0, bowlingType: "pace-medium", nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_8", name: "Dale Steyn", role: "pacer", batRating: 35, bowlRating: 97, isWicketkeeper: false, battingAverage: 8.5, strikeRate: 70.0, economyRate: 4.8, bowlingType: "pace-fast", nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_9", name: "Morne Morkel", role: "pacer", batRating: 20, bowlRating: 93, isWicketkeeper: false, battingAverage: 7.8, strikeRate: 65.0, economyRate: 4.9, bowlingType: "pace-fast", nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_10", name: "Imran Tahir", role: "spinner", batRating: 15, bowlRating: 94, isWicketkeeper: false, battingAverage: 7.5, strikeRate: 60.0, economyRate: 4.6, bowlingType: "leg-spin", nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_11", name: "Kyle Abbott", role: "pacer", batRating: 20, bowlRating: 86, isWicketkeeper: false, battingAverage: 10.0, strikeRate: 60.0, economyRate: 5.0, bowlingType: "pace-fast", nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_12", name: "Graeme Smith", role: "opener", batRating: 88, bowlRating: 0, isWicketkeeper: false, battingAverage: 37.9, strikeRate: 80.8, economyRate: null, bowlingType: null, nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_13", name: "Jacques Kallis", role: "allRounder", batRating: 94, bowlRating: 88, isWicketkeeper: false, battingAverage: 44.3, strikeRate: 72.8, economyRate: 4.8, bowlingType: "pace-medium", nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_14", name: "Kagiso Rabada", role: "pacer", batRating: 25, bowlRating: 92, isWicketkeeper: false, battingAverage: 18.0, strikeRate: 80.0, economyRate: 5.0, bowlingType: "pace-fast", nationalTeam: "RSA", tournamentYear: 2015 },
+      { id: "2015_sa_15", name: "Heinrich Klaasen", role: "keeper", batRating: 88, bowlRating: 0, isWicketkeeper: true, battingAverage: 41.5, strikeRate: 115.0, economyRate: null, bowlingType: null, nationalTeam: "RSA", tournamentYear: 2015 }
+    ]
+  },
+  {
+    nationalTeam: "New Zealand",
+    tournamentYear: "2019",
+    tournamentEdition: "2019 World Cup",
+    players: [
+      { id: "2019_nz_1", name: "Martin Guptill", role: "opener", batRating: 90, bowlRating: 15, isWicketkeeper: false, battingAverage: 41.7, strikeRate: 87.6, economyRate: 5.3, bowlingType: "off-spin", nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_2", name: "Henry Nicholls", role: "opener", batRating: 84, bowlRating: 0, isWicketkeeper: false, battingAverage: 36.0, strikeRate: 80.0, economyRate: null, bowlingType: null, nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_3", name: "Kane Williamson", role: "topOrder", batRating: 96, bowlRating: 35, isWicketkeeper: false, battingAverage: 48.2, strikeRate: 81.0, economyRate: 5.3, bowlingType: "off-spin", nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_4", name: "Ross Taylor", role: "middleOrder", batRating: 92, bowlRating: 0, isWicketkeeper: false, battingAverage: 47.5, strikeRate: 83.3, economyRate: null, bowlingType: null, nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_5", name: "Tom Latham", role: "keeper", batRating: 86, bowlRating: 0, isWicketkeeper: true, battingAverage: 34.8, strikeRate: 85.0, economyRate: null, bowlingType: null, nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_6", name: "James Neesham", role: "allRounder", batRating: 85, bowlRating: 82, isWicketkeeper: false, battingAverage: 28.5, strikeRate: 104.0, economyRate: 6.0, bowlingType: "pace-medium", nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_7", name: "Colin de Grandhomme", role: "allRounder", batRating: 82, bowlRating: 84, isWicketkeeper: false, battingAverage: 27.5, strikeRate: 106.0, economyRate: 4.9, bowlingType: "pace-medium", nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_8", name: "Mitchell Santner", role: "spinner", batRating: 60, bowlRating: 88, isWicketkeeper: false, battingAverage: 27.5, strikeRate: 89.0, economyRate: 4.8, bowlingType: "left-arm-orthodox", nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_9", name: "Matt Henry", role: "pacer", batRating: 25, bowlRating: 91, isWicketkeeper: false, battingAverage: 11.0, strikeRate: 75.0, economyRate: 5.1, bowlingType: "pace-fast", nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_10", name: "Trent Boult", role: "pacer", batRating: 20, bowlRating: 96, isWicketkeeper: false, battingAverage: 9.5, strikeRate: 70.0, economyRate: 4.9, bowlingType: "left-arm-pace", nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_11", name: "Lockie Ferguson", role: "pacer", batRating: 15, bowlRating: 93, isWicketkeeper: false, battingAverage: 7.0, strikeRate: 60.0, economyRate: 5.6, bowlingType: "pace-fast", nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_12", name: "Brendon McCullum", role: "opener", batRating: 92, bowlRating: 0, isWicketkeeper: false, battingAverage: 30.4, strikeRate: 96.4, economyRate: null, bowlingType: null, nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_13", name: "Daniel Vettori", role: "spinner", batRating: 65, bowlRating: 90, isWicketkeeper: false, battingAverage: 17.3, strikeRate: 82.0, economyRate: 4.1, bowlingType: "left-arm-orthodox", nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_14", name: "Tim Southee", role: "pacer", batRating: 35, bowlRating: 88, isWicketkeeper: false, battingAverage: 12.5, strikeRate: 85.0, economyRate: 5.4, bowlingType: "pace-fast", nationalTeam: "NZ", tournamentYear: 2019 },
+      { id: "2019_nz_15", name: "Daryl Mitchell", role: "topOrder", batRating: 88, bowlRating: 70, isWicketkeeper: false, battingAverage: 42.5, strikeRate: 93.0, economyRate: 5.5, bowlingType: "pace-medium", nationalTeam: "NZ", tournamentYear: 2019 }
     ]
   },
   {
@@ -111,7 +197,33 @@ const AUTHENTIC_FALLBACK_SQUADS = [
       { id: "2024_ind_8", name: "Axar Patel", role: "allRounder", batRating: 84, bowlRating: 87, isWicketkeeper: false, battingAverage: 22.0, strikeRate: 140.0, economyRate: 6.5, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2024 },
       { id: "2024_ind_9", name: "Kuldeep Yadav", role: "spinner", batRating: 30, bowlRating: 92, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 65.0, economyRate: 6.2, bowlingType: "left-arm-unorthodox", nationalTeam: "IND", tournamentYear: 2024 },
       { id: "2024_ind_10", name: "Arshdeep Singh", role: "pacer", batRating: 20, bowlRating: 93, isWicketkeeper: false, battingAverage: 6.0, strikeRate: 60.0, economyRate: 7.1, bowlingType: "left-arm-pace", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_11", name: "Jasprit Bumrah", role: "pacer", batRating: 15, bowlRating: 99, isWicketkeeper: false, battingAverage: 5.4, strikeRate: 65.0, economyRate: 4.1, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2024 }
+      { id: "2024_ind_11", name: "Jasprit Bumrah", role: "pacer", batRating: 15, bowlRating: 99, isWicketkeeper: false, battingAverage: 5.4, strikeRate: 65.0, economyRate: 4.1, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_12", name: "Yashasvi Jaiswal", role: "opener", batRating: 90, bowlRating: 0, isWicketkeeper: false, battingAverage: 36.5, strikeRate: 161.9, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_13", name: "Sanju Samson", role: "keeper", batRating: 88, bowlRating: 0, isWicketkeeper: true, battingAverage: 56.6, strikeRate: 99.6, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_14", name: "Mohammed Siraj", role: "pacer", batRating: 15, bowlRating: 88, isWicketkeeper: false, battingAverage: 7.0, strikeRate: 55.0, economyRate: 5.2, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_15", name: "Yuzvendra Chahal", role: "spinner", batRating: 10, bowlRating: 86, isWicketkeeper: false, battingAverage: 5.2, strikeRate: 45.0, economyRate: 5.2, bowlingType: "leg-spin", nationalTeam: "IND", tournamentYear: 2024 }
+    ]
+  },
+  {
+    nationalTeam: "Afghanistan",
+    tournamentYear: "2024",
+    tournamentEdition: "2024 T20 World Cup",
+    players: [
+      { id: "2024_afg_1", name: "Rahmanullah Gurbaz", role: "opener", batRating: 90, bowlRating: 0, isWicketkeeper: true, battingAverage: 37.5, strikeRate: 88.0, economyRate: null, bowlingType: null, nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_2", name: "Ibrahim Zadran", role: "opener", batRating: 88, bowlRating: 0, isWicketkeeper: false, battingAverage: 47.8, strikeRate: 80.0, economyRate: null, bowlingType: null, nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_3", name: "Rahmat Shah", role: "topOrder", batRating: 85, bowlRating: 30, isWicketkeeper: false, battingAverage: 36.5, strikeRate: 70.0, economyRate: 5.2, bowlingType: "leg-spin", nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_4", name: "Hashmatullah Shahidi", role: "topOrder", batRating: 84, bowlRating: 0, isWicketkeeper: false, battingAverage: 33.0, strikeRate: 68.0, economyRate: null, bowlingType: null, nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_5", name: "Najibullah Zadran", role: "middleOrder", batRating: 86, bowlRating: 0, isWicketkeeper: false, battingAverage: 30.0, strikeRate: 89.0, economyRate: null, bowlingType: null, nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_6", name: "Mohammad Nabi", role: "allRounder", batRating: 88, bowlRating: 86, isWicketkeeper: false, battingAverage: 27.2, strikeRate: 85.5, economyRate: 4.3, bowlingType: "off-spin", nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_7", name: "Azmatullah Omarzai", role: "allRounder", batRating: 89, bowlRating: 84, isWicketkeeper: false, battingAverage: 40.5, strikeRate: 98.0, economyRate: 5.4, bowlingType: "pace-fast", nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_8", name: "Gulbadin Naib", role: "allRounder", batRating: 82, bowlRating: 80, isWicketkeeper: false, battingAverage: 21.5, strikeRate: 86.0, economyRate: 5.3, bowlingType: "pace-medium", nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_9", name: "Rashid Khan", role: "spinner", batRating: 65, bowlRating: 98, isWicketkeeper: false, battingAverage: 18.5, strikeRate: 110.0, economyRate: 4.2, bowlingType: "leg-spin", nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_10", name: "Mujeeb Ur Rahman", role: "spinner", batRating: 30, bowlRating: 90, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 60.0, economyRate: 4.5, bowlingType: "off-spin", nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_11", name: "Fazalhaq Farooqi", role: "pacer", batRating: 15, bowlRating: 94, isWicketkeeper: false, battingAverage: 4.0, strikeRate: 40.0, economyRate: 5.0, bowlingType: "left-arm-pace", nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_12", name: "Naveen-ul-Haq", role: "pacer", batRating: 20, bowlRating: 89, isWicketkeeper: false, battingAverage: 6.0, strikeRate: 50.0, economyRate: 5.5, bowlingType: "pace-medium", nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_13", name: "Hazratullah Zazai", role: "opener", batRating: 82, bowlRating: 0, isWicketkeeper: false, battingAverage: 28.0, strikeRate: 135.0, economyRate: null, bowlingType: null, nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_14", name: "Noor Ahmad", role: "spinner", batRating: 20, bowlRating: 86, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 45.0, economyRate: 4.8, bowlingType: "left-arm-unorthodox", nationalTeam: "AFG", tournamentYear: 2024 },
+      { id: "2024_afg_15", name: "Karim Janat", role: "allRounder", batRating: 75, bowlRating: 78, isWicketkeeper: false, battingAverage: 20.0, strikeRate: 110.0, economyRate: 5.8, bowlingType: "pace-medium", nationalTeam: "AFG", tournamentYear: 2024 }
     ]
   }
 ];
@@ -553,7 +665,7 @@ function renderDraftPhase(viewport, roomCode, room) {
                 </h3>
                 <span class="role-badge all-rounder">Select 1 Player</span>
               </div>
-              <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem; max-height: 280px; overflow-y: auto; padding-right: 0.5rem;" id="rolled-players-grid">
+              <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem; max-height: 520px; min-height: 350px; overflow-y: auto; padding-right: 0.5rem;" id="rolled-players-grid">
                 ${reveal.players.map(p => {
                   const isClaimed = (draftState.claimedPlayerIds || []).includes(p.id);
                   return `
@@ -702,7 +814,7 @@ function renderDraftPhase(viewport, roomCode, room) {
             });
 
             if (allComplete) {
-              updates[`rooms/${roomCode}/status`] = "placement";
+              updates[`rooms/${roomCode}/status`] = "placing";
             }
 
             await update(ref(rtdb), updates);
@@ -773,7 +885,7 @@ function renderDraftPhase(viewport, roomCode, room) {
               });
 
               if (allComplete) {
-                updates[`rooms/${roomCode}/status`] = "placement";
+                updates[`rooms/${roomCode}/status`] = "placing";
               }
 
               await update(ref(rtdb), updates);
