@@ -1,6 +1,7 @@
 import { auth, db, functions } from "../firebaseInit.js";
 import { collection, query, where, getDocs, doc, setDoc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
+import { fetchClientRandomSquad } from "./room.js";
 
 // Draft Slot definitions
 export const DRAFT_SLOTS = [
@@ -163,9 +164,14 @@ async function performScout() {
   squadContainer.innerHTML = `<div class="scout-loader">Scouting global historical squads...</div>`;
 
   try {
-    const scoutSquadFn = httpsCallable(functions, "scoutSquad");
-    const result = await scoutSquadFn();
-    currentScoutedSquad = result.data;
+    try {
+      const scoutSquadFn = httpsCallable(functions, "scoutSquad");
+      const result = await scoutSquadFn();
+      currentScoutedSquad = result.data;
+    } catch (fnErr) {
+      console.warn("Cloud function scoutSquad failed, performing client fallback squad fetch:", fnErr);
+      currentScoutedSquad = await fetchClientRandomSquad();
+    }
     renderScoutedSquad();
   } catch (err) {
     console.error("Scouting call failed:", err);

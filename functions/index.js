@@ -296,7 +296,11 @@ exports.rollSquad = onCall({ cors: true }, async (request) => {
             role: data.role,
             isWicketkeeper: data.isWicketkeeper,
             batRating: "?", // Masked
-            bowlRating: "?" // Masked
+            bowlRating: "?", // Masked
+            battingAverage: data.battingAverage,
+            strikeRate: data.strikeRate,
+            economyRate: data.economyRate,
+            bowlingType: data.bowlingType
           };
         }
         return {
@@ -307,7 +311,11 @@ exports.rollSquad = onCall({ cors: true }, async (request) => {
           role: data.role,
           isWicketkeeper: data.isWicketkeeper,
           batRating: data.batRating,
-          bowlRating: data.bowlRating
+          bowlRating: data.bowlRating,
+          battingAverage: data.battingAverage,
+          strikeRate: data.strikeRate,
+          economyRate: data.economyRate,
+          bowlingType: data.bowlingType
         };
       });
 
@@ -336,6 +344,40 @@ exports.rollSquad = onCall({ cors: true }, async (request) => {
     return { success: true };
   } catch (error) {
     console.error("Error in rollSquad:", error);
+    throw new HttpsError("internal", error.message);
+  }
+});
+
+/**
+ * 4b. scoutSquad - Scouts a random historical squad for solo campaign
+ */
+exports.scoutSquad = onCall({ cors: true }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "User must be authenticated.");
+  }
+  try {
+    const squadsSnap = await db.collection("squads").get();
+    if (squadsSnap.empty) {
+      throw new HttpsError("not-found", "No squads found in database.");
+    }
+    const allSquads = [];
+    squadsSnap.forEach(doc => allSquads.push({ id: doc.id, ...doc.data() }));
+    const selectedSquad = allSquads[Math.floor(Math.random() * allSquads.length)];
+
+    const playerRefs = selectedSquad.playerIds.map(pid => db.collection("players").doc(pid));
+    const playersSnap = await db.getAll(...playerRefs);
+    const players = playersSnap.filter(d => d.exists).map(d => ({ id: d.id, ...d.data() }));
+
+    return {
+      squadId: selectedSquad.id,
+      nationalTeam: selectedSquad.nationalTeam,
+      tournamentYear: selectedSquad.tournamentYear,
+      tournamentEdition: selectedSquad.tournamentEdition || `${selectedSquad.tournamentYear} World Cup`,
+      isChampionSquad: selectedSquad.isChampionSquad || false,
+      players
+    };
+  } catch (error) {
+    console.error("Error in scoutSquad:", error);
     throw new HttpsError("internal", error.message);
   }
 });
