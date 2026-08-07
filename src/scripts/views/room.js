@@ -1183,8 +1183,32 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
         }
         const slotIdx = parseInt(slot.getAttribute("data-slot-index"), 10);
         try {
-          const placePlayerFn = httpsCallable(functions, "placePlayer");
-          await placePlayerFn({ code: roomCode, playerId: activeBenchPlayerId, slotIndex: slotIdx });
+          try {
+            const placePlayerFn = httpsCallable(functions, "placePlayer");
+            await placePlayerFn({ code: roomCode, playerId: activeBenchPlayerId, slotIndex: slotIdx });
+          } catch (fnErr) {
+            console.warn("Cloud function placePlayer failed, performing RTDB direct place fallback:", fnErr);
+            const userSquad = room.squads?.[currentUid] || { slots: Array(11).fill(null), bench: [] };
+            const currentBench = [...(userSquad.bench || [])];
+            const currentSlots = [...(userSquad.slots || Array(11).fill(null))];
+
+            const playerIdx = currentBench.findIndex(p => String(p.id) === String(activeBenchPlayerId));
+            if (playerIdx !== -1) {
+              const playerToPlace = currentBench.splice(playerIdx, 1)[0];
+              const existingPlayer = currentSlots[slotIdx];
+              if (existingPlayer) {
+                currentBench.push(existingPlayer);
+              }
+              currentSlots[slotIdx] = playerToPlace;
+
+              await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), {
+                bench: currentBench,
+                slots: currentSlots
+              });
+            } else {
+              throw new Error("Player is not on your backup bench.");
+            }
+          }
           activeBenchPlayerId = null;
         } catch (err) {
           showToast(err.message, true);
@@ -1225,8 +1249,37 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
 
         try {
           lockBtn.disabled = true;
-          const finalizeFn = httpsCallable(functions, "finalizeSquad");
-          await finalizeFn({ code: roomCode, captainId: cId, viceCaptainId: vcId });
+          try {
+            const finalizeFn = httpsCallable(functions, "finalizeSquad");
+            await finalizeFn({ code: roomCode, captainId: cId, viceCaptainId: vcId });
+          } catch (fnErr) {
+            console.warn("Cloud function finalizeSquad failed, performing RTDB direct finalize fallback:", fnErr);
+            const userSquad = room.squads?.[currentUid] || { slots: Array(11).fill(null), bench: [] };
+            const updatedSlots = (userSquad.slots || []).map(p => {
+              if (!p) return null;
+              return {
+                ...p,
+                isCaptain: String(p.id) === String(cId),
+                isViceCaptain: String(p.id) === String(vcId)
+              };
+            });
+            await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), {
+              ready: true,
+              slots: updatedSlots,
+              captainId: cId,
+              viceCaptainId: vcId
+            });
+
+            // Check if all squads ready
+            const updatedRoomSnap = await get(ref(rtdb, `rooms/${roomCode}`));
+            const updatedRoom = updatedRoomSnap.val();
+            const allReady = Object.values(updatedRoom.squads || {}).every(s => s.ready);
+            if (allReady) {
+              await update(ref(rtdb, `rooms/${roomCode}`), {
+                status: "simulating"
+              });
+            }
+          }
           showToast("Roster locked successfully!");
         } catch (err) {
           lockBtn.disabled = false;

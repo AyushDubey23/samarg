@@ -602,7 +602,7 @@ exports.placePlayer = onCall({ cors: true }, async (request) => {
     const slots = [...(userSquad.slots || Array(11).fill(null))];
 
     // Find player on bench
-    const playerIdx = bench.findIndex(p => p.id === playerId);
+    const playerIdx = bench.findIndex(p => String(p.id) === String(playerId));
     if (playerIdx === -1) {
       throw new HttpsError("not-found", "Player is not on your bench.");
     }
@@ -629,6 +629,7 @@ exports.placePlayer = onCall({ cors: true }, async (request) => {
     return { success: true };
   } catch (error) {
     console.error("Error in placePlayer:", error);
+    if (error instanceof HttpsError) throw error;
     throw new HttpsError("internal", error.message);
   }
 });
@@ -677,8 +678,8 @@ exports.finalizeSquad = onCall({ cors: true }, async (request) => {
     const updatedSlots = slots.map(p => {
       return {
         ...p,
-        isCaptain: p.id === captainId,
-        isViceCaptain: p.id === viceCaptainId
+        isCaptain: String(p.id) === String(captainId),
+        isViceCaptain: String(p.id) === String(viceCaptainId)
       };
     });
 
@@ -702,6 +703,7 @@ exports.finalizeSquad = onCall({ cors: true }, async (request) => {
     return { success: true };
   } catch (error) {
     console.error("Error in finalizeSquad:", error);
+    if (error instanceof HttpsError) throw error;
     throw new HttpsError("internal", error.message);
   }
 });
