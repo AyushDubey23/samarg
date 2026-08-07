@@ -599,11 +599,11 @@ EDITIONS.forEach((ed) => {
 
       let batRating = 10;
       if (p.role !== 'spinner' && p.role !== 'pacer') {
-        let batAvgRating = ed.format === 'T20' ? ((p.batAvg - 10) / 35) * 100 : ((p.batAvg - 10) / 40) * 100;
-        let batSRRating = ed.format === 'T20' ? ((p.batSR - 90) / 70) * 100 : ((p.batSR - 55) / 45) * 100;
-        batRating = Math.round(Math.min(99, Math.max(40, 0.5 * batAvgRating + 0.5 * batSRRating)));
+        let batAvgRating = ed.format === 'T20' ? ((p.batAvg - 10) / 38) * 42 + 50 : ((p.batAvg - 10) / 42) * 42 + 50;
+        let batSRRating = ed.format === 'T20' ? ((p.batSR - 90) / 70) * 42 + 50 : ((p.batSR - 55) / 45) * 42 + 50;
+        batRating = Math.round(Math.min(94, Math.max(55, 0.65 * batAvgRating + 0.35 * batSRRating)));
       } else {
-        batRating = Math.round(15 + lcg() * 25);
+        batRating = Math.round(15 + lcg() * 20);
       }
 
       let wicketTaking = 35;
@@ -613,8 +613,8 @@ EDITIONS.forEach((ed) => {
 
       if (p.bowlType) {
         if (p.bowlSR && p.bowlSR > 0) {
-          wicketTaking = ((36 - p.bowlSR) / (36 - 18)) * 50 + 45;
-          wicketTaking = Math.round(Math.min(99, Math.max(35, wicketTaking)));
+          wicketTaking = ((36 - p.bowlSR) / (36 - 18)) * 40 + 50;
+          wicketTaking = Math.round(Math.min(94, Math.max(35, wicketTaking)));
         }
         const econ = p.bowlEcon || 8.0;
         const isPace = p.bowlType.includes('pace') || p.bowlType.includes('medium') || p.bowlType.includes('fast');
@@ -626,9 +626,9 @@ EDITIONS.forEach((ed) => {
           deathBowling = Math.round(Math.max(25, 0.4 * wicketTaking + 0.4 * (100 - econ * 11) - 10));
         }
 
-        let econRating = ed.format === 'T20' ? ((10.0 - econ) / 4.5) * 100 : ((7.0 - econ) / 3.5) * 100;
-        let wicketRating = ed.format === 'T20' ? ((32 - (p.bowlSR || 24)) / 18) * 100 : ((45 - (p.bowlSR || 30)) / 25) * 100;
-        bowlRating = Math.round(Math.min(99, Math.max(40, 0.4 * econRating + 0.6 * wicketRating)));
+        let econRating = ed.format === 'T20' ? ((10.0 - econ) / 4.5) * 42 + 50 : ((7.0 - econ) / 3.5) * 42 + 50;
+        let wicketRating = ed.format === 'T20' ? ((32 - (p.bowlSR || 24)) / 18) * 42 + 50 : ((45 - (p.bowlSR || 30)) / 25) * 42 + 50;
+        bowlRating = Math.round(Math.min(94, Math.max(55, 0.5 * econRating + 0.5 * wicketRating)));
       }
 
       let fielding = p.role === 'keeper' ? Math.round(85 + lcg() * 12) : (p.role === 'allRounder' || (p.role !== 'spinner' && p.role !== 'pacer') ? Math.round(70 + lcg() * 20) : Math.round(55 + lcg() * 15));

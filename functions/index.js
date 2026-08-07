@@ -276,8 +276,17 @@ exports.rollSquad = onCall({ cors: true }, async (request) => {
       throw new HttpsError("not-found", "No squads with unclaimed players remaining.");
     }
 
-    // Pick random squad
-    const selectedSquad = eligibleSquads[Math.floor(Math.random() * eligibleSquads.length)];
+    // Group eligible squads by nationalTeam for equal team diversity across all nations
+    const squadByTeam = {};
+    eligibleSquads.forEach(sq => {
+      const team = sq.nationalTeam || "IND";
+      if (!squadByTeam[team]) squadByTeam[team] = [];
+      squadByTeam[team].push(sq);
+    });
+
+    const availableTeams = Object.keys(squadByTeam);
+    const chosenTeam = availableTeams[Math.floor(Math.random() * availableTeams.length)];
+    const selectedSquad = squadByTeam[chosenTeam][Math.floor(Math.random() * squadByTeam[chosenTeam].length)];
 
     // Fetch players of this squad
     const playerRefs = selectedSquad.playerIds.map(pid => db.collection("players").doc(pid));
@@ -599,7 +608,11 @@ exports.placePlayer = onCall({ cors: true }, async (request) => {
     }
 
     const bench = userSquad.bench || [];
-    const slots = [...(userSquad.slots || Array(11).fill(null))];
+    const rawSlots = userSquad.slots || [];
+    const slots = Array(11).fill(null);
+    for (let i = 0; i < 11; i++) {
+      if (rawSlots[i]) slots[i] = rawSlots[i];
+    }
 
     // Find player on bench
     const playerIdx = bench.findIndex(p => String(p.id) === String(playerId));
@@ -620,10 +633,11 @@ exports.placePlayer = onCall({ cors: true }, async (request) => {
 
     // Place new player
     slots[slotIndex] = playerToPlace;
+    const sanitizedSlots = slots.map(s => s || null);
 
     await roomRef.child(`squads/${request.auth.uid}`).update({
       bench,
-      slots
+      slots: sanitizedSlots
     });
 
     return { success: true };
