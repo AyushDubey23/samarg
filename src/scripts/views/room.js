@@ -805,12 +805,10 @@ function renderDraftPhase(viewport, roomCode, room) {
             let allComplete = true;
             turnOrder.forEach(uid => {
               const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
-              const count = (sq.bench ? sq.bench.length : 0) + (sq.slots ? sq.slots.filter(s => s !== null).length : 0);
-              if (uid === currentUid) {
-                if (updatedBench.length < 11) allComplete = false;
-              } else {
-                if (count < 11) allComplete = false;
-              }
+              const sqSlots = sq.slots || [];
+              const sqBench = (uid === currentUid) ? updatedBench : (sq.bench || []);
+              const count = sqBench.length + sqSlots.filter(s => s !== null).length;
+              if (count < 11) allComplete = false;
             });
 
             if (allComplete) {
@@ -876,12 +874,10 @@ function renderDraftPhase(viewport, roomCode, room) {
               let allComplete = true;
               turnOrder.forEach(uid => {
                 const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
-                const count = (sq.bench ? sq.bench.length : 0) + (sq.slots ? sq.slots.filter(s => s !== null).length : 0);
-                if (uid === currentUid) {
-                  if (updatedBench.length < 11) allComplete = false;
-                } else {
-                  if (count < 11) allComplete = false;
-                }
+                const sqSlots = sq.slots || [];
+                const sqBench = (uid === currentUid) ? updatedBench : (sq.bench || []);
+                const count = sqBench.length + sqSlots.filter(s => s !== null).length;
+                if (count < 11) allComplete = false;
               });
 
               if (allComplete) {
@@ -957,8 +953,8 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
   const spectatorSquad = room.squads?.[spectatedUid] || { slots: Array(11).fill(null), bench: [], ready: false };
   const isOwnBoard = spectatedUid === currentUid;
   
-  const slots = spectatorSquad.slots;
-  const bench = spectatorSquad.bench;
+  const slots = spectatorSquad.slots || Array(11).fill(null);
+  const bench = spectatorSquad.bench || [];
 
   // Zone classifications
   const zoneInfo = [

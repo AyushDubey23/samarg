@@ -452,8 +452,9 @@ exports.claimPlayer = onCall({ cors: true }, async (request) => {
     let nextPlayerUid = turnOrder[nextIndex];
 
     while (iterations < turnOrder.length) {
-      const pBench = room.squads[nextPlayerUid].bench || [];
-      const pSlots = room.squads[nextPlayerUid].slots || [];
+      const sq = (room.squads || {})[nextPlayerUid] || {};
+      const pBench = (nextPlayerUid === request.auth.uid) ? userBench : (sq.bench || []);
+      const pSlots = sq.slots || [];
       const pTotal = pBench.length + pSlots.filter(s => s !== null).length;
 
       if (pTotal < 11) {
@@ -467,8 +468,9 @@ exports.claimPlayer = onCall({ cors: true }, async (request) => {
     // Check if draft is finished (everyone has 11 players)
     let allFinished = true;
     for (const uid of turnOrder) {
-      const pBench = room.squads[uid].bench || [];
-      const pSlots = room.squads[uid].slots || [];
+      const sq = (room.squads || {})[uid] || {};
+      const pBench = (uid === request.auth.uid) ? userBench : (sq.bench || []);
+      const pSlots = sq.slots || [];
       const pTotal = pBench.length + pSlots.filter(s => s !== null).length;
       if (pTotal < 11) {
         allFinished = false;
