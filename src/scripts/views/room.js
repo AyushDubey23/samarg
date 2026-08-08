@@ -9,24 +9,68 @@ import { BallEngine } from "../engine/ballEngine.js";
 const AUTHENTIC_FALLBACK_SQUADS = [
   {
     nationalTeam: "India",
-    tournamentYear: "2011",
-    tournamentEdition: "2011 World Cup",
+    tournamentYear: "2023",
+    tournamentEdition: "2023 World Cup",
     players: [
-      { id: "2011_ind_1", name: "Sachin Tendulkar", role: "opener", batRating: 92, bowlRating: 40, isWicketkeeper: false, battingAverage: 44.8, strikeRate: 86.2, economyRate: 5.1, bowlingType: "leg-spin", nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_2", name: "Virender Sehwag", role: "opener", batRating: 87, bowlRating: 25, isWicketkeeper: false, battingAverage: 35.1, strikeRate: 104.3, economyRate: 5.2, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_3", name: "Gautam Gambhir", role: "topOrder", batRating: 84, bowlRating: 0, isWicketkeeper: false, battingAverage: 39.7, strikeRate: 85.2, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_4", name: "Virat Kohli", role: "topOrder", batRating: 88, bowlRating: 15, isWicketkeeper: false, battingAverage: 58.7, strikeRate: 93.6, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_5", name: "Yuvraj Singh", role: "allRounder", batRating: 85, bowlRating: 78, isWicketkeeper: false, battingAverage: 36.5, strikeRate: 87.6, economyRate: 4.8, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_6", name: "MS Dhoni", role: "keeper", batRating: 87, bowlRating: 0, isWicketkeeper: true, battingAverage: 50.6, strikeRate: 89.0, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_7", name: "Suresh Raina", role: "middleOrder", batRating: 81, bowlRating: 45, isWicketkeeper: false, battingAverage: 35.3, strikeRate: 93.5, economyRate: 5.1, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_8", name: "Harbhajan Singh", role: "spinner", batRating: 38, bowlRating: 80, isWicketkeeper: false, battingAverage: 13.3, strikeRate: 81.0, economyRate: 4.3, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_9", name: "Zaheer Khan", role: "pacer", batRating: 25, bowlRating: 86, isWicketkeeper: false, battingAverage: 12.0, strikeRate: 72.0, economyRate: 4.9, bowlingType: "left-arm-pace", nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_10", name: "Munaf Patel", role: "pacer", batRating: 15, bowlRating: 76, isWicketkeeper: false, battingAverage: 7.1, strikeRate: 52.0, economyRate: 4.9, bowlingType: "pace-medium", nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_11", name: "Ashish Nehra", role: "pacer", batRating: 15, bowlRating: 77, isWicketkeeper: false, battingAverage: 5.8, strikeRate: 58.0, economyRate: 5.2, bowlingType: "left-arm-pace", nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_12", name: "Yusuf Pathan", role: "allRounder", batRating: 78, bowlRating: 68, isWicketkeeper: false, battingAverage: 27.0, strikeRate: 113.6, economyRate: 5.5, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_13", name: "S. Sreesanth", role: "pacer", batRating: 12, bowlRating: 74, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 50.0, economyRate: 5.6, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_14", name: "Piyush Chawla", role: "spinner", batRating: 22, bowlRating: 72, isWicketkeeper: false, battingAverage: 14.2, strikeRate: 75.0, economyRate: 5.1, bowlingType: "leg-spin", nationalTeam: "IND", tournamentYear: 2011 },
-      { id: "2011_ind_15", name: "Ravichandran Ashwin", role: "spinner", batRating: 40, bowlRating: 81, isWicketkeeper: false, battingAverage: 16.4, strikeRate: 86.8, economyRate: 4.9, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2011 }
+      { id: "2023_ind_1", name: "Rohit Sharma", role: "opener", batRating: 95, bowlRating: 15, isWicketkeeper: false, battingAverage: 54.2, strikeRate: 125.9, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_2", name: "Shubman Gill", role: "opener", batRating: 91, bowlRating: 0, isWicketkeeper: false, battingAverage: 44.2, strikeRate: 102.6, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_3", name: "Virat Kohli", role: "topOrder", batRating: 98, bowlRating: 20, isWicketkeeper: false, battingAverage: 95.6, strikeRate: 90.3, economyRate: 4.5, bowlingType: "pace-medium", nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_4", name: "Shreyas Iyer", role: "middleOrder", batRating: 90, bowlRating: 0, isWicketkeeper: false, battingAverage: 66.2, strikeRate: 113.2, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_5", name: "KL Rahul", role: "keeper", batRating: 89, bowlRating: 0, isWicketkeeper: true, battingAverage: 75.3, strikeRate: 90.8, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_6", name: "Suryakumar Yadav", role: "middleOrder", batRating: 84, bowlRating: 0, isWicketkeeper: false, battingAverage: 21.2, strikeRate: 108.5, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_7", name: "Ravindra Jadeja", role: "allRounder", batRating: 84, bowlRating: 88, isWicketkeeper: false, battingAverage: 40.0, strikeRate: 85.0, economyRate: 4.2, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_8", name: "Mohammed Shami", role: "pacer", batRating: 20, bowlRating: 97, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 60.0, economyRate: 5.2, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_9", name: "Jasprit Bumrah", role: "pacer", batRating: 15, bowlRating: 96, isWicketkeeper: false, battingAverage: 6.0, strikeRate: 60.0, economyRate: 4.0, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_10", name: "Kuldeep Yadav", role: "spinner", batRating: 25, bowlRating: 91, isWicketkeeper: false, battingAverage: 10.0, strikeRate: 65.0, economyRate: 4.4, bowlingType: "left-arm-unorthodox", nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_11", name: "Mohammed Siraj", role: "pacer", batRating: 15, bowlRating: 88, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 50.0, economyRate: 5.6, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_12", name: "Shardul Thakur", role: "allRounder", batRating: 72, bowlRating: 78, isWicketkeeper: false, battingAverage: 18.0, strikeRate: 90.0, economyRate: 6.0, bowlingType: "pace-medium", nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_13", name: "Ishan Kishan", role: "keeper", batRating: 82, bowlRating: 0, isWicketkeeper: true, battingAverage: 29.0, strikeRate: 95.0, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_14", name: "Ravichandran Ashwin", role: "spinner", batRating: 40, bowlRating: 84, isWicketkeeper: false, battingAverage: 16.0, strikeRate: 85.0, economyRate: 3.4, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2023 },
+      { id: "2023_ind_15", name: "Hardik Pandya", role: "allRounder", batRating: 88, bowlRating: 85, isWicketkeeper: false, battingAverage: 37.0, strikeRate: 110.0, economyRate: 5.5, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2023 }
+    ]
+  },
+  {
+    nationalTeam: "Australia",
+    tournamentYear: "1999",
+    tournamentEdition: "1999 World Cup",
+    players: [
+      { id: "1999_aus_1", name: "Adam Gilchrist", role: "keeper", batRating: 90, bowlRating: 0, isWicketkeeper: true, battingAverage: 35.8, strikeRate: 96.9, economyRate: null, bowlingType: null, nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_2", name: "Mark Waugh", role: "opener", batRating: 89, bowlRating: 60, isWicketkeeper: false, battingAverage: 39.3, strikeRate: 77.0, economyRate: 5.0, bowlingType: "off-spin", nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_3", name: "Ricky Ponting", role: "topOrder", batRating: 92, bowlRating: 0, isWicketkeeper: false, battingAverage: 42.0, strikeRate: 80.0, economyRate: null, bowlingType: null, nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_4", name: "Steve Waugh", role: "middleOrder", batRating: 91, bowlRating: 70, isWicketkeeper: false, battingAverage: 32.9, strikeRate: 75.9, economyRate: 4.7, bowlingType: "pace-medium", nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_5", name: "Michael Bevan", role: "middleOrder", batRating: 94, bowlRating: 60, isWicketkeeper: false, battingAverage: 53.5, strikeRate: 74.0, economyRate: 4.8, bowlingType: "left-arm-unorthodox", nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_6", name: "Tom Moody", role: "allRounder", batRating: 80, bowlRating: 82, isWicketkeeper: false, battingAverage: 25.0, strikeRate: 75.0, economyRate: 3.9, bowlingType: "pace-medium", nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_7", name: "Shane Lee", role: "allRounder", batRating: 75, bowlRating: 78, isWicketkeeper: false, battingAverage: 20.0, strikeRate: 80.0, economyRate: 4.5, bowlingType: "pace-medium", nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_8", name: "Shane Warne", role: "spinner", batRating: 45, bowlRating: 97, isWicketkeeper: false, battingAverage: 13.0, strikeRate: 72.0, economyRate: 3.8, bowlingType: "leg-spin", nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_9", name: "Damien Fleming", role: "pacer", batRating: 20, bowlRating: 88, isWicketkeeper: false, battingAverage: 9.0, strikeRate: 60.0, economyRate: 4.1, bowlingType: "pace-fast", nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_10", name: "Paul Reiffel", role: "pacer", batRating: 25, bowlRating: 85, isWicketkeeper: false, battingAverage: 13.0, strikeRate: 65.0, economyRate: 4.0, bowlingType: "pace-fast", nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_11", name: "Glenn McGrath", role: "pacer", batRating: 10, bowlRating: 97, isWicketkeeper: false, battingAverage: 3.8, strikeRate: 45.0, economyRate: 3.7, bowlingType: "pace-fast", nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_12", name: "Darren Lehmann", role: "middleOrder", batRating: 85, bowlRating: 65, isWicketkeeper: false, battingAverage: 38.0, strikeRate: 81.0, economyRate: 4.8, bowlingType: "left-arm-orthodox", nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_13", name: "Damien Martyn", role: "topOrder", batRating: 86, bowlRating: 0, isWicketkeeper: false, battingAverage: 40.0, strikeRate: 78.0, economyRate: null, bowlingType: null, nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_14", name: "Brendon Julian", role: "allRounder", batRating: 70, bowlRating: 79, isWicketkeeper: false, battingAverage: 16.0, strikeRate: 70.0, economyRate: 4.6, bowlingType: "left-arm-pace", nationalTeam: "AUS", tournamentYear: 1999 },
+      { id: "1999_aus_15", name: "Colin Miller", role: "spinner", batRating: 20, bowlRating: 80, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 60.0, economyRate: 4.2, bowlingType: "off-spin", nationalTeam: "AUS", tournamentYear: 1999 }
+    ]
+  },
+  {
+    nationalTeam: "West Indies",
+    tournamentYear: "2016",
+    tournamentEdition: "2016 T20 World Cup",
+    players: [
+      { id: "2016_wi_1", name: "Chris Gayle", role: "opener", batRating: 95, bowlRating: 40, isWicketkeeper: false, battingAverage: 37.9, strikeRate: 142.7, economyRate: 6.5, bowlingType: "off-spin", nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_2", name: "Johnson Charles", role: "opener", batRating: 82, bowlRating: 0, isWicketkeeper: false, battingAverage: 24.5, strikeRate: 122.0, economyRate: null, bowlingType: null, nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_3", name: "Lendl Simmons", role: "topOrder", batRating: 87, bowlRating: 0, isWicketkeeper: false, battingAverage: 33.0, strikeRate: 130.0, economyRate: null, bowlingType: null, nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_4", name: "Marlon Samuels", role: "middleOrder", batRating: 89, bowlRating: 60, isWicketkeeper: false, battingAverage: 30.0, strikeRate: 118.0, economyRate: 6.8, bowlingType: "off-spin", nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_5", name: "Dinesh Ramdin", role: "keeper", batRating: 76, bowlRating: 0, isWicketkeeper: true, battingAverage: 20.0, strikeRate: 112.0, economyRate: null, bowlingType: null, nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_6", name: "Dwayne Bravo", role: "allRounder", batRating: 86, bowlRating: 89, isWicketkeeper: false, battingAverage: 27.0, strikeRate: 115.0, economyRate: 7.5, bowlingType: "pace-medium", nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_7", name: "Andre Russell", role: "allRounder", batRating: 92, bowlRating: 87, isWicketkeeper: false, battingAverage: 27.0, strikeRate: 156.0, economyRate: 7.8, bowlingType: "pace-fast", nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_8", name: "Darren Sammy", role: "allRounder", batRating: 82, bowlRating: 75, isWicketkeeper: false, battingAverage: 20.0, strikeRate: 145.0, economyRate: 7.2, bowlingType: "pace-medium", nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_9", name: "Carlos Brathwaite", role: "allRounder", batRating: 85, bowlRating: 80, isWicketkeeper: false, battingAverage: 18.0, strikeRate: 160.0, economyRate: 7.9, bowlingType: "pace-fast", nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_10", name: "Samuel Badree", role: "spinner", batRating: 20, bowlRating: 93, isWicketkeeper: false, battingAverage: 6.0, strikeRate: 60.0, economyRate: 5.6, bowlingType: "leg-spin", nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_11", name: "Sulieman Benn", role: "spinner", batRating: 15, bowlRating: 82, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 50.0, economyRate: 6.2, bowlingType: "left-arm-orthodox", nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_12", name: "Evin Lewis", role: "opener", batRating: 88, bowlRating: 0, isWicketkeeper: false, battingAverage: 30.0, strikeRate: 150.0, economyRate: null, bowlingType: null, nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_13", name: "Andre Fletcher", role: "keeper", batRating: 80, bowlRating: 0, isWicketkeeper: true, battingAverage: 22.0, strikeRate: 110.0, economyRate: null, bowlingType: null, nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_14", name: "Jerome Taylor", role: "pacer", batRating: 15, bowlRating: 83, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 55.0, economyRate: 7.2, bowlingType: "pace-fast", nationalTeam: "WI", tournamentYear: 2016 },
+      { id: "2016_wi_15", name: "Ashley Nurse", role: "allRounder", batRating: 70, bowlRating: 78, isWicketkeeper: false, battingAverage: 15.0, strikeRate: 120.0, economyRate: 6.9, bowlingType: "off-spin", nationalTeam: "WI", tournamentYear: 2016 }
     ]
   },
   {
@@ -93,50 +137,6 @@ const AUTHENTIC_FALLBACK_SQUADS = [
       { id: "2011_ire_13", name: "Harry Tector", role: "topOrder", batRating: 82, bowlRating: 65, isWicketkeeper: false, battingAverage: 40.0, strikeRate: 82.0, economyRate: 5.0, bowlingType: "off-spin", nationalTeam: "IRE", tournamentYear: 2011 },
       { id: "2011_ire_14", name: "Mark Adair", role: "allRounder", batRating: 72, bowlRating: 78, isWicketkeeper: false, battingAverage: 18.0, strikeRate: 110.0, economyRate: 5.6, bowlingType: "pace-fast", nationalTeam: "IRE", tournamentYear: 2011 },
       { id: "2011_ire_15", name: "Lorcan Tucker", role: "keeper", batRating: 77, bowlRating: 0, isWicketkeeper: true, battingAverage: 28.0, strikeRate: 88.0, economyRate: null, bowlingType: null, nationalTeam: "IRE", tournamentYear: 2011 }
-    ]
-  },
-  {
-    nationalTeam: "Bangladesh",
-    tournamentYear: "2015",
-    tournamentEdition: "2015 World Cup",
-    players: [
-      { id: "2015_ban_1", name: "Tamim Iqbal", role: "opener", batRating: 81, bowlRating: 0, isWicketkeeper: false, battingAverage: 36.7, strikeRate: 78.5, economyRate: null, bowlingType: null, nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_2", name: "Soumya Sarkar", role: "opener", batRating: 76, bowlRating: 50, isWicketkeeper: false, battingAverage: 32.0, strikeRate: 97.0, economyRate: 5.5, bowlingType: "pace-medium", nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_3", name: "Mahmudullah", role: "middleOrder", batRating: 83, bowlRating: 65, isWicketkeeper: false, battingAverage: 35.3, strikeRate: 76.0, economyRate: 5.0, bowlingType: "off-spin", nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_4", name: "Shakib Al Hasan", role: "allRounder", batRating: 89, bowlRating: 88, isWicketkeeper: false, battingAverage: 37.8, strikeRate: 82.5, economyRate: 4.4, bowlingType: "left-arm-orthodox", nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_5", name: "Mushfiqur Rahim", role: "keeper", batRating: 82, bowlRating: 0, isWicketkeeper: true, battingAverage: 36.7, strikeRate: 79.2, economyRate: null, bowlingType: null, nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_6", name: "Sabbir Rahman", role: "middleOrder", batRating: 74, bowlRating: 0, isWicketkeeper: false, battingAverage: 26.0, strikeRate: 91.0, economyRate: null, bowlingType: null, nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_7", name: "Nasir Hossain", role: "allRounder", batRating: 75, bowlRating: 72, isWicketkeeper: false, battingAverage: 29.0, strikeRate: 80.0, economyRate: 4.7, bowlingType: "off-spin", nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_8", name: "Mashrafe Mortaza", role: "pacer", batRating: 45, bowlRating: 79, isWicketkeeper: false, battingAverage: 13.5, strikeRate: 87.0, economyRate: 4.8, bowlingType: "pace-medium", nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_9", name: "Rubel Hossain", role: "pacer", batRating: 15, bowlRating: 76, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 45.0, economyRate: 5.4, bowlingType: "pace-fast", nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_10", name: "Taskin Ahmed", role: "pacer", batRating: 15, bowlRating: 77, isWicketkeeper: false, battingAverage: 6.0, strikeRate: 50.0, economyRate: 5.4, bowlingType: "pace-fast", nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_11", name: "Mustafizur Rahman", role: "pacer", batRating: 15, bowlRating: 84, isWicketkeeper: false, battingAverage: 6.5, strikeRate: 55.0, economyRate: 5.1, bowlingType: "left-arm-pace", nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_12", name: "Litton Das", role: "opener", batRating: 78, bowlRating: 0, isWicketkeeper: true, battingAverage: 30.8, strikeRate: 88.0, economyRate: null, bowlingType: null, nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_13", name: "Mehidy Hasan Miraz", role: "allRounder", batRating: 76, bowlRating: 80, isWicketkeeper: false, battingAverage: 23.0, strikeRate: 77.0, economyRate: 4.7, bowlingType: "off-spin", nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_14", name: "Taijul Islam", role: "spinner", batRating: 20, bowlRating: 77, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 50.0, economyRate: 4.5, bowlingType: "left-arm-orthodox", nationalTeam: "BAN", tournamentYear: 2015 },
-      { id: "2015_ban_15", name: "Mohammad Saifuddin", role: "allRounder", batRating: 70, bowlRating: 75, isWicketkeeper: false, battingAverage: 20.0, strikeRate: 85.0, economyRate: 5.9, bowlingType: "pace-medium", nationalTeam: "BAN", tournamentYear: 2015 }
-    ]
-  },
-  {
-    nationalTeam: "India",
-    tournamentYear: "2024",
-    tournamentEdition: "2024 T20 World Cup",
-    players: [
-      { id: "2024_ind_1", name: "Rohit Sharma", role: "opener", batRating: 96, bowlRating: 0, isWicketkeeper: false, battingAverage: 32.0, strikeRate: 140.0, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_2", name: "Virat Kohli", role: "opener", batRating: 97, bowlRating: 15, isWicketkeeper: false, battingAverage: 48.7, strikeRate: 137.0, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_3", name: "Rishabh Pant", role: "keeper", batRating: 91, bowlRating: 0, isWicketkeeper: true, battingAverage: 34.6, strikeRate: 126.6, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_4", name: "Suryakumar Yadav", role: "topOrder", batRating: 98, bowlRating: 0, isWicketkeeper: false, battingAverage: 43.3, strikeRate: 167.7, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_5", name: "Shivam Dube", role: "middleOrder", batRating: 86, bowlRating: 65, isWicketkeeper: false, battingAverage: 30.0, strikeRate: 145.0, economyRate: 7.5, bowlingType: "pace-medium", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_6", name: "Hardik Pandya", role: "allRounder", batRating: 92, bowlRating: 88, isWicketkeeper: false, battingAverage: 34.0, strikeRate: 140.0, economyRate: 7.2, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_7", name: "Ravindra Jadeja", role: "allRounder", batRating: 85, bowlRating: 86, isWicketkeeper: false, battingAverage: 25.0, strikeRate: 125.0, economyRate: 6.8, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_8", name: "Axar Patel", role: "allRounder", batRating: 84, bowlRating: 87, isWicketkeeper: false, battingAverage: 22.0, strikeRate: 140.0, economyRate: 6.5, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_9", name: "Kuldeep Yadav", role: "spinner", batRating: 30, bowlRating: 92, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 65.0, economyRate: 6.2, bowlingType: "left-arm-unorthodox", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_10", name: "Arshdeep Singh", role: "pacer", batRating: 20, bowlRating: 93, isWicketkeeper: false, battingAverage: 6.0, strikeRate: 60.0, economyRate: 7.1, bowlingType: "left-arm-pace", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_11", name: "Jasprit Bumrah", role: "pacer", batRating: 15, bowlRating: 99, isWicketkeeper: false, battingAverage: 5.4, strikeRate: 65.0, economyRate: 4.1, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_12", name: "Yashasvi Jaiswal", role: "opener", batRating: 90, bowlRating: 0, isWicketkeeper: false, battingAverage: 36.5, strikeRate: 161.9, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_13", name: "Sanju Samson", role: "keeper", batRating: 88, bowlRating: 0, isWicketkeeper: true, battingAverage: 56.6, strikeRate: 99.6, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_14", name: "Mohammed Siraj", role: "pacer", batRating: 15, bowlRating: 88, isWicketkeeper: false, battingAverage: 7.0, strikeRate: 55.0, economyRate: 5.2, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_15", name: "Yuzvendra Chahal", role: "spinner", batRating: 10, bowlRating: 86, isWicketkeeper: false, battingAverage: 5.2, strikeRate: 45.0, economyRate: 5.2, bowlingType: "leg-spin", nationalTeam: "IND", tournamentYear: 2024 }
     ]
   },
   {
@@ -809,11 +809,11 @@ function renderDraftPhase(viewport, roomCode, room) {
     });
   }
 
-  // Attach card claim handler with Direct Pitch Slot Modal
+  // Attach card claim handler with 1-Tap Direct Pitch Placement (Zero Modal Popups)
   if (reveal && isActiveTurn) {
     const cards = document.querySelectorAll(".draft-card-item");
     cards.forEach(card => {
-      card.addEventListener("click", () => {
+      card.addEventListener("click", async () => {
         const playerId = card.getAttribute("data-player-id");
         const claimedIds = draftState.claimedPlayerIds || [];
         if (claimedIds.includes(playerId)) return;
@@ -822,134 +822,54 @@ function renderDraftPhase(viewport, roomCode, room) {
         if (!targetPlayer) return;
 
         const userSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
-        const userSlots = userSquad.slots || Array(11).fill(null);
+        const userSlots = getFilledSlotsArray(userSquad.slots);
+        let updatedBench = [...ensureArray(userSquad.bench)];
+        const updatedSlots = [...userSlots];
 
-        // Open Direct Placement Modal overlay
-        let modalEl = document.getElementById("direct-placement-modal");
-        if (!modalEl) {
-          modalEl = document.createElement("div");
-          modalEl.id = "direct-placement-modal";
-          modalEl.style.cssText = "display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; padding: 1rem;";
-          document.body.appendChild(modalEl);
+        // Find first empty pitch slot (No player swapping allowed)
+        const openSlotIdx = updatedSlots.findIndex(s => s === null);
+        if (openSlotIdx !== -1) {
+          updatedSlots[openSlotIdx] = targetPlayer;
+        } else {
+          updatedBench.push(targetPlayer);
         }
 
-        modalEl.innerHTML = `
-          <div class="modal-card" style="max-width: 520px; width: 100%; border: 2px solid var(--willow-tan); border-radius: 12px; background: #0c2016; padding: 1.5rem; color: white;">
-            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
-              <img src="${getPlayerPhoto(targetPlayer.name)}" style="width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--primary);" />
-              <div>
-                <h3 style="font-size: 1.2rem; margin: 0; color: var(--willow-tan);">${targetPlayer.name}</h3>
-                <p style="font-size: 0.8rem; color: var(--chalk-white-dim); margin: 0.2rem 0 0 0;">
-                  ${targetPlayer.role.toUpperCase()} • ${targetPlayer.nationalTeam || reveal.nationalTeam} (${targetPlayer.tournamentYear || reveal.tournamentYear})
-                </p>
-                <div style="display: flex; gap: 0.4rem; margin-top: 0.4rem;">
-                  <span style="background: linear-gradient(135deg, #e53935, #c62828); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold;">BAT ${targetPlayer.batRating}</span>
-                  ${targetPlayer.bowlRating > 0 ? `<span style="background: linear-gradient(135deg, #1e88e5, #1565c0); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold;">BOWL ${targetPlayer.bowlRating}</span>` : ''}
-                </div>
-              </div>
-            </div>
+        const turnOrder = draftState.turnOrder || [];
+        const currentTurnIndex = draftState.turnIndex || 0;
+        const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
+        const nextActiveUid = turnOrder[nextTurnIndex];
+        const updatedClaimed = [...ensureArray(claimedIds), playerId];
 
-            <p style="font-size: 0.85rem; margin-bottom: 1rem; color: var(--chalk-white-dim);">
-              Place <strong>${targetPlayer.name}</strong> directly onto your Pitch Setup or Reserves:
-            </p>
+        const updates = {};
+        updates[`rooms/${roomCode}/squads/${currentUid}/slots`] = updatedSlots;
+        updates[`rooms/${roomCode}/squads/${currentUid}/bench`] = updatedBench;
+        updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
+        updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
+        updates[`rooms/${roomCode}/draftState/claimedPlayerIds`] = updatedClaimed;
+        updates[`rooms/${roomCode}/draftState/currentReveal`] = null;
+        updates[`rooms/${roomCode}/draftState/turnDeadline`] = null;
 
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; max-height: 250px; overflow-y: auto; padding-right: 0.25rem;">
-              ${[0,1,2,3,4,5,6,7,8,9,10].map(idx => {
-                const s = userSlots[idx];
-                return `
-                  <button class="btn btn-secondary direct-slot-pick-btn" data-slot-index="${idx}" style="padding: 0.6rem 0.5rem; text-align: left; font-size: 0.8rem; border-left: 4px solid ${s ? '#ffa726' : '#66bb6a'};">
-                    <div style="font-size: 0.7rem; color: var(--willow-tan);">Position Slot #${idx + 1}</div>
-                    <div style="font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      ${s ? `Swap: ${s.name}` : '✨ OPEN SLOT'}
-                    </div>
-                  </button>
-                `;
-              }).join("")}
-            </div>
-
-            <button id="direct-bench-pick-btn" class="btn btn-primary" style="width: 100%; margin-top: 1rem; background: var(--bg-light); border: 1px solid var(--glass-border);">
-              Place in Reserves (Bench)
-            </button>
-            <button id="direct-modal-close-btn" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; font-size: 0.8rem;">
-              Cancel
-            </button>
-          </div>
-        `;
-
-        modalEl.style.display = "flex";
-
-        const closeModal = () => {
-          modalEl.style.display = "none";
-        };
-
-        document.getElementById("direct-modal-close-btn")?.addEventListener("click", closeModal);
-
-        const executeClaimWithPlacement = async (targetSlotIdx) => {
-          closeModal();
-          try {
-            card.style.transform = "scale(0.95)";
-            card.style.borderColor = "var(--primary)";
-
-            const updatedSlots = [...getFilledSlotsArray(userSlots)];
-            let updatedBench = [...ensureArray(userSquad.bench)];
-
-            if (targetSlotIdx !== null) {
-              const existingOccupant = updatedSlots[targetSlotIdx];
-              if (existingOccupant) {
-                updatedBench.push(existingOccupant);
-              }
-              updatedSlots[targetSlotIdx] = targetPlayer;
-            } else {
-              updatedBench.push(targetPlayer);
-            }
-
-            const turnOrder = draftState.turnOrder || [];
-            const currentTurnIndex = draftState.turnIndex || 0;
-            const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
-            const nextActiveUid = turnOrder[nextTurnIndex];
-            const updatedClaimed = [...ensureArray(claimedIds), playerId];
-
-            const updates = {};
-            updates[`rooms/${roomCode}/squads/${currentUid}/slots`] = updatedSlots;
-            updates[`rooms/${roomCode}/squads/${currentUid}/bench`] = updatedBench;
-            updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
-            updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
-            updates[`rooms/${roomCode}/draftState/claimedPlayerIds`] = updatedClaimed;
-            updates[`rooms/${roomCode}/draftState/currentReveal`] = null;
-            updates[`rooms/${roomCode}/draftState/turnDeadline`] = null;
-
-            let allComplete = true;
-            turnOrder.forEach(uid => {
-              const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
-              const sqSlots = getFilledSlotsArray((uid === currentUid) ? updatedSlots : sq.slots);
-              const sqBench = ensureArray((uid === currentUid) ? updatedBench : sq.bench);
-              const count = sqBench.length + sqSlots.filter(s => s !== null).length;
-              if (count < 15) allComplete = false;
-            });
-
-            if (allComplete) {
-              updates[`rooms/${roomCode}/status`] = "placing";
-            }
-
-            await update(ref(rtdb), updates);
-            showToast("Player placed onto pitch successfully!");
-          } catch (err) {
-            card.style.transform = "";
-            card.style.borderColor = "";
-            showToast(err.message, true);
-          }
-        };
-
-        document.querySelectorAll(".direct-slot-pick-btn").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const idx = parseInt(btn.getAttribute("data-slot-index"), 10);
-            executeClaimWithPlacement(idx);
-          });
+        let allComplete = true;
+        turnOrder.forEach(uid => {
+          const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
+          const sqSlots = getFilledSlotsArray((uid === currentUid) ? updatedSlots : sq.slots);
+          const sqBench = ensureArray((uid === currentUid) ? updatedBench : sq.bench);
+          const count = sqBench.length + sqSlots.filter(s => s !== null).length;
+          if (count < 15) allComplete = false;
         });
 
-        document.getElementById("direct-bench-pick-btn")?.addEventListener("click", () => {
-          executeClaimWithPlacement(null);
-        });
+        if (allComplete) {
+          updates[`rooms/${roomCode}/status`] = "placing";
+        }
+
+        try {
+          card.style.transform = "scale(0.95)";
+          card.style.borderColor = "var(--primary)";
+          await update(ref(rtdb), updates);
+          showToast(`Directly placed ${targetPlayer.name} onto field!`);
+        } catch (err) {
+          showToast(err.message, true);
+        }
       });
     });
   }
@@ -1658,8 +1578,38 @@ function renderSimulatingPhase(viewport, roomCode, room) {
           </div>
         </div>
 
+        <!-- Live Batter & Bowler Side-by-Side Scorecard Panel -->
+        <div class="career-stats-widget" style="margin-top: 1.25rem; border: 1px solid var(--glass-border); padding: 1rem;">
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <!-- Live Batter Card -->
+            <div style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.3); padding: 0.85rem; border-radius: 8px; border-left: 4px solid var(--willow-tan);">
+              <h5 style="color: var(--willow-tan); text-transform: uppercase; font-size: 0.8rem; margin: 0 0 0.5rem 0;">On Crease (Batting)</h5>
+              <div id="pb-live-striker" style="font-size: 0.9rem; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
+                <span>🏏 Striker: -</span>
+                <span style="color: var(--willow-tan);">0 (0)</span>
+              </div>
+              <div id="pb-live-nonstriker" style="font-size: 0.85rem; color: var(--chalk-white-dim); margin-top: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
+                <span>Non-Striker: -</span>
+                <span>0 (0)</span>
+              </div>
+            </div>
+
+            <!-- Live Bowler Card -->
+            <div style="flex: 1; min-width: 240px; background: rgba(0,0,0,0.3); padding: 0.85rem; border-radius: 8px; border-left: 4px solid #1e88e5;">
+              <h5 style="color: #64b5f6; text-transform: uppercase; font-size: 0.8rem; margin: 0 0 0.5rem 0;">Current Bowler</h5>
+              <div id="pb-live-bowler" style="font-size: 0.9rem; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
+                <span>⚡ Bowler: -</span>
+                <span style="color: #64b5f6;">0-0 (0.0 ov)</span>
+              </div>
+              <div id="pb-live-bowler-econ" style="font-size: 0.8rem; color: var(--chalk-white-dim); margin-top: 0.35rem;">
+                Economy: 0.00
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Commentary scrolling feed -->
-        <div class="commentary-card" style="margin-top: 1.5rem;">
+        <div class="commentary-card" style="margin-top: 1.25rem;">
           <h4>Procedural Commentary Feed</h4>
           <div class="commentary-list" id="pb-commentary-feed-list">
             <div class="commentary-item">Waiting for match start...</div>
@@ -1673,10 +1623,23 @@ function renderSimulatingPhase(viewport, roomCode, room) {
         <p style="color: var(--chalk-white-dim); margin-top: 1rem;">MATCH BROADCAST STARTING IN</p>
       </div>
 
-      <!-- Post Match Complete view -->
+      <!-- Post Match Complete Glorious Champions Victory Card -->
       <div id="pb-finished-screen" style="display: none; margin-top: 2rem;">
-        <h2 style="font-size: 1.7rem; color: var(--willow-tan); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; text-transform: uppercase;">
-          Tournament Standings
+        <div id="champions-victory-card" style="text-align: center; background: radial-gradient(circle at center, #2e1a05 0%, #0d0903 100%); border: 3px solid #ffd700; border-radius: 16px; padding: 2rem 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(255,215,0,0.3);">
+          <div style="font-size: 3rem; margin-bottom: 0.4rem;">🏆 👑 🏆</div>
+          <span class="role-badge all-rounder" style="background: linear-gradient(135deg, #ffd700, #ff8c00); color: black; font-weight: 900; font-size: 0.85rem; padding: 4px 12px; text-transform: uppercase;">
+            WORLD CUP CHAMPION
+          </span>
+          <h1 id="champion-team-title" style="font-size: 2.5rem; margin-top: 0.6rem; background: linear-gradient(135deg, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">
+            ${standings[0]?.teamName || "Champion Team"}
+          </h1>
+          <p id="champion-sub-title" style="font-size: 1.05rem; color: #ffe0b2; margin-top: 0.2rem;">
+            Final Points: <strong>${standings[0]?.points || 0} PTS</strong> • NRR: <strong>${standings[0]?.nrr > 0 ? '+' : ''}${standings[0]?.nrr || '0.00'}</strong>
+          </p>
+        </div>
+
+        <h2 style="font-size: 1.5rem; color: var(--willow-tan); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; text-transform: uppercase;">
+          Final Tournament Standings
         </h2>
         <table class="standings-table">
           <thead>
@@ -1858,6 +1821,28 @@ function startCinematicHighlightLoop(matches) {
 
       document.getElementById("pb-runsB").innerText = `${runs2}/${wickets2}`;
       document.getElementById("pb-oversB").innerText = `${ball.over}.${ball.ballInOver} ov`;
+    }
+
+    // Update live side-by-side batter & bowler scorecard widgets
+    const currentInningsData = ball.innings === 1 ? i1 : i2;
+    const bCard = currentInningsData.battingCard || {};
+    const bwCard = currentInningsData.bowlingCard || {};
+
+    const strikerData = bCard[ball.strikerId];
+    const bowlerData = bwCard[ball.bowlerId];
+
+    const strikerEl = document.getElementById("pb-live-striker");
+    const bowlerEl = document.getElementById("pb-live-bowler");
+    const bowlerEconEl = document.getElementById("pb-live-bowler-econ");
+
+    if (strikerEl && strikerData) {
+      strikerEl.innerHTML = `<span>🏏 ${strikerData.name} *</span><span style="color: var(--willow-tan); font-weight: 800;">${strikerData.runs} (${strikerData.balls}) • ${strikerData.fours}x4 ${strikerData.sixes}x6</span>`;
+    }
+    if (bowlerEl && bowlerData) {
+      const ovStr = `${Math.floor((bowlerData.balls || 0) / 6)}.${(bowlerData.balls || 0) % 6}`;
+      const econVal = (bowlerData.balls || 0) > 0 ? (((bowlerData.runsConceded || 0) / bowlerData.balls) * 6).toFixed(2) : '0.00';
+      bowlerEl.innerHTML = `<span>⚡ ${bowlerData.name}</span><span style="color: #64b5f6; font-weight: 800;">${bowlerData.wickets || 0}-${bowlerData.runsConceded || 0} (${ovStr} ov)</span>`;
+      if (bowlerEconEl) bowlerEconEl.innerText = `Economy: ${econVal} rpo`;
     }
 
     // Over outcome circles tracker

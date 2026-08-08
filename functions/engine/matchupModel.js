@@ -42,26 +42,34 @@ function adjustProbabilities(batter, bowler, matchState) {
   const isSpin = bType.includes('spin') || bType.includes('orthodox') || bType.includes('wrist');
   const isPace = !isSpin;
 
-  // 2. Batter vs Bowler Matchup Adjustment
-  const batSkill = isSpin ? (batter.vsSpinRating || 50) : (batter.vsPaceRating || 50);
-  const batFactor = (batSkill - 50) / 100; // range from -0.3 to +0.49
+  // 2. Batter vs Bowler Rating Advantage Scaling
+  const batRating = batter.batRating || batter.vsPaceRating || 75;
+  const bowlRating = bowler.bowlRating || bowler.wicketTakingRating || 70;
 
-  // Modify boundary and dot probabilities based on batter skill
-  if (batFactor > 0) {
-    probs.four += batFactor * 0.05;
-    probs.six += batFactor * 0.03;
-    probs.dot -= batFactor * 0.08;
+  let effectiveBat = batRating;
+  if (batter.isCaptain) effectiveBat *= 1.20;
+  if (batter.isViceCaptain) effectiveBat *= 1.10;
+
+  let effectiveBowl = bowlRating;
+  if (bowler.isCaptain) effectiveBowl *= 1.20;
+  if (bowler.isViceCaptain) effectiveBowl *= 1.10;
+
+  const ratingDiff = (effectiveBat - effectiveBowl) / 100;
+  let wicketMult = 1.0;
+
+  if (ratingDiff > 0) {
+    probs.four += ratingDiff * 0.18;
+    probs.six += ratingDiff * 0.12;
+    probs.one += ratingDiff * 0.08;
+    probs.dot -= ratingDiff * 0.28;
+    wicketMult = Math.max(0.25, 1.0 - ratingDiff * 1.6);
   } else {
-    probs.dot += Math.abs(batFactor) * 0.08;
-    probs.four -= Math.abs(batFactor) * 0.03;
-    probs.six -= Math.abs(batFactor) * 0.02;
+    const bowlAdv = Math.abs(ratingDiff);
+    probs.dot += bowlAdv * 0.25;
+    probs.four = Math.max(0.01, probs.four - bowlAdv * 0.10);
+    probs.six = Math.max(0.005, probs.six - bowlAdv * 0.08);
+    wicketMult = 1.0 + bowlAdv * 2.2;
   }
-
-  // 3. Wicket Probability adjustments
-  // Bowler wicketTakingRating vs Batter temperamentConsistency
-  const bowlWicketSkill = bowler.wicketTakingRating || 50;
-  const batTempSkill = batter.temperamentConsistency || 50;
-  let wicketMult = 1.0 + (bowlWicketSkill - 50) / 80 - (batTempSkill - 50) / 120;
 
   // v2 Composure Cascade: if batter is Volatile and a wicket fell in the last 6 balls (1 over)
   if (batter.composureTag === 'Volatile' && (currentBall - lastWicketBall) <= 6) {
