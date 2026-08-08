@@ -681,30 +681,71 @@ function renderDraftPhase(viewport, roomCode, room) {
           `}
         </div>
 
-        <!-- Room activity log & progress drawer -->
+        <!-- Room activity log & Side-by-side Field Setup canvas -->
         <div class="controls-card">
-          <h4 style="border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">Draft Roster Status</h4>
-          <div style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+          <div class="flex justify-between align-center" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 0.75rem;">
+            <h4 style="text-transform: uppercase; font-size: 0.9rem; margin: 0; color: var(--willow-tan);">Field Setup (Playing XI)</h4>
+            <span class="role-badge all-rounder" style="font-size: 0.7rem;">${getFilledSlotsArray(((room.squads || {})[currentUid] || {}).slots).filter(s => s !== null).length}/11 Placed</span>
+          </div>
+
+          <!-- STADIUM PITCH GRAPHIC SIDE-BY-SIDE -->
+          <div class="pitch-stadium" style="padding: 0.65rem; margin-bottom: 1rem; min-height: 270px; border-radius: 12px; background: radial-gradient(circle at center, #1b4d3e 0%, #0d2b1d 100%);">
+            <div class="pitch-center-lane"></div>
+            ${[
+              { name: "Top Order", indices: [0, 1, 2] },
+              { name: "Middle Order", indices: [3, 4, 5] },
+              { name: "Keeper", indices: [6] },
+              { name: "Bowlers", indices: [7, 8, 9, 10] }
+            ].map(zone => `
+              <div class="pitch-zone" style="margin-bottom: 0.35rem;">
+                <div class="pitch-zone-header" style="font-size: 0.65rem; padding: 1px 6px;">${zone.name}</div>
+                <div class="pitch-grid-row">
+                  ${zone.indices.map(idx => {
+                    const p = getFilledSlotsArray(((room.squads || {})[currentUid] || {}).slots)[idx];
+                    return `
+                      <div class="pitch-player-slot ${p ? 'filled' : 'empty'}" data-slot-index="${idx}" style="padding: 0.25rem;">
+                        <div class="player-avatar-circle" style="width: 32px; height: 32px; position: relative;">
+                          ${p ? `
+                            <img src="${getPlayerPhoto(p.name)}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" alt="${p.name}" />
+                            <span style="position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: #e53935; color: white; padding: 0 3px; border-radius: 3px; font-size: 0.55rem; font-weight: bold; white-space: nowrap;">BAT ${p.batRating}</span>
+                          ` : `
+                            <span style="font-size: 0.65rem; font-weight: bold; color: var(--willow-tan);">#${idx + 1}</span>
+                          `}
+                        </div>
+                        <div class="player-name-plate" style="font-size: 0.65rem; margin-top: 10px; font-weight: 700;">
+                          ${p ? p.name.split(" ").slice(-1)[0] : 'EMPTY'}
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <!-- Turn Order Roster Status -->
+          <h5 style="font-size: 0.8rem; text-transform: uppercase; color: var(--chalk-white-dim); margin-bottom: 0.5rem;">Draft Roster Status</h5>
+          <div style="display: flex; flex-direction: column; gap: 0.4rem;">
             ${(draftState.turnOrder || []).map(uid => {
               const p = (room.players || {})[uid] || {};
-              const pSquad = (room.squads || {})[uid] || {};
-              const pBench = pSquad.bench || [];
-              const pSlots = pSquad.slots || [];
+              const sq = (room.squads || {})[uid] || {};
+              const pBench = ensureArray(sq.bench);
+              const pSlots = getFilledSlotsArray(sq.slots);
               const claimedCount = pBench.length + pSlots.filter(s => s !== null).length;
               return `
-                <div class="flex justify-between align-center" style="padding: 0.5rem; background: var(--bg-light); border-radius: var(--border-radius-sm);">
+                <div class="flex justify-between align-center" style="padding: 0.35rem 0.6rem; background: var(--bg-light); border-radius: var(--border-radius-sm); font-size: 0.8rem;">
                   <span style="font-weight: ${uid === draftState.activePlayerUid ? '800' : '500'}; color: ${uid === draftState.activePlayerUid ? 'var(--willow-tan)' : 'var(--chalk-white)'};">
-                    ${uid === draftState.activePlayerUid ? '● ' : ''}${p.displayName || "Unknown Player"}
+                    ${uid === draftState.activePlayerUid ? '● ' : ''}${p.displayName || "Player"}
                   </span>
-                  <span class="role-badge" style="font-family: var(--font-family-mono);">${claimedCount}/15 Claimed</span>
+                  <span class="role-badge" style="font-size: 0.65rem;">${claimedCount}/15 Claimed</span>
                 </div>
               `;
-            }).join("")}
+            }).join('')}
           </div>
           
-          <div class="auth-upgrade-callout" style="margin-top: 1.5rem; font-size: 0.8rem;">
+          <div class="auth-upgrade-callout" style="margin-top: 1rem; font-size: 0.78rem; padding: 0.5rem 0.75rem;">
             <strong>Quick Placement:</strong>
-            Tap any player during your turn to place them directly onto your Pitch Setup (Slots 1-11) or Reserves!
+            Tap any player on your turn to place them directly onto your field setup!
           </div>
         </div>
       </div>
@@ -861,8 +902,8 @@ function renderDraftPhase(viewport, roomCode, room) {
             let allComplete = true;
             turnOrder.forEach(uid => {
               const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
-              const sqSlots = (uid === currentUid) ? updatedSlots : (sq.slots || []);
-              const sqBench = (uid === currentUid) ? updatedBench : (sq.bench || []);
+              const sqSlots = getFilledSlotsArray((uid === currentUid) ? updatedSlots : sq.slots);
+              const sqBench = ensureArray((uid === currentUid) ? updatedBench : sq.bench);
               const count = sqBench.length + sqSlots.filter(s => s !== null).length;
               if (count < 15) allComplete = false;
             });
@@ -911,7 +952,7 @@ function renderDraftPhase(viewport, roomCode, room) {
           if (reveal && reveal.players && reveal.players.length > 0) {
             // Find unclaimed players in this reveal
             const claimedIds = draftState.claimedPlayerIds || [];
-            const availablePlayers = reveal.players.filter(p => !claimedIds.includes(p.id));
+            const availablePlayers = ensureArray(reveal.players).filter(p => !claimedIds.includes(p.id));
 
             if (availablePlayers.length > 0) {
               // Pick a random unclaimed player
@@ -919,7 +960,7 @@ function renderDraftPhase(viewport, roomCode, room) {
 
               // Auto-claim using direct RTDB write (same as manual claim fallback)
               const userSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
-              const currentBench = userSquad.bench || [];
+              const currentBench = ensureArray(userSquad.bench);
               const updatedBench = [...currentBench, randomPick];
 
               const turnOrder = draftState.turnOrder || [];
@@ -941,8 +982,8 @@ function renderDraftPhase(viewport, roomCode, room) {
               let allComplete = true;
               turnOrder.forEach(uid => {
                 const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
-                const sqSlots = sq.slots || [];
-                const sqBench = (uid === currentUid) ? updatedBench : (sq.bench || []);
+                const sqSlots = getFilledSlotsArray(sq.slots);
+                const sqBench = ensureArray((uid === currentUid) ? updatedBench : sq.bench);
                 const count = sqBench.length + sqSlots.filter(s => s !== null).length;
                 if (count < 15) allComplete = false;
               });
@@ -1014,6 +1055,32 @@ function startSlotMachineAnimation() {
 
 function getPlayerPhoto(name) {
   return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name || 'cricket')}&backgroundColor=0a2e1d,031d10`;
+}
+
+function ensureArray(val) {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'object') return Object.values(val);
+  return [];
+}
+
+function getFilledSlotsArray(rawSlots) {
+  const arr = Array(11).fill(null);
+  if (!rawSlots) return arr;
+  if (Array.isArray(rawSlots)) {
+    for (let i = 0; i < 11; i++) {
+      if (rawSlots[i]) arr[i] = rawSlots[i];
+    }
+  } else if (typeof rawSlots === 'object') {
+    for (let i = 0; i < 11; i++) {
+      if (rawSlots[i] !== undefined && rawSlots[i] !== null) {
+        arr[i] = rawSlots[i];
+      } else if (rawSlots[String(i)] !== undefined && rawSlots[String(i)] !== null) {
+        arr[i] = rawSlots[String(i)];
+      }
+    }
+  }
+  return arr;
 }
 
 /**
