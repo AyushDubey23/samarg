@@ -42,20 +42,38 @@ function adjustProbabilities(batter, bowler, matchState) {
   const isSpin = bType.includes('spin') || bType.includes('orthodox') || bType.includes('wrist');
   const isPace = !isSpin;
 
-  // 2. Batter vs Bowler Rating Advantage Scaling
-  const batRating = batter.batRating || batter.vsPaceRating || 75;
-  const bowlRating = bowler.bowlRating || bowler.wicketTakingRating || 70;
+  // 2. Batter vs Bowler Rating Advantage Scaling & Out-Of-Position (OOP) Penalties
+  const bRole = (batter.role || '').toLowerCase();
+  const bwRole = (bowler.role || '').toLowerCase();
 
-  let effectiveBat = batRating;
+  let effectiveBat = batter.batRating || batter.vsPaceRating || 75;
+  let effectiveBowl = bowler.bowlRating || bowler.wicketTakingRating || 70;
+
+  // OOP Checks
+  const isPureBowlerInTopOrder = (bRole === 'pacer' || bRole === 'spinner') && (batter.slotIndex !== undefined && batter.slotIndex < 3);
+  const isPureBatterInBowlerSlot = (bwRole === 'opener' || bwRole === 'toporder' || bwRole === 'middleorder' || bwRole === 'keeper') && (bowler.slotIndex !== undefined && bowler.slotIndex >= 7);
+
+  if (isPureBowlerInTopOrder) {
+    effectiveBat *= 0.55; // -45% Batting Penalty
+  }
+  if (isPureBatterInBowlerSlot) {
+    effectiveBowl *= 0.45; // -55% Bowling Penalty
+  }
+
   if (batter.isCaptain) effectiveBat *= 1.20;
   if (batter.isViceCaptain) effectiveBat *= 1.10;
 
-  let effectiveBowl = bowlRating;
   if (bowler.isCaptain) effectiveBowl *= 1.20;
   if (bowler.isViceCaptain) effectiveBowl *= 1.10;
 
   const ratingDiff = (effectiveBat - effectiveBowl) / 100;
   let wicketMult = 1.0;
+
+  if (isPureBowlerInTopOrder) wicketMult *= 1.8; // Wicket surge for bowler facing new ball
+  if (isPureBatterInBowlerSlot) {
+    probs.four *= 1.45; // Boundary surge against part-time batter bowling
+    probs.six *= 1.35;
+  }
 
   if (ratingDiff > 0) {
     probs.four += ratingDiff * 0.18;
