@@ -13,26 +13,7 @@ function validateDraftXI(players) {
   if (!players || players.length !== 11) {
     return {
       valid: false,
-      reason: `Your Playing XI has ${players ? players.length : 0} players. It must contain exactly 11 players.`
-    };
-  }
-
-  // Check for wicketkeeper
-  const hasKeeper = players.some(p => p.role === 'keeper' || p.isWicketkeeper === true);
-  if (!hasKeeper) {
-    return {
-      valid: false,
-      reason: "Your Playing XI must contain at least one designated Wicketkeeper."
-    };
-  }
-
-  // Check for bowling options
-  // Players with bowlingType defined are recognized bowling options
-  const bowlingOptions = players.filter(p => p.bowlingType && p.bowlingType !== null);
-  if (bowlingOptions.length < 5) {
-    return {
-      valid: false,
-      reason: `Your Playing XI only has ${bowlingOptions.length} bowling options. You need at least 5 options to cover 20 overs.`
+      reason: `Your Playing XI has ${players ? players.length : 0} players. Place all 11 players on the pitch to lock.`
     };
   }
 

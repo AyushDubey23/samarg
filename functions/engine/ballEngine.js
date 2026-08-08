@@ -578,7 +578,7 @@ class BallEngine {
     let motm = null;
     const allPlayersPerformance = [];
 
-    // Score performances
+    // Score performances (Captain 2x, Vice-Captain 1.5x)
     const scorePerformance = (player, teamName, isBatting) => {
       let score = 0;
       if (isBatting) {
@@ -589,8 +589,10 @@ class BallEngine {
         if (player.runs >= 100) score += 25;
       } else {
         score += player.wickets * 20;
-        score += Math.max(0, (24 - (player.overs * 6 || 0)) * 2); // economy score
+        score += Math.max(0, (24 - (player.overs * 6 || 0)) * 2);
       }
+      if (player.isCaptain) score *= 2.0;
+      else if (player.isViceCaptain) score *= 1.5;
       return score;
     };
 

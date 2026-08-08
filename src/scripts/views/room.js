@@ -164,9 +164,10 @@ const AUTHENTIC_FALLBACK_SQUADS = [
 ];
 
 export async function fetchClientRandomSquad() {
+  const UNDERDOG_TEAMS = ['NED', 'ZIM', 'IRE', 'AFG', 'BAN', 'SL', 'WI', 'KEN', 'SCO', 'CAN', 'USA', 'UAE', 'Netherlands', 'Zimbabwe', 'Ireland', 'Afghanistan', 'Bangladesh', 'Sri Lanka', 'West Indies'];
+
   try {
-    const squadsRef = collection(db, "squads");
-    const snap = await getDocs(squadsRef);
+    const snap = await getDocs(collection(db, "squads"));
     if (!snap.empty) {
       const docs = snap.docs;
       const squadByTeam = {};
@@ -177,7 +178,17 @@ export async function fetchClientRandomSquad() {
         squadByTeam[team].push(data);
       });
       const availableTeams = Object.keys(squadByTeam);
-      const chosenTeam = availableTeams[Math.floor(Math.random() * availableTeams.length)];
+      const availableUnderdogs = availableTeams.filter(t => UNDERDOG_TEAMS.includes(t));
+      const availableHeavyweights = availableTeams.filter(t => !UNDERDOG_TEAMS.includes(t));
+
+      let chosenTeam;
+      if (availableUnderdogs.length > 0 && (Math.random() < 0.75 || availableHeavyweights.length === 0)) {
+        chosenTeam = availableUnderdogs[Math.floor(Math.random() * availableUnderdogs.length)];
+      } else if (availableHeavyweights.length > 0) {
+        chosenTeam = availableHeavyweights[Math.floor(Math.random() * availableHeavyweights.length)];
+      } else {
+        chosenTeam = availableTeams[Math.floor(Math.random() * availableTeams.length)];
+      }
       const randomDoc = squadByTeam[chosenTeam][Math.floor(Math.random() * squadByTeam[chosenTeam].length)];
 
       const playerIds = randomDoc.playerIds || [];
@@ -220,7 +231,7 @@ export async function fetchClientRandomSquad() {
     console.warn("Firestore squad fetch error, using authentic fallback squad:", e);
   }
 
-  // Pick a complete, authentic squad from fallback pool with team diversity
+  // Pick a complete, authentic squad from fallback pool with team diversity (75% underdog weighted)
   const fallbackByTeam = {};
   AUTHENTIC_FALLBACK_SQUADS.forEach(s => {
     const t = s.nationalTeam;
@@ -228,7 +239,17 @@ export async function fetchClientRandomSquad() {
     fallbackByTeam[t].push(s);
   });
   const fallbackTeams = Object.keys(fallbackByTeam);
-  const pickedTeam = fallbackTeams[Math.floor(Math.random() * fallbackTeams.length)];
+  const fallbackUnderdogs = fallbackTeams.filter(t => UNDERDOG_TEAMS.includes(t));
+  const fallbackHeavyweights = fallbackTeams.filter(t => !UNDERDOG_TEAMS.includes(t));
+
+  let pickedTeam;
+  if (fallbackUnderdogs.length > 0 && (Math.random() < 0.75 || fallbackHeavyweights.length === 0)) {
+    pickedTeam = fallbackUnderdogs[Math.floor(Math.random() * fallbackUnderdogs.length)];
+  } else if (fallbackHeavyweights.length > 0) {
+    pickedTeam = fallbackHeavyweights[Math.floor(Math.random() * fallbackHeavyweights.length)];
+  } else {
+    pickedTeam = fallbackTeams[Math.floor(Math.random() * fallbackTeams.length)];
+  }
   const chosenSquad = fallbackByTeam[pickedTeam][Math.floor(Math.random() * fallbackByTeam[pickedTeam].length)];
 
   return {
@@ -634,22 +655,23 @@ function renderDraftPhase(viewport, roomCode, room) {
                 </h3>
                 <span class="role-badge all-rounder">Select 1 Player</span>
               </div>
-              <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem; max-height: 520px; min-height: 350px; overflow-y: auto; padding-right: 0.5rem;" id="rolled-players-grid">
+              <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 0.75rem; max-height: 520px; min-height: 350px; overflow-y: auto; padding-right: 0.5rem;" id="rolled-players-grid">
                 ${reveal.players.map(p => {
                   const isClaimed = (draftState.claimedPlayerIds || []).includes(p.id);
                   return `
                     <div class="active-card-group draft-card-item ${isClaimed ? 'claimed-dim' : ''}" style="text-align: center; padding: 0.75rem; cursor: ${isClaimed || !isActiveTurn ? 'not-allowed' : 'pointer'}; position: relative;" data-player-id="${p.id}">
-                      <div class="role-badge" style="font-size: 0.65rem; margin-bottom: 0.35rem;">${p.role.toUpperCase()}</div>
+                      <img src="${getPlayerPhoto(p.name)}" style="width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--glass-border); margin-bottom: 0.35rem;" alt="${p.name}" />
+                      <div class="role-badge" style="font-size: 0.62rem; margin-bottom: 0.25rem;">${p.role.toUpperCase()}</div>
                       <div style="font-weight: 700; font-size: 0.85rem; height: 36px; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
                       
-                      <!-- Composite Overall Ratings badges -->
-                      <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 0.5rem;">
-                        <span class="stat-pill">BAT: ${p.batRating}</span>
-                        ${p.bowlRating > 0 ? `<span class="stat-pill" style="border-color: var(--accent-red);">BOWL: ${p.bowlRating}</span>` : ''}
+                      <!-- Red BAT & Blue BOWL chips -->
+                      <div style="display: flex; justify-content: center; gap: 0.35rem; margin-top: 0.5rem;">
+                        <span class="rating-chip bat-chip" style="background: linear-gradient(135deg, #e53935, #c62828); color: white; padding: 1px 5px; border-radius: 4px; font-size: 0.62rem; font-weight: 800;">BAT ${p.batRating}</span>
+                        ${p.bowlRating > 0 ? `<span class="rating-chip bowl-chip" style="background: linear-gradient(135deg, #1e88e5, #1565c0); color: white; padding: 1px 5px; border-radius: 4px; font-size: 0.62rem; font-weight: 800;">BOWL ${p.bowlRating}</span>` : ''}
                       </div>
 
                       ${isClaimed ? `
-                        <div class="status-badge complete" style="position: absolute; top: 40%; left: 25%; transform: rotate(-15deg); font-weight: 900;">CLAIMED</div>
+                        <div class="status-badge complete" style="position: absolute; top: 40%; left: 20%; transform: rotate(-15deg); font-weight: 900;">CLAIMED</div>
                       ` : ''}
                     </div>
                   `;
@@ -674,15 +696,15 @@ function renderDraftPhase(viewport, roomCode, room) {
                   <span style="font-weight: ${uid === draftState.activePlayerUid ? '800' : '500'}; color: ${uid === draftState.activePlayerUid ? 'var(--willow-tan)' : 'var(--chalk-white)'};">
                     ${uid === draftState.activePlayerUid ? '● ' : ''}${p.displayName || "Unknown Player"}
                   </span>
-                  <span class="role-badge" style="font-family: var(--font-family-mono);">${claimedCount}/11 Claimed</span>
+                  <span class="role-badge" style="font-family: var(--font-family-mono);">${claimedCount}/15 Claimed</span>
                 </div>
               `;
             }).join("")}
           </div>
           
           <div class="auth-upgrade-callout" style="margin-top: 1.5rem; font-size: 0.8rem;">
-            <strong>Rule reminder:</strong>
-            You can select any player from the rolled squad. Position balance is enforced later during manual placement!
+            <strong>Quick Placement:</strong>
+            Tap any player during your turn to place them directly onto your Pitch Setup (Slots 1-11) or Reserves!
           </div>
         </div>
       </div>
@@ -695,7 +717,6 @@ function renderDraftPhase(viewport, roomCode, room) {
     rollBtn.addEventListener("click", async () => {
       try {
         rollBtn.disabled = true;
-        // Start client slot-machine animation loop
         startSlotMachineAnimation();
         try {
           const rollSquadFn = httpsCallable(functions, "rollSquad");
@@ -728,41 +749,108 @@ function renderDraftPhase(viewport, roomCode, room) {
     });
   }
 
-  // Attach card claim handler
+  // Attach card claim handler with Direct Pitch Slot Modal
   if (reveal && isActiveTurn) {
     const cards = document.querySelectorAll(".draft-card-item");
     cards.forEach(card => {
-      card.addEventListener("click", async () => {
+      card.addEventListener("click", () => {
         const playerId = card.getAttribute("data-player-id");
         const claimedIds = draftState.claimedPlayerIds || [];
-        if (claimedIds.includes(playerId)) return; // Already claimed
+        if (claimedIds.includes(playerId)) return;
 
-        try {
-          // Play card select visual effect before calling functions
-          card.style.transform = "scale(0.95)";
-          card.style.borderColor = "var(--primary)";
-          
+        const targetPlayer = (reveal.players || []).find(p => String(p.id) === String(playerId));
+        if (!targetPlayer) return;
+
+        const userSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
+        const userSlots = userSquad.slots || Array(11).fill(null);
+
+        // Open Direct Placement Modal overlay
+        let modalEl = document.getElementById("direct-placement-modal");
+        if (!modalEl) {
+          modalEl = document.createElement("div");
+          modalEl.id = "direct-placement-modal";
+          modalEl.style.cssText = "display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center; padding: 1rem;";
+          document.body.appendChild(modalEl);
+        }
+
+        modalEl.innerHTML = `
+          <div class="modal-card" style="max-width: 520px; width: 100%; border: 2px solid var(--willow-tan); border-radius: 12px; background: #0c2016; padding: 1.5rem; color: white;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+              <img src="${getPlayerPhoto(targetPlayer.name)}" style="width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--primary);" />
+              <div>
+                <h3 style="font-size: 1.2rem; margin: 0; color: var(--willow-tan);">${targetPlayer.name}</h3>
+                <p style="font-size: 0.8rem; color: var(--chalk-white-dim); margin: 0.2rem 0 0 0;">
+                  ${targetPlayer.role.toUpperCase()} • ${targetPlayer.nationalTeam || reveal.nationalTeam} (${targetPlayer.tournamentYear || reveal.tournamentYear})
+                </p>
+                <div style="display: flex; gap: 0.4rem; margin-top: 0.4rem;">
+                  <span style="background: linear-gradient(135deg, #e53935, #c62828); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold;">BAT ${targetPlayer.batRating}</span>
+                  ${targetPlayer.bowlRating > 0 ? `<span style="background: linear-gradient(135deg, #1e88e5, #1565c0); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold;">BOWL ${targetPlayer.bowlRating}</span>` : ''}
+                </div>
+              </div>
+            </div>
+
+            <p style="font-size: 0.85rem; margin-bottom: 1rem; color: var(--chalk-white-dim);">
+              Place <strong>${targetPlayer.name}</strong> directly onto your Pitch Setup or Reserves:
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; max-height: 250px; overflow-y: auto; padding-right: 0.25rem;">
+              ${[0,1,2,3,4,5,6,7,8,9,10].map(idx => {
+                const s = userSlots[idx];
+                return `
+                  <button class="btn btn-secondary direct-slot-pick-btn" data-slot-index="${idx}" style="padding: 0.6rem 0.5rem; text-align: left; font-size: 0.8rem; border-left: 4px solid ${s ? '#ffa726' : '#66bb6a'};">
+                    <div style="font-size: 0.7rem; color: var(--willow-tan);">Position Slot #${idx + 1}</div>
+                    <div style="font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      ${s ? `Swap: ${s.name}` : '✨ OPEN SLOT'}
+                    </div>
+                  </button>
+                `;
+              }).join("")}
+            </div>
+
+            <button id="direct-bench-pick-btn" class="btn btn-primary" style="width: 100%; margin-top: 1rem; background: var(--bg-light); border: 1px solid var(--glass-border);">
+              Place in Reserves (Bench)
+            </button>
+            <button id="direct-modal-close-btn" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem; font-size: 0.8rem;">
+              Cancel
+            </button>
+          </div>
+        `;
+
+        modalEl.style.display = "flex";
+
+        const closeModal = () => {
+          modalEl.style.display = "none";
+        };
+
+        document.getElementById("direct-modal-close-btn")?.addEventListener("click", closeModal);
+
+        const executeClaimWithPlacement = async (targetSlotIdx) => {
+          closeModal();
           try {
-            const claimPlayerFn = httpsCallable(functions, "claimPlayer");
-            await claimPlayerFn({ code: roomCode, playerId });
-            showToast("Player successfully claimed!");
-          } catch (fnErr) {
-            console.warn("Cloud function claimPlayer failed, performing RTDB direct claim fallback:", fnErr);
-            const targetPlayer = (reveal.players || []).find(p => String(p.id) === String(playerId));
-            if (!targetPlayer) return;
+            card.style.transform = "scale(0.95)";
+            card.style.borderColor = "var(--primary)";
 
-            const userSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
-            const currentBench = userSquad.bench || [];
-            const updatedBench = [...currentBench, targetPlayer];
+            const updatedSlots = [...userSlots];
+            let updatedBench = [...(userSquad.bench || [])];
+
+            if (targetSlotIdx !== null) {
+              const existingOccupant = updatedSlots[targetSlotIdx];
+              if (existingOccupant) {
+                updatedBench.push(existingOccupant);
+              }
+              updatedSlots[targetSlotIdx] = targetPlayer;
+            } else {
+              updatedBench.push(targetPlayer);
+            }
 
             const turnOrder = draftState.turnOrder || [];
             const currentTurnIndex = draftState.turnIndex || 0;
             const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
             const nextActiveUid = turnOrder[nextTurnIndex];
-
             const updatedClaimed = [...claimedIds, playerId];
 
             const updates = {};
+            updates[`rooms/${roomCode}/squads/${currentUid}/slots`] = updatedSlots;
             updates[`rooms/${roomCode}/squads/${currentUid}/bench`] = updatedBench;
             updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
             updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
@@ -770,14 +858,13 @@ function renderDraftPhase(viewport, roomCode, room) {
             updates[`rooms/${roomCode}/draftState/currentReveal`] = null;
             updates[`rooms/${roomCode}/draftState/turnDeadline`] = null;
 
-            // Check if all players reached 11 squad picks
             let allComplete = true;
             turnOrder.forEach(uid => {
               const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
-              const sqSlots = sq.slots || [];
+              const sqSlots = (uid === currentUid) ? updatedSlots : (sq.slots || []);
               const sqBench = (uid === currentUid) ? updatedBench : (sq.bench || []);
               const count = sqBench.length + sqSlots.filter(s => s !== null).length;
-              if (count < 11) allComplete = false;
+              if (count < 15) allComplete = false;
             });
 
             if (allComplete) {
@@ -785,13 +872,24 @@ function renderDraftPhase(viewport, roomCode, room) {
             }
 
             await update(ref(rtdb), updates);
-            showToast("Player successfully claimed!");
+            showToast("Player placed onto pitch successfully!");
+          } catch (err) {
+            card.style.transform = "";
+            card.style.borderColor = "";
+            showToast(err.message, true);
           }
-        } catch (err) {
-          card.style.transform = "";
-          card.style.borderColor = "";
-          showToast(err.message, true);
-        }
+        };
+
+        document.querySelectorAll(".direct-slot-pick-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const idx = parseInt(btn.getAttribute("data-slot-index"), 10);
+            executeClaimWithPlacement(idx);
+          });
+        });
+
+        document.getElementById("direct-bench-pick-btn")?.addEventListener("click", () => {
+          executeClaimWithPlacement(null);
+        });
       });
     });
   }
@@ -846,7 +944,7 @@ function renderDraftPhase(viewport, roomCode, room) {
                 const sqSlots = sq.slots || [];
                 const sqBench = (uid === currentUid) ? updatedBench : (sq.bench || []);
                 const count = sqBench.length + sqSlots.filter(s => s !== null).length;
-                if (count < 11) allComplete = false;
+                if (count < 15) allComplete = false;
               });
 
               if (allComplete) {
@@ -914,6 +1012,10 @@ function startSlotMachineAnimation() {
   }, speed);
 }
 
+function getPlayerPhoto(name) {
+  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name || 'cricket')}&backgroundColor=0a2e1d,031d10`;
+}
+
 /**
  * 3. MANUAL PLACING PHASE VIEW (Pitch Stadium graphic)
  */
@@ -933,11 +1035,9 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
     { name: "Spin & Pace Bowlers", indices: [7, 8, 9, 10] }
   ];
 
-  // Check role validation for Locking XI button status
-  const filledSlots = slots.filter(s => s !== null);
-  const rules = validateDraftXI(filledSlots);
+  // Check XI status for Locking button
   const totalPlaced = slots.filter(s => s !== null).length;
-  const isFinalizable = totalPlaced === 11 && rules.valid && !spectatorSquad.ready;
+  const isFinalizable = totalPlaced === 11 && !spectatorSquad.ready;
 
   viewport.innerHTML = `
     <div style="margin-bottom: 2rem;">
@@ -952,7 +1052,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
 
         ${isOwnBoard && !spectatorSquad.ready ? `
           <button id="lock-squad-btn" class="btn btn-primary" ${isFinalizable ? '' : 'disabled'}>
-            Lock Playing XI
+            Lock Playing XI (${totalPlaced}/11 Placed)
           </button>
         ` : ''}
 
@@ -961,16 +1061,16 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
         ` : ''}
       </div>
 
-      <!-- Live alert boxes -->
+      <!-- Live alert box -->
       ${isOwnBoard && !spectatorSquad.ready ? `
         <div style="margin-bottom: 1rem;">
-          ${rules.valid ? `
-            <div class="validation-success-alert">
-              ✓ Squad Satisfies All Validation Rules! Ready to Lock.
+          ${totalPlaced === 11 ? `
+            <div class="validation-success-alert" style="background: rgba(46, 125, 50, 0.2); border: 1px solid #4caf50; color: #a5d6a7; padding: 0.75rem; border-radius: 8px;">
+              ✓ All 11 Playing XI Positions Filled! Ready to Lock and Simulate.
             </div>
           ` : `
-            <div class="validation-error-alert">
-              ⚠️ Roster Constraint Unfulfilled: ${rules.reason} (Placed: ${totalPlaced}/11)
+            <div class="validation-error-alert" style="background: rgba(211, 47, 47, 0.2); border: 1px solid #ef5350; color: #ef9a9a; padding: 0.75rem; border-radius: 8px;">
+              ⚠️ Place all 11 players onto your pitch field to lock your roster. (${totalPlaced}/11 placed)
             </div>
           `}
         </div>
@@ -989,24 +1089,36 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                   <div class="pitch-grid-row">
                     ${zone.indices.map(idx => {
                       const player = slots[idx];
+                      const isPureBat = player && (player.bowlRating === 0 || !player.bowlRating);
+                      const isPureBowl = player && player.bowlRating >= 75;
+                      const isAllRounder = player && player.batRating >= 70 && player.bowlRating >= 70;
+
+                      let borderColor = 'var(--glass-border)';
+                      if (isPureBat) borderColor = '#e53935';
+                      else if (isPureBowl) borderColor = '#1e88e5';
+                      else if (isAllRounder) borderColor = '#ab47bc';
+                      if (player?.isCaptain) borderColor = '#ffb703';
+
                       return `
-                        <div class="pitch-player-slot ${player ? 'filled' : 'empty'}" data-slot-index="${idx}" style="pointer-events: ${spectatorSquad.ready || !isOwnBoard ? 'none' : 'auto'};">
-                          <div class="player-avatar-circle">
+                        <div class="pitch-player-slot ${player ? 'filled' : 'empty'}" data-slot-index="${idx}" style="pointer-events: ${spectatorSquad.ready || !isOwnBoard ? 'none' : 'auto'}; position: relative;">
+                          <div class="player-avatar-circle" style="position: relative; overflow: visible; border-color: ${borderColor};">
                             ${player ? `
-                              <!-- Role specific head silhouette -->
-                              <img src="./assets/silhouettes/${getPlayerSilhouette(player.role)}.svg" style="width: 38px; height: 38px; filter: invert(0.95);" />
+                              <img src="${getPlayerPhoto(player.name)}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid ${borderColor};" alt="${player.name}" />
                               
-                              <span class="rating-badge-chip">${player.batRating}</span>
-                              
-                              ${player.isCaptain ? '<span class="designation-badge">C</span>' : ''}
-                              ${player.isViceCaptain ? '<span class="designation-badge" style="background: var(--willow-tan);">V</span>' : ''}
+                              <div style="display: flex; gap: 2px; position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%); white-space: nowrap; z-index: 5;">
+                                <span class="rating-chip bat-chip" style="background: linear-gradient(135deg, #e53935, #c62828); color: white; padding: 1px 4px; border-radius: 4px; font-size: 0.62rem; font-weight: 800; box-shadow: 0 2px 4px rgba(0,0,0,0.6);">BAT ${player.batRating}</span>
+                                ${player.bowlRating > 0 ? `<span class="rating-chip bowl-chip" style="background: linear-gradient(135deg, #1e88e5, #1565c0); color: white; padding: 1px 4px; border-radius: 4px; font-size: 0.62rem; font-weight: 800; box-shadow: 0 2px 4px rgba(0,0,0,0.6);">BOWL ${player.bowlRating}</span>` : ''}
+                              </div>
+
+                              ${player.isCaptain ? '<span class="designation-badge" style="position: absolute; top: -6px; right: -8px; background: #ffb703; color: #000; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 6px; border: 1px solid #fff; z-index: 6;">C (2x)</span>' : ''}
+                              ${player.isViceCaptain ? '<span class="designation-badge" style="position: absolute; top: -6px; right: -8px; background: #e0e0e0; color: #000; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 6px; border: 1px solid #fff; z-index: 6;">VC (1.5x)</span>' : ''}
                             ` : `
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                               </svg>
                             `}
                           </div>
-                          <div class="player-name-plate">
+                          <div class="player-name-plate" style="margin-top: 14px; font-weight: 700;">
                             ${player ? player.name.split(" ").slice(-1)[0] : 'EMPTY'}
                           </div>
                         </div>

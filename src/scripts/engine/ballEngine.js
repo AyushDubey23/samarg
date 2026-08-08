@@ -526,6 +526,8 @@ export class BallEngine {
         score += player.wickets * 20;
         score += Math.max(0, (24 - (player.overs * 6 || 0)) * 2);
       }
+      if (player.isCaptain) score *= 2.0;
+      else if (player.isViceCaptain) score *= 1.5;
       return score;
     };
 

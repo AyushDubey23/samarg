@@ -276,7 +276,8 @@ exports.rollSquad = onCall({ cors: true }, async (request) => {
       throw new HttpsError("not-found", "No squads with unclaimed players remaining.");
     }
 
-    // Group eligible squads by nationalTeam for equal team diversity across all nations
+    // Group eligible squads by nationalTeam, weighting underdog/weaker teams (75% chance)
+    const UNDERDOG_TEAMS = ['NED', 'ZIM', 'IRE', 'AFG', 'BAN', 'SL', 'WI', 'KEN', 'SCO', 'CAN', 'USA', 'UAE', 'Netherlands', 'Zimbabwe', 'Ireland', 'Afghanistan', 'Bangladesh', 'Sri Lanka', 'West Indies'];
     const squadByTeam = {};
     eligibleSquads.forEach(sq => {
       const team = sq.nationalTeam || "IND";
@@ -285,7 +286,17 @@ exports.rollSquad = onCall({ cors: true }, async (request) => {
     });
 
     const availableTeams = Object.keys(squadByTeam);
-    const chosenTeam = availableTeams[Math.floor(Math.random() * availableTeams.length)];
+    const availableUnderdogs = availableTeams.filter(t => UNDERDOG_TEAMS.includes(t));
+    const availableHeavyweights = availableTeams.filter(t => !UNDERDOG_TEAMS.includes(t));
+
+    let chosenTeam;
+    if (availableUnderdogs.length > 0 && (Math.random() < 0.75 || availableHeavyweights.length === 0)) {
+      chosenTeam = availableUnderdogs[Math.floor(Math.random() * availableUnderdogs.length)];
+    } else if (availableHeavyweights.length > 0) {
+      chosenTeam = availableHeavyweights[Math.floor(Math.random() * availableHeavyweights.length)];
+    } else {
+      chosenTeam = availableTeams[Math.floor(Math.random() * availableTeams.length)];
+    }
     const selectedSquad = squadByTeam[chosenTeam][Math.floor(Math.random() * squadByTeam[chosenTeam].length)];
 
     // Fetch players of this squad
@@ -446,15 +457,15 @@ exports.claimPlayer = onCall({ cors: true }, async (request) => {
     const userSlots = room.squads[request.auth.uid].slots || [];
     const userTotalClaimed = userBench.length + userSlots.filter(s => s !== null).length;
 
-    if (userTotalClaimed >= 11) {
-      throw new HttpsError("failed-precondition", "You already have a full squad of 11.");
+    if (userTotalClaimed >= 15) {
+      throw new HttpsError("failed-precondition", "You already have a full squad of 15.");
     }
 
     // Add to bench
     userBench.push(fullPlayer);
     claimedIds.push(playerId);
 
-    // Rotate turn order logic (skip players who already have 11)
+    // Rotate turn order logic (skip players who already have 15)
     const turnOrder = draftState.turnOrder || [];
     let nextIndex = (draftState.turnIndex + 1) % turnOrder.length;
     let iterations = 0;
@@ -466,7 +477,7 @@ exports.claimPlayer = onCall({ cors: true }, async (request) => {
       const pSlots = sq.slots || [];
       const pTotal = pBench.length + pSlots.filter(s => s !== null).length;
 
-      if (pTotal < 11) {
+      if (pTotal < 15) {
         break; // Found eligible next player
       }
       nextIndex = (nextIndex + 1) % turnOrder.length;
@@ -474,14 +485,14 @@ exports.claimPlayer = onCall({ cors: true }, async (request) => {
       iterations++;
     }
 
-    // Check if draft is finished (everyone has 11 players)
+    // Check if draft is finished (everyone has 15 players)
     let allFinished = true;
     for (const uid of turnOrder) {
       const sq = (room.squads || {})[uid] || {};
       const pBench = (uid === request.auth.uid) ? userBench : (sq.bench || []);
       const pSlots = sq.slots || [];
       const pTotal = pBench.length + pSlots.filter(s => s !== null).length;
-      if (pTotal < 11) {
+      if (pTotal < 15) {
         allFinished = false;
         break;
       }
@@ -558,7 +569,7 @@ exports.expireTurn = onCall({ cors: true }, async (request) => {
       const pSlots = room.squads[nextPlayerUid].slots || [];
       const pTotal = pBench.length + pSlots.filter(s => s !== null).length;
 
-      if (pTotal < 11) {
+      if (pTotal < 15) {
         break;
       }
       nextIndex = (nextIndex + 1) % turnOrder.length;
