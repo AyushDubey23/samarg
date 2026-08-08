@@ -20,30 +20,40 @@ export class BallEngine {
   }
 
   selectBowler(team, lastBowlerId, overNumber, oversBowledMap, maxOversPerBowler) {
-    const options = team.filter(p => p.bowlingType && (oversBowledMap[p.id] || 0) < maxOversPerBowler && p.id !== lastBowlerId);
-    
+    // 1. Specialist Bowlers (slots 7-10) and Top All-Rounder (slot 4-6)
+    const specialistBowlers = team.filter((p, idx) => {
+      const pos = p.slotIndex !== undefined ? p.slotIndex : idx;
+      return pos >= 7 && pos <= 10;
+    });
+
+    const allRounders = team.filter((p, idx) => {
+      const pos = p.slotIndex !== undefined ? p.slotIndex : idx;
+      return (pos >= 4 && pos <= 6) || (p.bowlRating >= 50 && !specialistBowlers.includes(p));
+    });
+    allRounders.sort((a, b) => (b.bowlRating || 0) - (a.bowlRating || 0));
+
+    let designatedBowlers = [...specialistBowlers];
+    if (allRounders.length > 0 && designatedBowlers.length < 5) {
+      designatedBowlers.push(allRounders[0]); // 1 All-Rounder
+    }
+
+    // Filter available options from designated bowlers (max 4 overs per bowler)
+    let options = designatedBowlers.filter(p => (oversBowledMap[p.id] || 0) < maxOversPerBowler && p.id !== lastBowlerId);
+
     if (options.length === 0) {
-      const fallback = team.filter(p => p.id !== lastBowlerId);
-      return this.choice(fallback);
+      options = team.filter(p => (oversBowledMap[p.id] || 0) < maxOversPerBowler && p.id !== lastBowlerId);
+    }
+    if (options.length === 0) {
+      options = team.filter(p => p.id !== lastBowlerId);
     }
 
     options.sort((a, b) => {
       if (overNumber < 6) {
-        const ratingA = a.powerplayBowlingRating || 50;
-        const ratingB = b.powerplayBowlingRating || 50;
-        return ratingB - ratingA;
+        return (b.powerplayBowlingRating || b.bowlRating || 50) - (a.powerplayBowlingRating || a.bowlRating || 50);
       } else if (overNumber >= 15) {
-        const ratingA = a.deathBowlingRating || 50;
-        const ratingB = b.deathBowlingRating || 50;
-        return ratingB - ratingA;
+        return (b.deathBowlingRating || b.bowlRating || 50) - (a.deathBowlingRating || a.bowlRating || 50);
       } else {
-        const typeA = (a.bowlingType || '').toLowerCase();
-        const typeB = (b.bowlingType || '').toLowerCase();
-        const isSpinA = typeA.includes('spin') || typeA.includes('orthodox') || typeA.includes('wrist');
-        const isSpinB = typeB.includes('spin') || typeB.includes('orthodox') || typeB.includes('wrist');
-        if (isSpinA && !isSpinB) return -1;
-        if (!isSpinA && isSpinB) return 1;
-        return (b.wicketTakingRating || 50) - (a.wicketTakingRating || 50);
+        return (b.wicketTakingRating || b.bowlRating || 50) - (a.wicketTakingRating || a.bowlRating || 50);
       }
     });
 
@@ -86,18 +96,16 @@ export class BallEngine {
 
     const bowlingCard = {};
     bowlingTeam.forEach(p => {
-      if (p.bowlingType) {
-        bowlingCard[p.id] = {
-          id: p.id,
-          name: p.name,
-          overs: 0,
-          balls: 0,
-          runsConceded: 0,
-          wickets: 0,
-          wides: 0,
-          noballs: 0
-        };
-      }
+      bowlingCard[p.id] = {
+        id: p.id,
+        name: p.name,
+        overs: 0,
+        balls: 0,
+        runsConceded: 0,
+        wickets: 0,
+        wides: 0,
+        noballs: 0
+      };
     });
 
     const oversBowledMap = {};

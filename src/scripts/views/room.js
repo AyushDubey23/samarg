@@ -1069,6 +1069,19 @@ function isOutOfPosition(p, slotIdx) {
   return false;
 }
 
+function formatOvers(over, ballInOver) {
+  if (ballInOver === 6) {
+    return `${over + 1}.0 ov`;
+  }
+  return `${over}.${ballInOver} ov`;
+}
+
+function formatBowlerOvers(bCount) {
+  const overs = Math.floor((bCount || 0) / 6);
+  const balls = (bCount || 0) % 6;
+  return `${overs}.${balls} ov`;
+}
+
 function ensureArray(val) {
   if (!val) return [];
   if (Array.isArray(val)) return val;
@@ -1258,25 +1271,29 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
             </div>
           </div>
 
-          <!-- Captain/VC designating inputs -->
+          <!-- Captain/VC designating inputs & Ready Lock button -->
           ${isOwnBoard && !spectatorSquad.ready ? `
-            <div class="career-stats-widget">
-              <h4 style="margin-bottom: 1rem; text-transform: uppercase;">Designations</h4>
+            <div class="career-stats-widget" style="margin-top: 1rem;">
+              <h4 style="margin-bottom: 1rem; text-transform: uppercase; color: var(--willow-tan);">Designations & Lock</h4>
               <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
                 <label>
-                  <span style="display: block; margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--chalk-white-dark);">Select Captain (C):</span>
-                  <select id="captain-select" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); padding: 0.35rem; color: white;">
+                  <span style="display: block; margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--chalk-white-dark);">Select Captain (C - 2x points):</span>
+                  <select id="captain-select" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); padding: 0.4rem; color: white; font-weight: bold;">
                     <option value="">-- Choose Captain --</option>
                     ${slots.filter(s => s !== null).map(p => `<option value="${p.id}" ${p.id === spectatorSquad.captainId ? 'selected' : ''}>${p.name}</option>`).join("")}
                   </select>
                 </label>
                 <label>
-                  <span style="display: block; margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--chalk-white-dark);">Select Vice-Captain (VC):</span>
-                  <select id="vice-captain-select" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); padding: 0.35rem; color: white;">
+                  <span style="display: block; margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--chalk-white-dark);">Select Vice-Captain (VC - 1.5x points):</span>
+                  <select id="vice-captain-select" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); padding: 0.4rem; color: white; font-weight: bold;">
                     <option value="">-- Choose Vice-Captain --</option>
                     ${slots.filter(s => s !== null).map(p => `<option value="${p.id}" ${p.id === spectatorSquad.viceCaptainId ? 'selected' : ''}>${p.name}</option>`).join("")}
                   </select>
                 </label>
+
+                <button id="lock-squad-btn-bottom" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem; padding: 0.85rem; font-size: 0.95rem; font-weight: 900; background: linear-gradient(135deg, #2e7d32, #1b5e20); letter-spacing: 0.5px;" ${totalPlaced === 11 && spectatorSquad.captainId && spectatorSquad.viceCaptainId && spectatorSquad.captainId !== spectatorSquad.viceCaptainId ? '' : 'disabled'}>
+                  🔒 LOCK SQUAD & START MATCH (${totalPlaced}/11)
+                </button>
               </div>
             </div>
           ` : ''}
@@ -1386,87 +1403,106 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
       });
     });
 
-    // Handle designations update
+    // Handle designations update with mutual exclusion (C and VC cannot be same player)
     const capSelect = document.getElementById("captain-select");
     const vcSelect = document.getElementById("vice-captain-select");
 
     if (capSelect) {
       capSelect.addEventListener("change", async () => {
-        await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), {
-          captainId: capSelect.value
-        });
+        const val = capSelect.value;
+        const updates = { captainId: val };
+        if (val && val === spectatorSquad.viceCaptainId) {
+          updates.viceCaptainId = ""; // Auto-clear Vice Captain if same player selected!
+        }
+        await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), updates);
       });
     }
 
     if (vcSelect) {
       vcSelect.addEventListener("change", async () => {
-        await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), {
-          viceCaptainId: vcSelect.value
-        });
+        const val = vcSelect.value;
+        const updates = { viceCaptainId: val };
+        if (val && val === spectatorSquad.captainId) {
+          updates.captainId = ""; // Auto-clear Captain if same player selected!
+        }
+        await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), updates);
       });
     }
 
-    // Handle Lock XI click
-    const lockBtn = document.getElementById("lock-squad-btn");
-    if (lockBtn) {
-      lockBtn.addEventListener("click", async () => {
-        const cId = capSelect?.value || "";
-        const vcId = vcSelect?.value || "";
-        if (!cId || !vcId) {
-          showToast("Please designate both a Captain and a Vice-Captain first!", true);
-          return;
-        }
+    // Handle Lock XI click handler
+    const handleLockSubmit = async () => {
+      const cId = capSelect?.value || spectatorSquad.captainId || "";
+      const vcId = vcSelect?.value || spectatorSquad.viceCaptainId || "";
+
+      if (!cId || !vcId) {
+        showToast("Please designate both a Captain and a Vice-Captain first!", true);
+        return;
+      }
+
+      if (cId === vcId) {
+        showToast("Captain and Vice-Captain cannot be the same player!", true);
+        return;
+      }
+
+      try {
+        const topLock = document.getElementById("lock-squad-btn");
+        const btmLock = document.getElementById("lock-squad-btn-bottom");
+        if (topLock) topLock.disabled = true;
+        if (btmLock) btmLock.disabled = true;
 
         try {
-          lockBtn.disabled = true;
-          try {
-            const finalizeFn = httpsCallable(functions, "finalizeSquad");
-            await finalizeFn({ code: roomCode, captainId: cId, viceCaptainId: vcId });
-          } catch (fnErr) {
-            console.warn("Cloud function finalizeSquad failed, performing RTDB direct finalize fallback:", fnErr);
-            const userSquad = room.squads?.[currentUid] || { slots: Array(11).fill(null), bench: [] };
-            const updatedSlots = (userSquad.slots || []).map(p => {
-              if (!p) return null;
-              return {
-                ...p,
-                isCaptain: String(p.id) === String(cId),
-                isViceCaptain: String(p.id) === String(vcId)
-              };
-            });
-            await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), {
-              ready: true,
-              slots: updatedSlots,
-              captainId: cId,
-              viceCaptainId: vcId
-            });
-          }
-
-          // Verify if all players in room have locked their squad
-          const updatedRoomSnap = await get(ref(rtdb, `rooms/${roomCode}`));
-          const updatedRoom = updatedRoomSnap.val();
-          if (updatedRoom) {
-            const playerUids = Object.keys(updatedRoom.players || {});
-            const allReady = playerUids.length > 0 && playerUids.every(uid => updatedRoom.squads?.[uid]?.ready);
-
-            if (allReady && !updatedRoom.simulation?.matches) {
-              await runClientSimulationFallback(roomCode, updatedRoom);
-            }
-          }
-
-          showToast("Roster locked successfully!");
-        } catch (err) {
-          lockBtn.disabled = false;
-          showToast(err.message, true);
+          const finalizeFn = httpsCallable(functions, "finalizeSquad");
+          await finalizeFn({ code: roomCode, captainId: cId, viceCaptainId: vcId });
+        } catch (fnErr) {
+          console.warn("Cloud function finalizeSquad failed, performing RTDB direct finalize fallback:", fnErr);
+          const userSquad = room.squads?.[currentUid] || { slots: Array(11).fill(null), bench: [] };
+          const updatedSlots = (userSquad.slots || []).map(p => {
+            if (!p) return null;
+            return {
+              ...p,
+              isCaptain: String(p.id) === String(cId),
+              isViceCaptain: String(p.id) === String(vcId)
+            };
+          });
+          await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), {
+            ready: true,
+            slots: updatedSlots,
+            captainId: cId,
+            viceCaptainId: vcId
+          });
         }
-      });
-    }
 
-    // Auto check if all players ready in placing phase
-    const playerUids = Object.keys(room.players || {});
-    const allReady = playerUids.length > 0 && playerUids.every(uid => room.squads?.[uid]?.ready);
-    if (allReady && !room.simulation?.matches) {
-      runClientSimulationFallback(roomCode, room);
-    }
+        // Verify if all players in room have locked their squad
+        const updatedRoomSnap = await get(ref(rtdb, `rooms/${roomCode}`));
+        const updatedRoom = updatedRoomSnap.val();
+        if (updatedRoom) {
+          const uids = Object.keys(updatedRoom.players || {});
+          const allReady = uids.length > 0 && uids.every(uid => updatedRoom.squads?.[uid]?.ready);
+
+          if (allReady && !updatedRoom.simulation?.matches) {
+            await runClientSimulationFallback(roomCode, updatedRoom);
+          }
+        }
+
+        showToast("Roster locked successfully! Match starting...");
+      } catch (err) {
+        const topLock = document.getElementById("lock-squad-btn");
+        const btmLock = document.getElementById("lock-squad-btn-bottom");
+        if (topLock) topLock.disabled = false;
+        if (btmLock) btmLock.disabled = false;
+        showToast(err.message, true);
+      }
+    };
+
+    document.getElementById("lock-squad-btn")?.addEventListener("click", handleLockSubmit);
+    document.getElementById("lock-squad-btn-bottom")?.addEventListener("click", handleLockSubmit);
+  }
+
+  // Auto check if all players ready in placing phase
+  const playerUids = Object.keys(room.players || {});
+  const allReady = playerUids.length > 0 && playerUids.every(uid => room.squads?.[uid]?.ready);
+  if (allReady && !room.simulation?.matches) {
+    runClientSimulationFallback(roomCode, room);
   }
 }
 
@@ -1879,7 +1915,7 @@ function startCinematicHighlightLoop(matches) {
       
       // Update scorecard displays
       document.getElementById("pb-runsA").innerText = `${runs1}/${wickets1}`;
-      document.getElementById("pb-oversA").innerText = `${ball.over}.${ball.ballInOver} ov`;
+      document.getElementById("pb-oversA").innerText = formatOvers(ball.over, ball.ballInOver);
     } else {
       // Innings 2 chase
       document.getElementById("pb-target-ticker").style.display = "block";
@@ -1893,7 +1929,7 @@ function startCinematicHighlightLoop(matches) {
       }
 
       document.getElementById("pb-runsB").innerText = `${runs2}/${wickets2}`;
-      document.getElementById("pb-oversB").innerText = `${ball.over}.${ball.ballInOver} ov`;
+      document.getElementById("pb-oversB").innerText = formatOvers(ball.over, ball.ballInOver);
     }
 
     // Update live side-by-side batter & bowler scorecard widgets
@@ -1912,9 +1948,9 @@ function startCinematicHighlightLoop(matches) {
       strikerEl.innerHTML = `<span>🏏 ${strikerData.name} *</span><span style="color: var(--willow-tan); font-weight: 800;">${strikerData.runs} (${strikerData.balls}) • ${strikerData.fours}x4 ${strikerData.sixes}x6</span>`;
     }
     if (bowlerEl && bowlerData) {
-      const ovStr = `${Math.floor((bowlerData.balls || 0) / 6)}.${(bowlerData.balls || 0) % 6}`;
+      const ovStr = formatBowlerOvers(bowlerData.balls);
       const econVal = (bowlerData.balls || 0) > 0 ? (((bowlerData.runsConceded || 0) / bowlerData.balls) * 6).toFixed(2) : '0.00';
-      bowlerEl.innerHTML = `<span>⚡ ${bowlerData.name}</span><span style="color: #64b5f6; font-weight: 800;">${bowlerData.wickets || 0}-${bowlerData.runsConceded || 0} (${ovStr} ov)</span>`;
+      bowlerEl.innerHTML = `<span>⚡ ${bowlerData.name}</span><span style="color: #64b5f6; font-weight: 800;">${bowlerData.wickets || 0}-${bowlerData.runsConceded || 0} (${ovStr})</span>`;
       if (bowlerEconEl) bowlerEconEl.innerText = `Economy: ${econVal} rpo`;
     }
 
