@@ -160,37 +160,96 @@ const AUTHENTIC_FALLBACK_SQUADS = [
       { id: "2024_afg_14", name: "Noor Ahmad", role: "spinner", batRating: 20, bowlRating: 86, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 45.0, economyRate: 4.8, bowlingType: "left-arm-unorthodox", nationalTeam: "AFG", tournamentYear: 2024 },
       { id: "2024_afg_15", name: "Karim Janat", role: "allRounder", batRating: 75, bowlRating: 78, isWicketkeeper: false, battingAverage: 20.0, strikeRate: 110.0, economyRate: 5.8, bowlingType: "pace-medium", nationalTeam: "AFG", tournamentYear: 2024 }
     ]
+  },
+  {
+    id: "1992_pak",
+    nationalTeam: "Pakistan",
+    tournamentYear: "1992",
+    tournamentEdition: "1992 World Cup",
+    players: [
+      { id: "1992_pak_1", name: "Aamer Sohail", role: "opener", batRating: 82, bowlRating: 40, isWicketkeeper: false, battingAverage: 31.8, strikeRate: 65.5, economyRate: 4.6, bowlingType: "left-arm-orthodox", nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_2", name: "Rameez Raja", role: "opener", batRating: 84, bowlRating: 0, isWicketkeeper: false, battingAverage: 32.0, strikeRate: 63.3, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_3", name: "Imran Khan", role: "allRounder", batRating: 90, bowlRating: 91, isWicketkeeper: false, battingAverage: 33.4, strikeRate: 72.6, economyRate: 3.8, bowlingType: "pace-fast", nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_4", name: "Javed Miandad", role: "topOrder", batRating: 93, bowlRating: 0, isWicketkeeper: false, battingAverage: 41.7, strikeRate: 67.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_5", name: "Inzamam-ul-Haq", role: "middleOrder", batRating: 89, bowlRating: 0, isWicketkeeper: false, battingAverage: 39.5, strikeRate: 90.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_6", name: "Wasim Akram", role: "allRounder", batRating: 75, bowlRating: 97, isWicketkeeper: false, battingAverage: 23.5, strikeRate: 88.0, economyRate: 3.8, bowlingType: "left-arm-pace", nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_7", name: "Moin Khan", role: "keeper", batRating: 78, bowlRating: 0, isWicketkeeper: true, battingAverage: 23.0, strikeRate: 85.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_8", name: "Mushtaq Ahmed", role: "spinner", batRating: 25, bowlRating: 90, isWicketkeeper: false, battingAverage: 11.0, strikeRate: 60.0, economyRate: 4.2, bowlingType: "leg-spin", nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_9", name: "Aaqib Javed", role: "pacer", batRating: 20, bowlRating: 86, isWicketkeeper: false, battingAverage: 10.0, strikeRate: 50.0, economyRate: 4.2, bowlingType: "pace-fast", nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_10", name: "Ijaz Ahmed", role: "middleOrder", batRating: 82, bowlRating: 50, isWicketkeeper: false, battingAverage: 32.3, strikeRate: 80.0, economyRate: 4.9, bowlingType: "pace-medium", nationalTeam: "PAK", tournamentYear: 1992 },
+      { id: "1992_pak_11", name: "Zahid Fazal", role: "topOrder", batRating: 72, bowlRating: 0, isWicketkeeper: false, battingAverage: 23.0, strikeRate: 60.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 1992 }
+    ]
+  },
+  {
+    id: "2011_ind",
+    nationalTeam: "India",
+    tournamentYear: "2011",
+    tournamentEdition: "2011 World Cup",
+    players: [
+      { id: "2011_ind_1", name: "Virender Sehwag", role: "opener", batRating: 93, bowlRating: 40, isWicketkeeper: false, battingAverage: 35.1, strikeRate: 104.3, economyRate: 5.2, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_2", name: "Sachin Tendulkar", role: "opener", batRating: 96, bowlRating: 45, isWicketkeeper: false, battingAverage: 44.8, strikeRate: 86.2, economyRate: 5.1, bowlingType: "leg-spin", nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_3", name: "Gautam Gambhir", role: "topOrder", batRating: 90, bowlRating: 0, isWicketkeeper: false, battingAverage: 39.7, strikeRate: 85.2, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_4", name: "Virat Kohli", role: "topOrder", batRating: 88, bowlRating: 0, isWicketkeeper: false, battingAverage: 45.0, strikeRate: 88.0, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_5", name: "Yuvraj Singh", role: "allRounder", batRating: 92, bowlRating: 86, isWicketkeeper: false, battingAverage: 36.5, strikeRate: 87.5, economyRate: 4.8, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_6", name: "MS Dhoni", role: "keeper", batRating: 91, bowlRating: 0, isWicketkeeper: true, battingAverage: 50.5, strikeRate: 87.5, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_7", name: "Suresh Raina", role: "middleOrder", batRating: 84, bowlRating: 60, isWicketkeeper: false, battingAverage: 35.0, strikeRate: 93.0, economyRate: 5.1, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_8", name: "Harbhajan Singh", role: "spinner", batRating: 45, bowlRating: 88, isWicketkeeper: false, battingAverage: 13.0, strikeRate: 80.0, economyRate: 4.3, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_9", name: "Zaheer Khan", role: "pacer", batRating: 20, bowlRating: 94, isWicketkeeper: false, battingAverage: 12.0, strikeRate: 65.0, economyRate: 4.8, bowlingType: "left-arm-pace", nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_10", name: "Munaf Patel", role: "pacer", batRating: 15, bowlRating: 85, isWicketkeeper: false, battingAverage: 7.0, strikeRate: 50.0, economyRate: 4.9, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2011 },
+      { id: "2011_ind_11", name: "S. Sreesanth", role: "pacer", batRating: 15, bowlRating: 82, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 50.0, economyRate: 6.0, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2011 }
+    ]
+  },
+  {
+    id: "1996_sl",
+    nationalTeam: "Sri Lanka",
+    tournamentYear: "1996",
+    tournamentEdition: "1996 World Cup",
+    players: [
+      { id: "1996_sl_1", name: "Sanath Jayasuriya", role: "opener", batRating: 94, bowlRating: 82, isWicketkeeper: false, battingAverage: 32.3, strikeRate: 91.2, economyRate: 4.7, bowlingType: "left-arm-orthodox", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_2", name: "Romesh Kaluwitharana", role: "keeper", batRating: 82, bowlRating: 0, isWicketkeeper: true, battingAverage: 22.2, strikeRate: 77.8, economyRate: null, bowlingType: null, nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_3", name: "Asanka Gurusinha", role: "topOrder", batRating: 86, bowlRating: 40, isWicketkeeper: false, battingAverage: 28.2, strikeRate: 62.6, economyRate: 4.8, bowlingType: "pace-medium", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_4", name: "Aravinda de Silva", role: "topOrder", batRating: 95, bowlRating: 75, isWicketkeeper: false, battingAverage: 34.9, strikeRate: 81.1, economyRate: 4.8, bowlingType: "off-spin", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_5", name: "Arjuna Ranatunga", role: "middleOrder", batRating: 90, bowlRating: 50, isWicketkeeper: false, battingAverage: 35.8, strikeRate: 77.9, economyRate: 4.7, bowlingType: "pace-medium", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_6", name: "Roshan Mahanama", role: "middleOrder", batRating: 81, bowlRating: 0, isWicketkeeper: false, battingAverage: 29.5, strikeRate: 60.5, economyRate: null, bowlingType: null, nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_7", name: "Hashan Tillakaratne", role: "middleOrder", batRating: 82, bowlRating: 0, isWicketkeeper: false, battingAverage: 29.6, strikeRate: 65.0, economyRate: null, bowlingType: null, nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_8", name: "Chaminda Vaas", role: "pacer", batRating: 60, bowlRating: 91, isWicketkeeper: false, battingAverage: 13.6, strikeRate: 70.0, economyRate: 4.1, bowlingType: "left-arm-pace", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_9", name: "Muttiah Muralitharan", role: "spinner", batRating: 20, bowlRating: 96, isWicketkeeper: false, battingAverage: 6.9, strikeRate: 70.0, economyRate: 3.9, bowlingType: "off-spin", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_10", name: "Kumar Dharmasena", role: "allRounder", batRating: 72, bowlRating: 82, isWicketkeeper: false, battingAverage: 19.5, strikeRate: 65.0, economyRate: 4.3, bowlingType: "off-spin", nationalTeam: "SL", tournamentYear: 1996 },
+      { id: "1996_sl_11", name: "Pramodya Wickramasinghe", role: "pacer", batRating: 20, bowlRating: 80, isWicketkeeper: false, battingAverage: 9.0, strikeRate: 50.0, economyRate: 4.6, bowlingType: "pace-fast", nationalTeam: "SL", tournamentYear: 1996 }
+    ]
+  },
+  {
+    id: "2019_eng",
+    nationalTeam: "England",
+    tournamentYear: "2019",
+    tournamentEdition: "2019 World Cup",
+    players: [
+      { id: "2019_eng_1", name: "Jason Roy", role: "opener", batRating: 91, bowlRating: 0, isWicketkeeper: false, battingAverage: 39.9, strikeRate: 105.5, economyRate: null, bowlingType: null, nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_2", name: "Jonny Bairstow", role: "opener", batRating: 90, bowlRating: 0, isWicketkeeper: false, battingAverage: 44.2, strikeRate: 103.6, economyRate: null, bowlingType: null, nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_3", name: "Joe Root", role: "topOrder", batRating: 93, bowlRating: 50, isWicketkeeper: false, battingAverage: 48.3, strikeRate: 86.8, economyRate: 5.6, bowlingType: "off-spin", nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_4", name: "Eoin Morgan", role: "middleOrder", batRating: 89, bowlRating: 0, isWicketkeeper: false, battingAverage: 39.2, strikeRate: 91.1, economyRate: null, bowlingType: null, nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_5", name: "Ben Stokes", role: "allRounder", batRating: 95, bowlRating: 85, isWicketkeeper: false, battingAverage: 38.9, strikeRate: 95.8, economyRate: 6.0, bowlingType: "pace-fast", nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_6", name: "Jos Buttler", role: "keeper", batRating: 92, bowlRating: 0, isWicketkeeper: true, battingAverage: 39.5, strikeRate: 117.1, economyRate: null, bowlingType: null, nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_7", name: "Chris Woakes", role: "allRounder", batRating: 78, bowlRating: 88, isWicketkeeper: false, battingAverage: 24.8, strikeRate: 88.6, economyRate: 5.4, bowlingType: "pace-fast", nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_8", name: "Liam Plunkett", role: "pacer", batRating: 40, bowlRating: 87, isWicketkeeper: false, battingAverage: 21.0, strikeRate: 98.0, economyRate: 5.8, bowlingType: "pace-fast", nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_9", name: "Jofra Archer", role: "pacer", batRating: 30, bowlRating: 93, isWicketkeeper: false, battingAverage: 11.8, strikeRate: 90.0, economyRate: 4.6, bowlingType: "pace-fast", nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_10", name: "Adil Rashid", role: "spinner", batRating: 35, bowlRating: 87, isWicketkeeper: false, battingAverage: 18.2, strikeRate: 85.0, economyRate: 5.6, bowlingType: "leg-spin", nationalTeam: "ENG", tournamentYear: 2019 },
+      { id: "2019_eng_11", name: "Mark Wood", role: "pacer", batRating: 20, bowlRating: 88, isWicketkeeper: false, battingAverage: 8.5, strikeRate: 70.0, economyRate: 5.5, bowlingType: "pace-fast", nationalTeam: "ENG", tournamentYear: 2019 }
+    ]
   }
 ];
 
-export async function fetchClientRandomSquad() {
-  const UNDERDOG_TEAMS = ['NED', 'ZIM', 'IRE', 'AFG', 'BAN', 'SL', 'WI', 'KEN', 'SCO', 'CAN', 'USA', 'UAE', 'Netherlands', 'Zimbabwe', 'Ireland', 'Afghanistan', 'Bangladesh', 'Sri Lanka', 'West Indies'];
+export async function fetchClientRandomSquad(roomDraftState = {}) {
+  const rolledSquadIds = new Set(roomDraftState.rolledSquadIds || []);
 
   try {
     const snap = await getDocs(collection(db, "squads"));
     if (!snap.empty) {
-      const docs = snap.docs;
-      const squadByTeam = {};
-      docs.forEach(d => {
-        const data = d.data();
-        const team = data.nationalTeam || "IND";
-        if (!squadByTeam[team]) squadByTeam[team] = [];
-        squadByTeam[team].push(data);
-      });
-      const availableTeams = Object.keys(squadByTeam);
-      const availableUnderdogs = availableTeams.filter(t => UNDERDOG_TEAMS.includes(t));
-      const availableHeavyweights = availableTeams.filter(t => !UNDERDOG_TEAMS.includes(t));
+      let docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      let unrolled = docs.filter(sq => !rolledSquadIds.has(sq.id));
+      if (unrolled.length === 0) unrolled = docs; // Reset if all rolled once
 
-      let chosenTeam;
-      if (availableUnderdogs.length > 0 && (Math.random() < 0.75 || availableHeavyweights.length === 0)) {
-        chosenTeam = availableUnderdogs[Math.floor(Math.random() * availableUnderdogs.length)];
-      } else if (availableHeavyweights.length > 0) {
-        chosenTeam = availableHeavyweights[Math.floor(Math.random() * availableHeavyweights.length)];
-      } else {
-        chosenTeam = availableTeams[Math.floor(Math.random() * availableTeams.length)];
-      }
-      const randomDoc = squadByTeam[chosenTeam][Math.floor(Math.random() * squadByTeam[chosenTeam].length)];
-
+      const randomDoc = unrolled[Math.floor(Math.random() * unrolled.length)];
       const playerIds = randomDoc.playerIds || [];
       let players = [];
       if (playerIds.length > 0) {
@@ -220,6 +279,7 @@ export async function fetchClientRandomSquad() {
 
       if (players.length >= 5) {
         return {
+          squadId: randomDoc.id,
           nationalTeam: randomDoc.nationalTeam || "World XI",
           tournamentYear: randomDoc.tournamentYear || "2023",
           tournamentEdition: randomDoc.editionId || `${randomDoc.tournamentYear} World Cup`,
@@ -231,28 +291,17 @@ export async function fetchClientRandomSquad() {
     console.warn("Firestore squad fetch error, using authentic fallback squad:", e);
   }
 
-  // Pick a complete, authentic squad from fallback pool with team diversity (75% underdog weighted)
-  const fallbackByTeam = {};
-  AUTHENTIC_FALLBACK_SQUADS.forEach(s => {
-    const t = s.nationalTeam;
-    if (!fallbackByTeam[t]) fallbackByTeam[t] = [];
-    fallbackByTeam[t].push(s);
+  // Pure uniform random fallback squad selection across all teams and all years without duplicate rolls
+  let unrolledFallback = AUTHENTIC_FALLBACK_SQUADS.filter(s => {
+    const sId = s.id || (s.nationalTeam + "_" + s.tournamentYear);
+    return !rolledSquadIds.has(sId);
   });
-  const fallbackTeams = Object.keys(fallbackByTeam);
-  const fallbackUnderdogs = fallbackTeams.filter(t => UNDERDOG_TEAMS.includes(t));
-  const fallbackHeavyweights = fallbackTeams.filter(t => !UNDERDOG_TEAMS.includes(t));
+  if (unrolledFallback.length === 0) unrolledFallback = AUTHENTIC_FALLBACK_SQUADS;
 
-  let pickedTeam;
-  if (fallbackUnderdogs.length > 0 && (Math.random() < 0.75 || fallbackHeavyweights.length === 0)) {
-    pickedTeam = fallbackUnderdogs[Math.floor(Math.random() * fallbackUnderdogs.length)];
-  } else if (fallbackHeavyweights.length > 0) {
-    pickedTeam = fallbackHeavyweights[Math.floor(Math.random() * fallbackHeavyweights.length)];
-  } else {
-    pickedTeam = fallbackTeams[Math.floor(Math.random() * fallbackTeams.length)];
-  }
-  const chosenSquad = fallbackByTeam[pickedTeam][Math.floor(Math.random() * fallbackByTeam[pickedTeam].length)];
+  const chosenSquad = unrolledFallback[Math.floor(Math.random() * unrolledFallback.length)];
 
   return {
+    squadId: chosenSquad.id || (chosenSquad.nationalTeam + "_" + chosenSquad.tournamentYear),
     nationalTeam: chosenSquad.nationalTeam,
     tournamentYear: chosenSquad.tournamentYear,
     tournamentEdition: chosenSquad.tournamentEdition || `${chosenSquad.tournamentYear} World Cup`,
@@ -698,23 +747,22 @@ function renderDraftPhase(viewport, roomCode, room) {
                     const isClaimed = (draftState.claimedPlayerIds || []).includes(p.id);
                     const isSelected = selectedDraftPlayerId === p.id;
                     return `
-                      <div class="draft-card-item ${isClaimed ? 'claimed-dim' : ''} ${isSelected ? 'selected-gold' : ''}" 
+                      <div class="draft-card-item ${isClaimed ? 'claimed-dim' : ''} ${isSelected ? 'selected-coral' : ''}" 
                            data-player-id="${p.id}" 
-                           style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: ${isSelected ? '#fffde7' : (isClaimed ? '#eee' : '#ffffff')}; border: ${isSelected ? '2px solid #f57f17' : '1px solid #e0d8c8'}; border-radius: 6px; cursor: ${isClaimed || !isActiveTurn ? 'not-allowed' : 'pointer'}; position: relative;">
+                           style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: ${isSelected ? 'var(--primary-coral)' : (isClaimed ? '#E5E0D5' : '#FFFFFF')}; color: ${isSelected ? '#FFFFFF' : '#111111'}; border: ${isSelected ? '2px solid #1E1E1E' : '1.5px solid #D8D0C0'}; border-radius: 6px; box-shadow: ${isSelected ? '3px 3px 0px #1E1E1E' : 'none'}; cursor: ${isClaimed || !isActiveTurn ? 'not-allowed' : 'pointer'}; position: relative;">
                         <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 0;">
-                          <span style="font-family: var(--font-family-mono); font-weight: 900; color: #888; font-size: 0.8rem; min-width: 24px;">#${idx + 1}</span>
-                          <img src="${getPlayerPhoto(p.name)}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #ccc;" alt="${p.name}" />
+                          <span style="font-family: var(--font-family-mono); font-weight: 900; color: ${isSelected ? '#FFFFFF' : '#777777'}; font-size: 0.82rem; min-width: 24px;">#${idx + 1}</span>
+                          <img src="${getPlayerPhoto(p.name)}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #1E1E1E;" alt="${p.name}" />
                           <div style="min-width: 0; flex: 1;">
-                            <div style="font-weight: 800; font-size: 0.85rem; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
-                            <span style="font-size: 0.62rem; background: #eee; color: #333; padding: 1px 4px; border-radius: 3px; font-weight: 800;">${getRoleShort(p.role)}</span>
+                            <div style="font-weight: 800; font-size: 0.85rem; color: ${isSelected ? '#FFFFFF' : '#111111'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
+                            <span style="font-size: 0.62rem; background: ${isSelected ? 'rgba(255,255,255,0.25)' : '#EAE4D6'}; color: ${isSelected ? '#FFFFFF' : '#333333'}; padding: 1px 4px; border-radius: 3px; font-weight: 800;">${getRoleShort(p.role)}</span>
                           </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0;">
-                          <span style="font-size: 0.72rem; color: #d32f2f; font-weight: 900;">BAT ${p.batRating}</span>
-                          ${p.bowlRating > 0 ? `<span style="font-size: 0.72rem; color: #1976d2; font-weight: 900;">BOWL ${p.bowlRating}</span>` : ''}
+                          <span style="font-size: 0.8rem; background: ${isSelected ? '#FFFFFF' : 'var(--primary-coral)'}; color: ${isSelected ? 'var(--primary-coral)' : '#FFFFFF'}; font-weight: 900; padding: 2px 6px; border-radius: 4px; box-shadow: 1px 1px 0px #1E1E1E;">${p.batRating}</span>
                         </div>
                         ${isClaimed ? `
-                          <div style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.7); color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.62rem; font-weight: 900;">CLAIMED</div>
+                          <div style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #111; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.62rem; font-weight: 900;">CLAIMED</div>
                         ` : ''}
                       </div>
                     `;
@@ -726,14 +774,14 @@ function renderDraftPhase(viewport, roomCode, room) {
         </div>
 
         <!-- Room activity log & Side-by-side Field Setup canvas -->
-        <div class="controls-card">
-          <div class="flex justify-between align-center" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; margin-bottom: 0.75rem;">
-            <h4 style="text-transform: uppercase; font-size: 0.9rem; margin: 0; color: var(--willow-tan);">Field Setup (Playing XI)</h4>
-            <span class="role-badge all-rounder" style="font-size: 0.7rem;">${getFilledSlotsArray(((room.squads || {})[currentUid] || {}).slots).filter(s => s !== null).length}/11 Placed</span>
+        <div class="controls-card" style="background: #FFFFFF; border: 2px solid #1E1E1E; border-radius: 12px; padding: 1rem; box-shadow: 3px 3px 0px #1E1E1E;">
+          <div class="flex justify-between align-center" style="border-bottom: 2px solid #1E1E1E; padding-bottom: 0.5rem; margin-bottom: 0.75rem;">
+            <h4 style="text-transform: uppercase; font-size: 0.95rem; margin: 0; color: #111; font-weight: 900;">FIELD SETUP (PLAYING XI)</h4>
+            <span class="role-badge all-rounder" style="font-size: 0.75rem; background: #C89B3C; color: #111; font-weight: 900; border: 1px solid #1E1E1E;">${getFilledSlotsArray(((room.squads || {})[currentUid] || {}).slots).filter(s => s !== null).length}/11 PLACED</span>
           </div>
 
-          <!-- STADIUM PITCH GRAPHIC SIDE-BY-SIDE -->
-          <div class="pitch-stadium" style="padding: 0.65rem; margin-bottom: 1rem; min-height: 270px; border-radius: 12px; background: radial-gradient(circle at center, #1b4d3e 0%, #0d2b1d 100%);">
+          <!-- STADIUM PITCH GRAPHIC SIDE-BY-SIDE matching reference images -->
+          <div class="pitch-stadium" style="padding: 0.75rem; margin-bottom: 1rem; min-height: 280px;">
             <div class="pitch-center-lane"></div>
             ${[
               { name: "Top Order", indices: [0, 1, 2] },
@@ -741,27 +789,27 @@ function renderDraftPhase(viewport, roomCode, room) {
               { name: "Keeper", indices: [6] },
               { name: "Bowlers", indices: [7, 8, 9, 10] }
             ].map(zone => `
-              <div class="pitch-zone" style="margin-bottom: 0.35rem;">
-                <div class="pitch-zone-header" style="font-size: 0.65rem; padding: 1px 6px;">${zone.name}</div>
+              <div class="pitch-zone" style="margin-bottom: 0.5rem;">
+                <div class="pitch-zone-header">${zone.name}</div>
                 <div class="pitch-grid-row">
                   ${zone.indices.map(idx => {
                     const p = getFilledSlotsArray(((room.squads || {})[currentUid] || {}).slots)[idx];
                     const oop = isOutOfPosition(p, idx);
+                    const isTargetPulse = selectedDraftPlayerId && !p;
                     return `
-                      <div class="pitch-player-slot ${p ? 'filled' : 'empty'}" data-slot-index="${idx}" style="padding: 0.25rem; border: ${selectedDraftPlayerId && !p ? '2px dashed #39d353' : ''};">
-                        <div class="player-avatar-circle" style="width: 32px; height: 32px; position: relative;">
+                      <div class="pitch-player-slot ${p ? 'filled' : 'empty'} ${isTargetPulse ? 'target-pulse' : ''}" data-slot-index="${idx}">
+                        <div class="player-avatar-circle">
                           ${p ? `
-                            <img src="${getPlayerPhoto(p.name)}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" alt="${p.name}" />
-                            <span style="position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); background: #e53935; color: white; padding: 0 3px; border-radius: 3px; font-size: 0.55rem; font-weight: bold; white-space: nowrap;">BAT ${p.batRating}</span>
+                            <span style="font-size: 0.9rem; font-weight: 900;">${idx + 1}</span>
                           ` : `
-                            <span style="font-size: 0.65rem; font-weight: bold; color: var(--willow-tan);">#${idx + 1}</span>
+                            <span>${idx + 1}</span>
                           `}
                         </div>
-                        <div class="player-name-plate" style="font-size: 0.65rem; margin-top: 10px; font-weight: 700;">
-                          ${p ? p.name.split(" ").slice(-1)[0] : 'EMPTY'}
+                        <div class="player-name-plate">
+                          ${p ? p.name.split(" ").slice(-1)[0].toUpperCase() : 'EMPTY'}
                         </div>
                         ${oop ? `
-                          <span style="font-size: 0.5rem; background: #c62828; color: white; padding: 0 3px; border-radius: 2px; font-weight: 900; margin-top: 2px; white-space: nowrap;">⚠️ OOP</span>
+                          <span style="font-size: 0.5rem; background: #E53926; color: white; padding: 0 3px; border-radius: 2px; font-weight: 900; margin-top: 2px; white-space: nowrap;">⚠️ OOP</span>
                         ` : ''}
                       </div>
                     `;
@@ -772,7 +820,7 @@ function renderDraftPhase(viewport, roomCode, room) {
           </div>
 
           <!-- Turn Order Roster Status -->
-          <h5 style="font-size: 0.8rem; text-transform: uppercase; color: var(--chalk-white-dim); margin-bottom: 0.5rem;">Draft Roster Status</h5>
+          <h5 style="font-size: 0.8rem; text-transform: uppercase; color: #111; margin-bottom: 0.5rem; font-weight: 900;">DRAFT ROSTER STATUS</h5>
           <div style="display: flex; flex-direction: column; gap: 0.4rem;">
             ${(draftState.turnOrder || []).map(uid => {
               const p = (room.players || {})[uid] || {};
@@ -781,19 +829,21 @@ function renderDraftPhase(viewport, roomCode, room) {
               const pSlots = getFilledSlotsArray(sq.slots);
               const claimedCount = pBench.length + pSlots.filter(s => s !== null).length;
               return `
-                <div class="flex justify-between align-center" style="padding: 0.35rem 0.6rem; background: var(--bg-light); border-radius: var(--border-radius-sm); font-size: 0.8rem;">
-                  <span style="font-weight: ${uid === draftState.activePlayerUid ? '800' : '500'}; color: ${uid === draftState.activePlayerUid ? 'var(--willow-tan)' : 'var(--chalk-white)'};">
+                <div class="flex justify-between align-center" style="padding: 0.45rem 0.65rem; background: #FAF6ED; border: 1px solid #1E1E1E; border-radius: 6px; font-size: 0.8rem;">
+                  <span style="font-weight: ${uid === draftState.activePlayerUid ? '900' : '700'}; color: ${uid === draftState.activePlayerUid ? 'var(--primary-coral)' : '#111111'};">
                     ${uid === draftState.activePlayerUid ? '● ' : ''}${p.displayName || "Player"}
                   </span>
-                  <span class="role-badge" style="font-size: 0.65rem;">${claimedCount}/11 Claimed</span>
+                  <span class="role-badge" style="font-size: 0.68rem; background: #111; color: #fff; font-weight: 800;">${claimedCount}/11 Claimed</span>
                 </div>
               `;
             }).join('')}
           </div>
           
-          <div class="auth-upgrade-callout" style="margin-top: 1rem; font-size: 0.78rem; padding: 0.5rem 0.75rem;">
+          <div class="auth-upgrade-callout" style="margin-top: 1rem; font-size: 0.78rem; padding: 0.5rem 0.75rem; background: #FFFDE7; border: 1px solid #C89B3C; color: #111;">
             <strong>Spot Placement:</strong>
             Tap a player on the list, then tap ANY empty spot on the pitch setup to place them right there!
+          </div>
+        </div>
           </div>
         </div>
       </div>
@@ -812,11 +862,17 @@ function renderDraftPhase(viewport, roomCode, room) {
           await rollSquadFn({ code: roomCode });
         } catch (fnErr) {
           console.warn("Cloud function rollSquad failed, performing RTDB direct roll fallback:", fnErr);
-          const rolledSquad = await fetchClientRandomSquad();
+          const rolledSquad = await fetchClientRandomSquad(draftState);
           const turnTimerSec = room.turnTimerSeconds || 20;
+          const squadId = rolledSquad.squadId || `${rolledSquad.nationalTeam}_${rolledSquad.tournamentYear}`;
+          const currentRolledIds = Array.isArray(draftState.rolledSquadIds) ? draftState.rolledSquadIds : [];
+          const updatedRolledIds = [...currentRolledIds, squadId];
+
           await update(ref(rtdb, `rooms/${roomCode}/draftState`), {
             turnDeadline: Date.now() + turnTimerSec * 1000,
+            rolledSquadIds: updatedRolledIds,
             currentReveal: {
+              squadId,
               nationalTeam: rolledSquad.nationalTeam,
               tournamentYear: rolledSquad.tournamentYear,
               players: rolledSquad.players,

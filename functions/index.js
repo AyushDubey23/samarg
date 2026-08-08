@@ -276,28 +276,16 @@ exports.rollSquad = onCall({ cors: true }, async (request) => {
       throw new HttpsError("not-found", "No squads with unclaimed players remaining.");
     }
 
-    // Group eligible squads by nationalTeam, weighting underdog/weaker teams (75% chance)
-    const UNDERDOG_TEAMS = ['NED', 'ZIM', 'IRE', 'AFG', 'BAN', 'SL', 'WI', 'KEN', 'SCO', 'CAN', 'USA', 'UAE', 'Netherlands', 'Zimbabwe', 'Ireland', 'Afghanistan', 'Bangladesh', 'Sri Lanka', 'West Indies'];
-    const squadByTeam = {};
-    eligibleSquads.forEach(sq => {
-      const team = sq.nationalTeam || "IND";
-      if (!squadByTeam[team]) squadByTeam[team] = [];
-      squadByTeam[team].push(sq);
-    });
-
-    const availableTeams = Object.keys(squadByTeam);
-    const availableUnderdogs = availableTeams.filter(t => UNDERDOG_TEAMS.includes(t));
-    const availableHeavyweights = availableTeams.filter(t => !UNDERDOG_TEAMS.includes(t));
-
-    let chosenTeam;
-    if (availableUnderdogs.length > 0 && (Math.random() < 0.75 || availableHeavyweights.length === 0)) {
-      chosenTeam = availableUnderdogs[Math.floor(Math.random() * availableUnderdogs.length)];
-    } else if (availableHeavyweights.length > 0) {
-      chosenTeam = availableHeavyweights[Math.floor(Math.random() * availableHeavyweights.length)];
-    } else {
-      chosenTeam = availableTeams[Math.floor(Math.random() * availableTeams.length)];
+    // Track rolled squads in this session to prevent repeating the exact same team/year
+    const rolledSquadIds = new Set(draftState.rolledSquadIds || []);
+    let unrolledSquads = eligibleSquads.filter(sq => !rolledSquadIds.has(sq.id));
+    if (unrolledSquads.length === 0) {
+      unrolledSquads = eligibleSquads; // Reset pool if all available squads were rolled once
     }
-    const selectedSquad = squadByTeam[chosenTeam][Math.floor(Math.random() * squadByTeam[chosenTeam].length)];
+
+    // Purely uniform random selection across all teams and all years
+    const selectedSquad = unrolledSquads[Math.floor(Math.random() * unrolledSquads.length)];
+    const updatedRolledIds = [...(draftState.rolledSquadIds || []), selectedSquad.id];
 
     // Fetch players of this squad
     const playerRefs = selectedSquad.playerIds.map(pid => db.collection("players").doc(pid));
@@ -348,6 +336,7 @@ exports.rollSquad = onCall({ cors: true }, async (request) => {
         nationalTeam: selectedSquad.nationalTeam,
         players
       },
+      "draftState/rolledSquadIds": updatedRolledIds,
       "draftState/turnDeadline": ServerValue.TIMESTAMP
     };
 

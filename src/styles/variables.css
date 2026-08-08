@@ -1,46 +1,57 @@
 :root {
-  /* Color Palette */
-  --bg-dark: hsl(140, 45%, 6%);
-  --bg-medium: hsl(140, 35%, 11%);
-  --bg-light: hsl(140, 25%, 17%);
-  
-  --primary: hsl(140, 50%, 42%);
-  --primary-hover: hsl(140, 55%, 36%);
-  
-  --chalk-white: hsl(0, 0%, 96%);
-  --chalk-white-dim: hsl(140, 10%, 70%);
-  --chalk-white-dark: hsl(140, 10%, 50%);
-  
-  --willow-tan: hsl(35, 38%, 52%);
-  --willow-tan-dark: hsl(35, 35%, 22%);
-  
-  --accent-gold: hsl(45, 90%, 52%);
-  --accent-gold-glow: hsla(45, 90%, 52%, 0.15);
-  
-  --accent-red: hsl(355, 75%, 55%);
-  --accent-red-glow: hsla(355, 75%, 55%, 0.15);
-  
-  --accent-blue: hsl(205, 80%, 55%);
+  /* Color Palette - 7-0 Vintage Retro Modern Theme */
+  --bg-cream: #F4EFE0;
+  --bg-card: #FFFFFF;
+  --bg-dark: #1A1A1A;
+  --bg-medium: #222222;
+  --bg-light: #2A2A2A;
+
+  --border-dark: #1E1E1E;
+  --border-light: #E0D8C8;
+
+  --primary-coral: #E53926;
+  --primary-coral-hover: #C82D1D;
+
+  --pitch-green: #277748;
+  --pitch-green-stripe: #2F8351;
+  --pitch-line: rgba(255, 255, 255, 0.85);
+
+  --accent-gold: #C89B3C;
+  --accent-gold-dark: #A47B28;
+  --accent-blue: #1E88E5;
+  --accent-red: #E53926;
+
+  --chalk-black: #111111;
+  --chalk-white: #FFFFFF;
+  --chalk-white-dim: #555555;
+  --chalk-white-dark: #888888;
+
+  --willow-tan: #C89B3C;
+  --willow-tan-dark: #8C6A20;
 
   /* Typography */
-  --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', Courier, monospace;
+  --font-family-sans: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Layout and Sizing */
-  --container-max-width: 1100px;
+  --container-max-width: 1240px;
   --border-radius-sm: 6px;
-  --border-radius-md: 12px;
-  --border-radius-lg: 20px;
-  
-  /* Shadow & Glassmorphism */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 35px rgba(0, 0, 0, 0.6);
-  --glass-bg: rgba(14, 30, 20, 0.75);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --border-radius-md: 10px;
+  --border-radius-lg: 16px;
+
+  /* Retro Hard Shadow & Soft Shadow */
+  --shadow-retro-sm: 2px 2px 0px #1E1E1E;
+  --shadow-retro-md: 4px 4px 0px #1E1E1E;
+  --shadow-retro-lg: 6px 6px 0px #1E1E1E;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.15);
+
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: #1E1E1E;
 
   /* Transitions */
-  --transition-fast: 0.15s ease;
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-medium: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
