@@ -622,6 +622,7 @@ function renderLobby(viewport, roomCode, room) {
  * 2. LIVE DRAFT PHASE VIEW
  */
 let slotAnimationTimer = null;
+let selectedDraftPlayerId = null;
 function renderDraftPhase(viewport, roomCode, room) {
   const currentUid = auth.currentUser ? auth.currentUser.uid : "";
   const draftState = room.draftState || {};
