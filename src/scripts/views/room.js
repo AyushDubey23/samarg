@@ -353,6 +353,9 @@ function renderLobby(viewport, roomCode, room) {
   const maxPlayers = room.mode === "duel" ? 2 : (room.mode === "cup" ? 4 : 1);
   const startEnabled = playerUids.length === maxPlayers && readyCount === maxPlayers;
 
+  const userDisplayName = players[currentUid]?.displayName || "";
+  const needsNamePrompt = !userJoined || !userDisplayName || userDisplayName === "Guest Player" || userDisplayName === "Player" || userDisplayName.startsWith("Guest");
+
   viewport.innerHTML = `
     <div class="squad-review-container">
       <div class="flex justify-between align-center" style="margin-bottom: 1.5rem;">
@@ -391,12 +394,20 @@ function renderLobby(viewport, roomCode, room) {
             }).join("")}
           </div>
 
-          <div style="margin-top: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+          <!-- Inline Name Editor for User -->
+          <div style="margin-top: 1.25rem; padding: 0.85rem; background: var(--bg-light); border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border);">
+            <label style="font-size: 0.8rem; color: var(--willow-tan); display: block; margin-bottom: 0.35rem; font-weight: bold;">Your Player Display Name:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="inline-player-name-input" class="btn btn-secondary btn-sm" style="flex: 1; text-align: left; padding: 0.45rem 0.75rem; color: white; font-size: 0.9rem;" value="${userDisplayName}" placeholder="Type your player name...">
+              <button id="inline-save-name-btn" class="btn btn-accent btn-sm">Save Name</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 1.25rem; display: flex; gap: 1rem; flex-wrap: wrap;">
             ${userJoined ? `
               <button id="ready-toggle-btn" class="btn ${players[currentUid]?.ready ? 'btn-secondary' : 'btn-accent'}">
                 ${players[currentUid]?.ready ? "Mark Not Ready" : "Mark Ready"}
               </button>
-              <button id="change-name-btn" class="btn btn-secondary btn-sm">Edit Name</button>
             ` : `
               <button id="join-room-btn" class="btn btn-accent">Join Lobby</button>
             `}
@@ -425,14 +436,14 @@ function renderLobby(viewport, roomCode, room) {
       </div>
     </div>
 
-    <!-- Room Join Modal Overlay for Direct Link Visitors -->
-    <div id="room-join-modal" style="${userJoined ? 'display: none;' : 'display: flex;'} position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+    <!-- Room Join Modal Overlay for Direct Link Visitors & Name Setup -->
+    <div id="room-join-modal" style="${needsNamePrompt ? 'display: flex;' : 'display: none;'} position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
       <div class="career-stats-widget" style="width: 100%; max-width: 400px; padding: 1.75rem; background: var(--bg-medium); border: 1px solid var(--glass-border);">
-        <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1.1rem; margin-bottom: 1.25rem;">Join Room Lobby</h3>
+        <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1.1rem; margin-bottom: 1.25rem;">Enter Your Player Name</h3>
         <div style="display: flex; flex-direction: column; gap: 1rem;">
           <label>
             <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Enter Your Display Name:</span>
-            <input type="text" id="direct-join-player-name" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem;" placeholder="Enter your name" value="${auth.currentUser?.displayName || ''}">
+            <input type="text" id="direct-join-player-name" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem;" placeholder="Enter your name" value="${userDisplayName !== 'Guest Player' ? userDisplayName : ''}">
           </label>
           ${room.password ? `
             <label>
@@ -484,17 +495,25 @@ function renderLobby(viewport, roomCode, room) {
     });
   }
 
-  const changeNameBtn = document.getElementById("change-name-btn");
-  if (changeNameBtn) {
-    changeNameBtn.addEventListener("click", async () => {
-      const newName = prompt("Enter your new display name:", players[currentUid]?.displayName || "");
-      if (newName && newName.trim()) {
+  const inlineSaveBtn = document.getElementById("inline-save-name-btn");
+  if (inlineSaveBtn) {
+    inlineSaveBtn.addEventListener("click", async () => {
+      const nameInput = (document.getElementById("inline-player-name-input")?.value || "").trim();
+      if (!nameInput) {
+        showToast("Please enter a valid display name!", true);
+        return;
+      }
+      try {
+        inlineSaveBtn.disabled = true;
         const refName = ref(rtdb, `rooms/${roomCode}/players/${currentUid}/displayName`);
-        await set(refName, newName.trim());
+        await set(refName, nameInput);
         if (auth.currentUser) {
-          try { auth.currentUser.displayName = newName.trim(); } catch (e) {}
+          try { auth.currentUser.displayName = nameInput; } catch (e) {}
         }
-        showToast("Display name updated!");
+        showToast("Display name updated successfully!");
+      } catch (err) {
+        inlineSaveBtn.disabled = false;
+        showToast(err.message, true);
       }
     });
   }
@@ -871,8 +890,8 @@ function renderDraftPhase(viewport, roomCode, room) {
             card.style.transform = "scale(0.95)";
             card.style.borderColor = "var(--primary)";
 
-            const updatedSlots = [...userSlots];
-            let updatedBench = [...(userSquad.bench || [])];
+            const updatedSlots = [...getFilledSlotsArray(userSlots)];
+            let updatedBench = [...ensureArray(userSquad.bench)];
 
             if (targetSlotIdx !== null) {
               const existingOccupant = updatedSlots[targetSlotIdx];
@@ -888,7 +907,7 @@ function renderDraftPhase(viewport, roomCode, room) {
             const currentTurnIndex = draftState.turnIndex || 0;
             const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
             const nextActiveUid = turnOrder[nextTurnIndex];
-            const updatedClaimed = [...claimedIds, playerId];
+            const updatedClaimed = [...ensureArray(claimedIds), playerId];
 
             const updates = {};
             updates[`rooms/${roomCode}/squads/${currentUid}/slots`] = updatedSlots;
@@ -968,7 +987,7 @@ function renderDraftPhase(viewport, roomCode, room) {
               const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
               const nextActiveUid = turnOrder[nextTurnIndex];
 
-              const updatedClaimed = [...claimedIds, randomPick.id];
+              const updatedClaimed = [...ensureArray(claimedIds), randomPick.id];
 
               const updates = {};
               updates[`rooms/${roomCode}/squads/${currentUid}/bench`] = updatedBench;
