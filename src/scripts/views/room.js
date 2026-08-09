@@ -670,6 +670,12 @@ function renderDraftPhase(viewport, roomCode, room) {
   const isActiveTurn = activeUid === currentUid;
   const reveal = draftState.currentReveal;
 
+  // Clear slot machine animation timer when squad is revealed
+  if (reveal && slotAnimationTimer) {
+    clearInterval(slotAnimationTimer);
+    slotAnimationTimer = null;
+  }
+
   // Play short whistle sound when it becomes your turn to roll/pick
   if (isActiveTurn && lastSignaledTurnUid !== currentUid) {
     lastSignaledTurnUid = currentUid;
@@ -1188,6 +1194,10 @@ function renderDraftPhase(viewport, roomCode, room) {
 
 // Cinematic slot-machine visual cycles
 function startSlotMachineAnimation() {
+  if (slotAnimationTimer) {
+    clearInterval(slotAnimationTimer);
+    slotAnimationTimer = null;
+  }
   const teamsPool = ["INDIA", "AUSTRALIA", "WEST INDIES", "SOUTH AFRICA", "PAKISTAN", "ENGLAND", "NEW ZEALAND", "SRI LANKA", "AFGHANISTAN"];
   const textEl = document.getElementById("slot-machine-display");
   if (!textEl) return;
@@ -1196,9 +1206,20 @@ function startSlotMachineAnimation() {
   let counter = 0;
 
   slotAnimationTimer = setInterval(() => {
-    textEl.innerText = teamsPool[counter % teamsPool.length];
+    const el = document.getElementById("slot-machine-display");
+    if (el) {
+      el.innerText = teamsPool[counter % teamsPool.length];
+    }
     counter++;
   }, speed);
+
+  // Safety auto-terminate after 1000ms max so it never runs continuously
+  setTimeout(() => {
+    if (slotAnimationTimer) {
+      clearInterval(slotAnimationTimer);
+      slotAnimationTimer = null;
+    }
+  }, 1000);
 }
 
 const FAMOUS_JERSEYS = {
