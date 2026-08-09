@@ -2083,7 +2083,12 @@ async function runClientSimulationFallback(roomCode, room, tossWinnerUid = null,
       "simulation/startsAt": startsAt
     });
   } catch (err) {
-    console.error("Client simulation error:", err);
+    console.error("Client simulation error, performing emergency simulation fallback:", err);
+    const startsAt = Date.now() + 4000;
+    await update(ref(rtdb, `rooms/${roomCode}`), {
+      status: "simulating",
+      "simulation/startsAt": startsAt
+    });
   }
 }
 

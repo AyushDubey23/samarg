@@ -43,7 +43,15 @@ export class BallEngine {
     }
     if (options.length === 0) {
       // Emergency fallback if no eligible bowler
-      options = team.filter(p => !p.isWicketkeeper && !p.isWK && !p.isKeeper);
+      options = team.filter(p => p && (!p.isWicketkeeper && !p.isWK && !p.isKeeper));
+    }
+
+    if (!options || options.length === 0) {
+      options = team.filter(p => p !== null && p !== undefined);
+    }
+
+    if (!options || options.length === 0) {
+      return { id: "fallback_bowler", name: "Substitute Bowler", bowlRating: 50, bowlingType: "pace-medium" };
     }
 
     options.sort((a, b) => {
@@ -57,11 +65,12 @@ export class BallEngine {
     });
 
     const pool = options.slice(0, Math.min(2, options.length));
-    return this.choice(pool);
+    const picked = this.choice(pool);
+    return picked || { id: "fallback_bowler", name: "Substitute Bowler", bowlRating: 50, bowlingType: "pace-medium" };
   }
 
   resolveWicketType(bowler) {
-    const bowlType = (bowler.bowlingType || 'pace-medium').toLowerCase();
+    const bowlType = (bowler?.bowlingType || 'pace-medium').toLowerCase();
     const isSpin = bowlType.includes('spin') || bowlType.includes('orthodox') || bowlType.includes('wrist');
     const roll = this.random();
 
@@ -79,10 +88,27 @@ export class BallEngine {
     }
   }
 
-  simulateInnings(battingTeam, bowlingTeam, inningsNumber, targetInfo = null, maxOvers = 20, rainDelayInfo = null) {
+  simulateInnings(rawBattingTeam, rawBowlingTeam, inningsNumber, targetInfo = null, maxOvers = 20, rainDelayInfo = null) {
+    // Ensure teams are valid arrays with 11 non-null player objects
+    const defaultBatters = Array(11).fill(null).map((_, i) => ({
+      id: `fallback_bat_${i}`, name: `Batter ${i+1}`, role: i < 5 ? "topOrder" : "pacer", batRating: 70 - i*3, bowlRating: i >= 5 ? 75 : 0
+    }));
+
+    const sanitizedBatting = (rawBattingTeam || []).filter(p => p !== null && p !== undefined);
+    while (sanitizedBatting.length < 11) {
+      sanitizedBatting.push(defaultBatters[sanitizedBatting.length]);
+    }
+    const battingTeam = sanitizedBatting.slice(0, 11);
+
+    const sanitizedBowling = (rawBowlingTeam || []).filter(p => p !== null && p !== undefined);
+    while (sanitizedBowling.length < 11) {
+      sanitizedBowling.push(defaultBatters[sanitizedBowling.length]);
+    }
+    const bowlingTeam = sanitizedBowling.slice(0, 11);
+
     const battingCard = battingTeam.map(p => ({
-      id: p.id,
-      name: p.name,
+      id: p.id || `p_${Math.random()}`,
+      name: p.name || 'Batter',
       runs: 0,
       balls: 0,
       fours: 0,
