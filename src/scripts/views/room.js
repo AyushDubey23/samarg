@@ -5,6 +5,7 @@ import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { validateDraftXI } from "../utils/draftRules.js";
 import { signInAnonymously } from "firebase/auth";
 import { BallEngine } from "../engine/ballEngine.js";
+import { getRandomPoolSquad } from "../utils/squadPool.js";
 
 const POSITION_LABELS = [
   "OPENER 1", "OPENER 2", "TOP ORDER 1", "TOP ORDER 2", "TOP ORDER 3",
@@ -245,73 +246,17 @@ const AUTHENTIC_FALLBACK_SQUADS = [
 ];
 
 export async function fetchClientRandomSquad(roomDraftState = {}) {
-  const rolledSquadIds = new Set(roomDraftState.rolledSquadIds || []);
-
+  const rolledSquadIds = roomDraftState.rolledSquadIds || [];
   try {
-    const snap = await getDocs(collection(db, "squads"));
-    if (!snap.empty) {
-      let docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      let unrolled = docs.filter(sq => !rolledSquadIds.has(sq.id));
-      if (unrolled.length === 0) unrolled = docs; // Reset if all rolled once
-
-      const randomDoc = unrolled[Math.floor(Math.random() * unrolled.length)];
-      const playerIds = randomDoc.playerIds || [];
-      let players = [];
-      if (playerIds.length > 0) {
-        const playerFetches = playerIds.map(pid => getDoc(doc(db, "players", pid)));
-        const playerSnaps = await Promise.all(playerFetches);
-        players = playerSnaps
-          .filter(ps => ps.exists())
-          .map(ps => {
-            const data = ps.data();
-            return {
-              id: ps.id,
-              name: data.name,
-              nationalTeam: data.nationalTeam,
-              tournamentEdition: data.tournamentEdition || `${data.tournamentYear} World Cup`,
-              tournamentYear: data.tournamentYear,
-              role: data.role,
-              isWicketkeeper: data.isWicketkeeper || false,
-              batRating: data.batRating || 75,
-              bowlRating: data.bowlRating || 0,
-              battingAverage: data.battingAverage || data.batRating || 30.0,
-              strikeRate: data.strikeRate || 100.0,
-              economyRate: data.economyRate || (data.bowlRating ? 6.5 : null),
-              bowlingType: data.bowlingType || null
-            };
-          });
-      }
-
-      if (players.length >= 5) {
-        return {
-          squadId: randomDoc.id,
-          nationalTeam: randomDoc.nationalTeam || "World XI",
-          tournamentYear: randomDoc.tournamentYear || "2023",
-          tournamentEdition: randomDoc.editionId || `${randomDoc.tournamentYear} World Cup`,
-          players
-        };
-      }
+    const squad = getRandomPoolSquad(rolledSquadIds);
+    if (squad && squad.players && squad.players.length > 0) {
+      return squad;
     }
   } catch (e) {
-    console.warn("Firestore squad fetch error, using authentic fallback squad:", e);
+    console.warn("squadPool fetch error, using fallback:", e);
   }
 
-  // Pure uniform random fallback squad selection across all teams and all years without duplicate rolls
-  let unrolledFallback = AUTHENTIC_FALLBACK_SQUADS.filter(s => {
-    const sId = s.id || (s.nationalTeam + "_" + s.tournamentYear);
-    return !rolledSquadIds.has(sId);
-  });
-  if (unrolledFallback.length === 0) unrolledFallback = AUTHENTIC_FALLBACK_SQUADS;
-
-  const chosenSquad = unrolledFallback[Math.floor(Math.random() * unrolledFallback.length)];
-
-  return {
-    squadId: chosenSquad.id || (chosenSquad.nationalTeam + "_" + chosenSquad.tournamentYear),
-    nationalTeam: chosenSquad.nationalTeam,
-    tournamentYear: chosenSquad.tournamentYear,
-    tournamentEdition: chosenSquad.tournamentEdition || `${chosenSquad.tournamentYear} World Cup`,
-    players: chosenSquad.players
-  };
+  return getRandomPoolSquad([]);
 }
 
 let serverOffset = 0;
@@ -1790,7 +1735,17 @@ function getPlayerSilhouette(role) {
  * 4. SYNCED HIGHLIGHTS PLAYBACK
  */
 let playbackTimer = null;
+let simPlaybackStarted = false;
+let simPlaybackRoomCode = null;
+
 function renderSimulatingPhase(viewport, roomCode, room) {
+  if (simPlaybackStarted && simPlaybackRoomCode === roomCode) {
+    // Match simulation is already actively playing for this room — do not re-render DOM or restart playback on RTDB updates
+    return;
+  }
+  simPlaybackStarted = true;
+  simPlaybackRoomCode = roomCode;
+
   const currentUid = auth.currentUser ? auth.currentUser.uid : "";
   const sim = room.simulation || {};
   const startsAt = sim.startsAt || Date.now();
@@ -1800,8 +1755,8 @@ function renderSimulatingPhase(viewport, roomCode, room) {
     <div class="squad-review-container">
       <div class="text-center" style="margin-bottom: 2rem;">
         <span class="role-badge all-rounder" style="font-size: 0.85rem;">Phase: Synced Match Simulation</span>
-        <h1 style="font-size: 2.4rem; margin-top: 0.4rem;">World Cup Match Highlights</h1>
-        <p style="color: var(--chalk-white-dim); margin-top: 0.2rem;" id="sim-status-title">Aligning broadcast timers...</p>
+        <h1 style="font-size: 2.4rem; margin-top: 0.4rem; font-weight: 900; color: #111111;">World Cup Match Highlights</h1>
+        <p style="color: #333333; font-weight: 800; margin-top: 0.2rem;" id="sim-status-title">Aligning broadcast timers...</p>
       </div>
 
       <!-- Scoreboard screen widget -->
@@ -1816,7 +1771,7 @@ function renderSimulatingPhase(viewport, roomCode, room) {
               </div>
               <span class="score-overs" id="pb-oversA">0.0 ov</span>
             </div>
-            <div class="score-row flex justify-between align-center" style="margin-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.05); padding-top: 1rem;">
+            <div class="score-row flex justify-between align-center" style="margin-top: 1rem; border-top: 1px dashed rgba(0,0,0,0.15); padding-top: 1rem;">
               <div>
                 <span class="score-team" id="pb-teamB">TEAM B</span>
                 <span class="score-runs" id="pb-runsB">0/0</span>
@@ -1841,30 +1796,30 @@ function renderSimulatingPhase(viewport, roomCode, room) {
         </div>
 
         <!-- Live Batter & Bowler Side-by-Side Scorecard Panel -->
-        <div class="career-stats-widget" style="margin-top: 1.25rem; border: 1px solid var(--glass-border); padding: 1rem;">
+        <div class="career-stats-widget" style="margin-top: 1.25rem; border: 2px solid #1E1E1E; padding: 1rem; background: #FFFFFF; box-shadow: 3px 3px 0px #1E1E1E; border-radius: 0px;">
           <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
             <!-- Live Batter Card -->
-            <div style="flex: 1; min-width: 250px; background: rgba(0,0,0,0.3); padding: 0.85rem; border-radius: 8px; border-left: 4px solid var(--willow-tan);">
-              <h5 style="color: var(--willow-tan); text-transform: uppercase; font-size: 0.8rem; margin: 0 0 0.5rem 0;">On Crease (Batting)</h5>
-              <div id="pb-live-striker" style="font-size: 0.9rem; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
+            <div style="flex: 1; min-width: 250px; background: #FAF6ED; padding: 0.85rem; border-radius: 0px; border: 2px solid #1E1E1E; border-left: 5px solid #C89B3C;">
+              <h5 style="color: #C89B3C; text-transform: uppercase; font-size: 0.85rem; margin: 0 0 0.5rem 0; font-weight: 900;">On Crease (Batting)</h5>
+              <div id="pb-live-striker" style="font-size: 0.95rem; font-weight: 900; color: #111111; display: flex; align-items: center; justify-content: space-between;">
                 <span>🏏 Striker: -</span>
-                <span style="color: var(--willow-tan);">0 (0)</span>
+                <span style="color: #C89B3C; font-weight: 900;">0 (0)</span>
               </div>
-              <div id="pb-live-nonstriker" style="font-size: 0.85rem; color: var(--chalk-white-dim); margin-top: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
+              <div id="pb-live-nonstriker" style="font-size: 0.85rem; color: #333333; font-weight: 800; margin-top: 0.35rem; display: flex; align-items: center; justify-content: space-between;">
                 <span>Non-Striker: -</span>
                 <span>0 (0)</span>
               </div>
             </div>
 
             <!-- Live Bowler Card -->
-            <div style="flex: 1; min-width: 240px; background: rgba(0,0,0,0.3); padding: 0.85rem; border-radius: 8px; border-left: 4px solid #1e88e5;">
-              <h5 style="color: #64b5f6; text-transform: uppercase; font-size: 0.8rem; margin: 0 0 0.5rem 0;">Current Bowler</h5>
-              <div id="pb-live-bowler" style="font-size: 0.9rem; font-weight: bold; display: flex; align-items: center; justify-content: space-between;">
+            <div style="flex: 1; min-width: 240px; background: #FAF6ED; padding: 0.85rem; border-radius: 0px; border: 2px solid #1E1E1E; border-left: 5px solid #1E88E5;">
+              <h5 style="color: #1E88E5; text-transform: uppercase; font-size: 0.85rem; margin: 0 0 0.5rem 0; font-weight: 900;">Current Bowler</h5>
+              <div id="pb-live-bowler" style="font-size: 0.95rem; font-weight: 900; color: #111111; display: flex; align-items: center; justify-content: space-between;">
                 <span>⚡ Bowler: -</span>
-                <span style="color: #64b5f6;">0-0 (0.0 ov)</span>
+                <span style="color: #1E88E5; font-weight: 900;">0-0 (0.0 ov)</span>
               </div>
-              <div id="pb-live-bowler-econ" style="font-size: 0.8rem; color: var(--chalk-white-dim); margin-top: 0.35rem;">
-                Economy: 0.00
+              <div id="pb-live-bowler-econ" style="font-size: 0.85rem; color: #333333; font-weight: 800; margin-top: 0.35rem;">
+                Economy: 0.00 rpo
               </div>
             </div>
           </div>
@@ -2039,6 +1994,22 @@ function startCinematicHighlightLoop(matches) {
   let wickets2 = 0;
 
   const overOutcomes = [];
+  const liveBatters = {};
+  const liveBowlers = {};
+
+  function getBatter(pId, name) {
+    if (!liveBatters[pId]) {
+      liveBatters[pId] = { name: name || "Batter", runs: 0, balls: 0, fours: 0, sixes: 0, out: false };
+    }
+    return liveBatters[pId];
+  }
+
+  function getBowler(pId, name) {
+    if (!liveBowlers[pId]) {
+      liveBowlers[pId] = { name: name || "Bowler", balls: 0, runsConceded: 0, wickets: 0 };
+    }
+    return liveBowlers[pId];
+  }
 
   function tickPlayback() {
     if (ballIndex >= totalBalls) {
@@ -2057,7 +2028,45 @@ function startCinematicHighlightLoop(matches) {
     const commList = document.getElementById("pb-commentary-feed-list");
     const overList = document.getElementById("pb-current-over-list");
 
-    // Process runs and wickets counters
+    const currentInningsData = ball.innings === 1 ? i1 : i2;
+    const bCard = currentInningsData.battingCard || {};
+    const bwCard = currentInningsData.bowlingCard || {};
+
+    const strikerName = ball.strikerName || (bCard[ball.strikerId] ? bCard[ball.strikerId].name : "Batter");
+    const bowlerName = ball.bowlerName || (bwCard[ball.bowlerId] ? bwCard[ball.bowlerId].name : "Bowler");
+    const nonStrikerName = ball.nonStrikerName || (bCard[ball.nonStrikerId] ? bCard[ball.nonStrikerId].name : "Batter");
+
+    const striker = getBatter(ball.strikerId || "striker_" + ballIndex, strikerName);
+    const nonStriker = getBatter(ball.nonStrikerId || "nonstriker_" + ballIndex, nonStrikerName);
+    const bowler = getBowler(ball.bowlerId || "bowler_" + ballIndex, bowlerName);
+
+    // Update striker stats
+    if (!ball.isExtra || ball.extraType === "bye") {
+      striker.runs += (ball.runs || 0);
+      striker.balls += 1;
+      if (ball.runs === 4) striker.fours += 1;
+      if (ball.runs === 6) striker.sixes += 1;
+    } else if (ball.extraType === "noball") {
+      const batRuns = ball.runs > 0 ? ball.runs - 1 : 0;
+      striker.runs += batRuns;
+      if (batRuns === 4) striker.fours += 1;
+      if (batRuns === 6) striker.sixes += 1;
+    }
+
+    if (ball.isWicket) {
+      striker.out = true;
+    }
+
+    // Update bowler stats
+    if (ball.extraType !== "wide" && ball.extraType !== "noball") {
+      bowler.balls += 1;
+    }
+    bowler.runsConceded += (ball.runs || 0) + (ball.extraType === "wide" || ball.extraType === "noball" ? 1 : 0);
+    if (ball.isWicket) {
+      bowler.wickets += 1;
+    }
+
+    // Process team runs and wickets counters
     if (ball.innings === 1) {
       if (ball.isWicket) wickets1++;
       if (!ball.isExtra || ball.extraType === "bye") {
@@ -2066,13 +2075,16 @@ function startCinematicHighlightLoop(matches) {
         runs1 += 1; // wides/noballs add 1 penalty
       }
       
-      // Update scorecard displays
-      document.getElementById("pb-runsA").innerText = `${runs1}/${wickets1}`;
-      document.getElementById("pb-oversA").innerText = formatOvers(ball.over, ball.ballInOver);
+      const rA = document.getElementById("pb-runsA");
+      const oA = document.getElementById("pb-oversA");
+      if (rA) rA.innerText = `${runs1}/${wickets1}`;
+      if (oA) oA.innerText = formatOvers(ball.over, ball.ballInOver);
     } else {
       // Innings 2 chase
-      document.getElementById("pb-target-ticker").style.display = "block";
-      document.getElementById("pb-target-runs").innerText = `${i1.totalRuns + 1} runs`;
+      const tT = document.getElementById("pb-target-ticker");
+      const tR = document.getElementById("pb-target-runs");
+      if (tT) tT.style.display = "block";
+      if (tR) tR.innerText = `${i1.totalRuns + 1} runs`;
 
       if (ball.isWicket) wickets2++;
       if (!ball.isExtra || ball.extraType === "bye") {
@@ -2081,29 +2093,28 @@ function startCinematicHighlightLoop(matches) {
         runs2 += 1;
       }
 
-      document.getElementById("pb-runsB").innerText = `${runs2}/${wickets2}`;
-      document.getElementById("pb-oversB").innerText = formatOvers(ball.over, ball.ballInOver);
+      const rB = document.getElementById("pb-runsB");
+      const oB = document.getElementById("pb-oversB");
+      if (rB) rB.innerText = `${runs2}/${wickets2}`;
+      if (oB) oB.innerText = formatOvers(ball.over, ball.ballInOver);
     }
 
     // Update live side-by-side batter & bowler scorecard widgets
-    const currentInningsData = ball.innings === 1 ? i1 : i2;
-    const bCard = currentInningsData.battingCard || {};
-    const bwCard = currentInningsData.bowlingCard || {};
-
-    const strikerData = bCard[ball.strikerId];
-    const bowlerData = bwCard[ball.bowlerId];
-
     const strikerEl = document.getElementById("pb-live-striker");
+    const nonStrikerEl = document.getElementById("pb-live-nonstriker");
     const bowlerEl = document.getElementById("pb-live-bowler");
     const bowlerEconEl = document.getElementById("pb-live-bowler-econ");
 
-    if (strikerEl && strikerData) {
-      strikerEl.innerHTML = `<span>🏏 ${strikerData.name} *</span><span style="color: var(--willow-tan); font-weight: 800;">${strikerData.runs} (${strikerData.balls}) • ${strikerData.fours}x4 ${strikerData.sixes}x6</span>`;
+    if (strikerEl) {
+      strikerEl.innerHTML = `<span>🏏 ${striker.name} *</span><span style="color: #C89B3C; font-weight: 900;">${striker.runs} (${striker.balls}) • ${striker.fours}x4 ${striker.sixes}x6</span>`;
     }
-    if (bowlerEl && bowlerData) {
-      const ovStr = formatBowlerOvers(bowlerData.balls);
-      const econVal = (bowlerData.balls || 0) > 0 ? (((bowlerData.runsConceded || 0) / bowlerData.balls) * 6).toFixed(2) : '0.00';
-      bowlerEl.innerHTML = `<span>⚡ ${bowlerData.name}</span><span style="color: #64b5f6; font-weight: 800;">${bowlerData.wickets || 0}-${bowlerData.runsConceded || 0} (${ovStr})</span>`;
+    if (nonStrikerEl) {
+      nonStrikerEl.innerHTML = `<span>Non-Striker: ${nonStriker.name}</span><span style="font-weight: 800; color: #333333;">${nonStriker.runs} (${nonStriker.balls})</span>`;
+    }
+    if (bowlerEl) {
+      const ovStr = formatBowlerOvers(bowler.balls);
+      const econVal = bowler.balls > 0 ? ((bowler.runsConceded / bowler.balls) * 6).toFixed(2) : '0.00';
+      bowlerEl.innerHTML = `<span>⚡ ${bowler.name}</span><span style="color: #1E88E5; font-weight: 900;">${bowler.wickets}-${bowler.runsConceded} (${ovStr} ov)</span>`;
       if (bowlerEconEl) bowlerEconEl.innerText = `Economy: ${econVal} rpo`;
     }
 
