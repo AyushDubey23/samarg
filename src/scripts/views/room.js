@@ -2041,6 +2041,33 @@ async function runClientSimulationFallback(roomCode, room, tossWinnerUid = null,
       });
     }
 
+    // Default safety fallback if no matches were pushed
+    if (simulatedMatches.length === 0) {
+      const p1Uid = uids[0] || "p1";
+      const p2Uid = uids[1] || "p2";
+
+      let slotsA = getFilledSlotsArray(squads[p1Uid]?.slots).filter(p => p !== null && p !== undefined);
+      let slotsB = getFilledSlotsArray(squads[p2Uid]?.slots).filter(p => p !== null && p !== undefined);
+
+      if (slotsA.length === 0) slotsA = AUTHENTIC_FALLBACK_SQUADS[0].players;
+      if (slotsB.length === 0) slotsB = AUTHENTIC_FALLBACK_SQUADS[1].players;
+
+      const teamA = { id: p1Uid, name: players[p1Uid]?.displayName || "Player 1", players: slotsA };
+      const teamB = { id: p2Uid, name: players[p2Uid]?.displayName || "Player 2", players: slotsB };
+
+      const forcedToss = { winner: tossWinnerUid || p1Uid, decision: tossDecision };
+      const sim = engine.simulateMatch(teamA, teamB, true, forcedToss);
+      simulatedMatches.push({
+        matchId: `${roomCode}_match_1`,
+        round: 1,
+        teamAId: p1Uid,
+        teamAName: teamA.name,
+        teamBId: p2Uid,
+        teamBName: teamB.name,
+        ...sim
+      });
+    }
+
     const standings = uids.map(uid => ({
       teamId: uid,
       teamName: players[uid]?.displayName || "Player",
@@ -2244,7 +2271,14 @@ function renderSimulatingPhase(viewport, roomCode, room) {
 
 // Fixed 50-second compressed cinematic playback loops
 function startCinematicHighlightLoop(matches, standings = [], currentUid = "", roomCode = "") {
-  if (!matches || matches.length === 0) return;
+  if (!matches || matches.length === 0) {
+    console.warn("No simulation matches found in room state, generating client fallback match...");
+    const engine = new BallEngine(12345);
+    const teamA = { id: "p1", name: "Team 1", players: AUTHENTIC_FALLBACK_SQUADS[0].players };
+    const teamB = { id: "p2", name: "Team 2", players: AUTHENTIC_FALLBACK_SQUADS[1].players };
+    const sim = engine.simulateMatch(teamA, teamB, true);
+    matches = [{ matchId: "fallback_m1", round: 1, teamAId: "p1", teamAName: "Team 1", teamBId: "p2", teamBName: "Team 2", ...sim }];
+  }
 
   const match = matches[0];
   const i1 = match.inningsData[0];
