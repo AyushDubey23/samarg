@@ -297,17 +297,17 @@ export const HISTORICAL_SQUAD_POOL = [
     nationalTeam: "Afghanistan",
     tournamentYear: "2023",
     players: [
-      { id: "2023_afg_1", name: "Rahmanullah Gurbaz", role: "keeper", batRating: 68, bowlRating: 0, isWicketkeeper: true },
-      { id: "2023_afg_2", name: "Ibrahim Zadran", role: "opener", batRating: 70, bowlRating: 0, isWicketkeeper: false },
-      { id: "2023_afg_3", name: "Rahmat Shah", role: "topOrder", batRating: 64, bowlRating: 25, isWicketkeeper: false },
-      { id: "2023_afg_4", name: "Hashmatullah Shahidi", role: "middleOrder", batRating: 65, bowlRating: 0, isWicketkeeper: false },
-      { id: "2023_afg_5", name: "Azmatullah Omarzai", role: "allRounder", batRating: 68, bowlRating: 65, isWicketkeeper: false },
-      { id: "2023_afg_6", name: "Mohammad Nabi", role: "allRounder", batRating: 66, bowlRating: 68, isWicketkeeper: false },
-      { id: "2023_afg_7", name: "Ikram Alikhil", role: "middleOrder", batRating: 58, bowlRating: 0, isWicketkeeper: false },
-      { id: "2023_afg_8", name: "Rashid Khan", role: "spinner", batRating: 50, bowlRating: 74, isWicketkeeper: false },
-      { id: "2023_afg_9", name: "Mujeeb Ur Rahman", role: "spinner", batRating: 20, bowlRating: 68, isWicketkeeper: false },
-      { id: "2023_afg_10", name: "Naveen-ul-Haq", role: "pacer", batRating: 15, bowlRating: 66, isWicketkeeper: false },
-      { id: "2023_afg_11", name: "Fazalhaq Farooqi", role: "pacer", batRating: 10, bowlRating: 69, isWicketkeeper: false }
+      { id: "2023_afg_1", name: "Rahmanullah Gurbaz", role: "keeper", batRating: 88, bowlRating: 0, isWicketkeeper: true },
+      { id: "2023_afg_2", name: "Ibrahim Zadran", role: "opener", batRating: 89, bowlRating: 0, isWicketkeeper: false },
+      { id: "2023_afg_3", name: "Rahmat Shah", role: "topOrder", batRating: 84, bowlRating: 30, isWicketkeeper: false },
+      { id: "2023_afg_4", name: "Hashmatullah Shahidi", role: "middleOrder", batRating: 85, bowlRating: 0, isWicketkeeper: false },
+      { id: "2023_afg_5", name: "Azmatullah Omarzai", role: "allRounder", batRating: 87, bowlRating: 84, isWicketkeeper: false },
+      { id: "2023_afg_6", name: "Mohammad Nabi", role: "allRounder", batRating: 85, bowlRating: 86, isWicketkeeper: false },
+      { id: "2023_afg_7", name: "Ikram Alikhil", role: "middleOrder", batRating: 76, bowlRating: 0, isWicketkeeper: false },
+      { id: "2023_afg_8", name: "Rashid Khan", role: "spinner", batRating: 65, bowlRating: 97, isWicketkeeper: false },
+      { id: "2023_afg_9", name: "Mujeeb Ur Rahman", role: "spinner", batRating: 25, bowlRating: 88, isWicketkeeper: false },
+      { id: "2023_afg_10", name: "Naveen-ul-Haq", role: "pacer", batRating: 20, bowlRating: 86, isWicketkeeper: false },
+      { id: "2023_afg_11", name: "Fazalhaq Farooqi", role: "pacer", batRating: 15, bowlRating: 89, isWicketkeeper: false }
     ]
   },
 
@@ -316,17 +316,17 @@ export const HISTORICAL_SQUAD_POOL = [
     nationalTeam: "Bangladesh",
     tournamentYear: "2015",
     players: [
-      { id: "2015_ban_1", name: "Tamim Iqbal", role: "opener", batRating: 68, bowlRating: 0, isWicketkeeper: false },
-      { id: "2015_ban_2", name: "Soumya Sarkar", role: "opener", batRating: 62, bowlRating: 30, isWicketkeeper: false },
-      { id: "2015_ban_3", name: "Mahmudullah", role: "middleOrder", batRating: 69, bowlRating: 50, isWicketkeeper: false },
-      { id: "2015_ban_4", name: "Shakib Al Hasan", role: "allRounder", batRating: 72, bowlRating: 73, isWicketkeeper: false },
-      { id: "2015_ban_5", name: "Mushfiqur Rahim", role: "keeper", batRating: 68, bowlRating: 0, isWicketkeeper: true },
-      { id: "2015_ban_6", name: "Sabbir Rahman", role: "middleOrder", batRating: 60, bowlRating: 0, isWicketkeeper: false },
-      { id: "2015_ban_7", name: "Nasir Hossain", role: "allRounder", batRating: 58, bowlRating: 56, isWicketkeeper: false },
-      { id: "2015_ban_8", name: "Mashrafe Mortaza", role: "pacer", batRating: 40, bowlRating: 66, isWicketkeeper: false },
-      { id: "2015_ban_9", name: "Arafat Sunny", role: "spinner", batRating: 15, bowlRating: 60, isWicketkeeper: false },
-      { id: "2015_ban_10", name: "Rubel Hossain", role: "pacer", batRating: 10, bowlRating: 65, isWicketkeeper: false },
-      { id: "2015_ban_11", name: "Taskin Ahmed", role: "pacer", batRating: 10, bowlRating: 67, isWicketkeeper: false }
+      { id: "2015_ban_1", name: "Tamim Iqbal", role: "opener", batRating: 88, bowlRating: 0, isWicketkeeper: false },
+      { id: "2015_ban_2", name: "Soumya Sarkar", role: "opener", batRating: 82, bowlRating: 40, isWicketkeeper: false },
+      { id: "2015_ban_3", name: "Mahmudullah", role: "middleOrder", batRating: 89, bowlRating: 60, isWicketkeeper: false },
+      { id: "2015_ban_4", name: "Shakib Al Hasan", role: "allRounder", batRating: 93, bowlRating: 92, isWicketkeeper: false },
+      { id: "2015_ban_5", name: "Mushfiqur Rahim", role: "keeper", batRating: 89, bowlRating: 0, isWicketkeeper: true },
+      { id: "2015_ban_6", name: "Sabbir Rahman", role: "middleOrder", batRating: 80, bowlRating: 0, isWicketkeeper: false },
+      { id: "2015_ban_7", name: "Nasir Hossain", role: "allRounder", batRating: 78, bowlRating: 74, isWicketkeeper: false },
+      { id: "2015_ban_8", name: "Mashrafe Mortaza", role: "pacer", batRating: 50, bowlRating: 87, isWicketkeeper: false },
+      { id: "2015_ban_9", name: "Arafat Sunny", role: "spinner", batRating: 20, bowlRating: 80, isWicketkeeper: false },
+      { id: "2015_ban_10", name: "Rubel Hossain", role: "pacer", batRating: 15, bowlRating: 85, isWicketkeeper: false },
+      { id: "2015_ban_11", name: "Taskin Ahmed", role: "pacer", batRating: 15, bowlRating: 87, isWicketkeeper: false }
     ]
   },
 
@@ -335,17 +335,17 @@ export const HISTORICAL_SQUAD_POOL = [
     nationalTeam: "Netherlands",
     tournamentYear: "2023",
     players: [
-      { id: "2023_ned_1", name: "Vikramjit Singh", role: "opener", batRating: 58, bowlRating: 35, isWicketkeeper: false },
-      { id: "2023_ned_2", name: "Max O'Dowd", role: "opener", batRating: 60, bowlRating: 0, isWicketkeeper: false },
-      { id: "2023_ned_3", name: "Colin Ackermann", role: "topOrder", batRating: 62, bowlRating: 55, isWicketkeeper: false },
-      { id: "2023_ned_4", name: "Bas de Leede", role: "allRounder", batRating: 66, bowlRating: 65, isWicketkeeper: false },
-      { id: "2023_ned_5", name: "Teja Nidamanuru", role: "middleOrder", batRating: 60, bowlRating: 0, isWicketkeeper: false },
-      { id: "2023_ned_6", name: "Scott Edwards", role: "keeper", batRating: 63, bowlRating: 0, isWicketkeeper: true },
-      { id: "2023_ned_7", name: "Sybrand Engelbrecht", role: "middleOrder", batRating: 59, bowlRating: 0, isWicketkeeper: false },
-      { id: "2023_ned_8", name: "Logan van Beek", role: "allRounder", batRating: 55, bowlRating: 64, isWicketkeeper: false },
-      { id: "2023_ned_9", name: "Roelof van der Merwe", role: "allRounder", batRating: 52, bowlRating: 65, isWicketkeeper: false },
-      { id: "2023_ned_10", name: "Aryan Dutt", role: "spinner", batRating: 25, bowlRating: 62, isWicketkeeper: false },
-      { id: "2023_ned_11", name: "Paul van Meekeren", role: "pacer", batRating: 15, bowlRating: 64, isWicketkeeper: false }
+      { id: "2023_ned_1", name: "Vikramjit Singh", role: "opener", batRating: 78, bowlRating: 50, isWicketkeeper: false },
+      { id: "2023_ned_2", name: "Max O'Dowd", role: "opener", batRating: 80, bowlRating: 0, isWicketkeeper: false },
+      { id: "2023_ned_3", name: "Colin Ackermann", role: "topOrder", batRating: 83, bowlRating: 72, isWicketkeeper: false },
+      { id: "2023_ned_4", name: "Bas de Leede", role: "allRounder", batRating: 87, bowlRating: 86, isWicketkeeper: false },
+      { id: "2023_ned_5", name: "Teja Nidamanuru", role: "middleOrder", batRating: 82, bowlRating: 0, isWicketkeeper: false },
+      { id: "2023_ned_6", name: "Scott Edwards", role: "keeper", batRating: 85, bowlRating: 0, isWicketkeeper: true },
+      { id: "2023_ned_7", name: "Sybrand Engelbrecht", role: "middleOrder", batRating: 81, bowlRating: 0, isWicketkeeper: false },
+      { id: "2023_ned_8", name: "Logan van Beek", role: "allRounder", batRating: 76, bowlRating: 84, isWicketkeeper: false },
+      { id: "2023_ned_9", name: "Roelof van der Merwe", role: "allRounder", batRating: 74, bowlRating: 86, isWicketkeeper: false },
+      { id: "2023_ned_10", name: "Aryan Dutt", role: "spinner", batRating: 35, bowlRating: 84, isWicketkeeper: false },
+      { id: "2023_ned_11", name: "Paul van Meekeren", role: "pacer", batRating: 20, bowlRating: 86, isWicketkeeper: false }
     ]
   },
 
@@ -354,17 +354,17 @@ export const HISTORICAL_SQUAD_POOL = [
     nationalTeam: "Ireland",
     tournamentYear: "2011",
     players: [
-      { id: "2011_ire_1", name: "William Porterfield", role: "opener", batRating: 62, bowlRating: 0, isWicketkeeper: false },
-      { id: "2011_ire_2", name: "Paul Stirling", role: "opener", batRating: 65, bowlRating: 45, isWicketkeeper: false },
-      { id: "2011_ire_3", name: "Ed Joyce", role: "topOrder", batRating: 64, bowlRating: 0, isWicketkeeper: false },
-      { id: "2011_ire_4", name: "Niall O'Brien", role: "keeper", batRating: 61, bowlRating: 0, isWicketkeeper: true },
-      { id: "2011_ire_5", name: "Kevin O'Brien", role: "allRounder", batRating: 68, bowlRating: 62, isWicketkeeper: false },
-      { id: "2011_ire_6", name: "Gary Wilson", role: "middleOrder", batRating: 58, bowlRating: 0, isWicketkeeper: false },
-      { id: "2011_ire_7", name: "Alex Cusack", role: "allRounder", batRating: 56, bowlRating: 58, isWicketkeeper: false },
-      { id: "2011_ire_8", name: "John Mooney", role: "allRounder", batRating: 58, bowlRating: 60, isWicketkeeper: false },
-      { id: "2011_ire_9", name: "Trent Johnston", role: "allRounder", batRating: 52, bowlRating: 62, isWicketkeeper: false },
-      { id: "2011_ire_10", name: "George Dockrell", role: "spinner", batRating: 20, bowlRating: 61, isWicketkeeper: false },
-      { id: "2011_ire_11", name: "Boyd Rankin", role: "pacer", batRating: 10, bowlRating: 65, isWicketkeeper: false }
+      { id: "2011_ire_1", name: "William Porterfield", role: "opener", batRating: 84, bowlRating: 0, isWicketkeeper: false },
+      { id: "2011_ire_2", name: "Paul Stirling", role: "opener", batRating: 87, bowlRating: 62, isWicketkeeper: false },
+      { id: "2011_ire_3", name: "Ed Joyce", role: "topOrder", batRating: 85, bowlRating: 0, isWicketkeeper: false },
+      { id: "2011_ire_4", name: "Niall O'Brien", role: "keeper", batRating: 83, bowlRating: 0, isWicketkeeper: true },
+      { id: "2011_ire_5", name: "Kevin O'Brien", role: "allRounder", batRating: 90, bowlRating: 82, isWicketkeeper: false },
+      { id: "2011_ire_6", name: "Gary Wilson", role: "middleOrder", batRating: 79, bowlRating: 0, isWicketkeeper: false },
+      { id: "2011_ire_7", name: "Alex Cusack", role: "allRounder", batRating: 77, bowlRating: 80, isWicketkeeper: false },
+      { id: "2011_ire_8", name: "John Mooney", role: "allRounder", batRating: 79, bowlRating: 81, isWicketkeeper: false },
+      { id: "2011_ire_9", name: "Trent Johnston", role: "allRounder", batRating: 73, bowlRating: 83, isWicketkeeper: false },
+      { id: "2011_ire_10", name: "George Dockrell", role: "spinner", batRating: 30, bowlRating: 83, isWicketkeeper: false },
+      { id: "2011_ire_11", name: "Boyd Rankin", role: "pacer", batRating: 15, bowlRating: 86, isWicketkeeper: false }
     ]
   },
 
@@ -373,17 +373,17 @@ export const HISTORICAL_SQUAD_POOL = [
     nationalTeam: "USA",
     tournamentYear: "2024",
     players: [
-      { id: "2024_usa_1", name: "Steven Taylor", role: "opener", batRating: 55, bowlRating: 30, isWicketkeeper: false },
-      { id: "2024_usa_2", name: "Monank Patel", role: "keeper", batRating: 58, bowlRating: 0, isWicketkeeper: true },
-      { id: "2024_usa_3", name: "Andries Gous", role: "topOrder", batRating: 60, bowlRating: 0, isWicketkeeper: false },
-      { id: "2024_usa_4", name: "Aaron Jones", role: "middleOrder", batRating: 63, bowlRating: 0, isWicketkeeper: false },
-      { id: "2024_usa_5", name: "Nitish Kumar", role: "middleOrder", batRating: 52, bowlRating: 0, isWicketkeeper: false },
-      { id: "2024_usa_6", name: "Corey Anderson", role: "allRounder", batRating: 60, bowlRating: 58, isWicketkeeper: false },
-      { id: "2024_usa_7", name: "Harmeet Singh", role: "allRounder", batRating: 50, bowlRating: 60, isWicketkeeper: false },
-      { id: "2024_usa_8", name: "Shadley van Schalkwyk", role: "pacer", batRating: 20, bowlRating: 59, isWicketkeeper: false },
-      { id: "2024_usa_9", name: "Jasdeep Singh", role: "pacer", batRating: 10, bowlRating: 56, isWicketkeeper: false },
-      { id: "2024_usa_10", name: "Saurabh Netravalkar", role: "pacer", batRating: 15, bowlRating: 64, isWicketkeeper: false },
-      { id: "2024_usa_11", name: "Nosthush Kenjige", role: "spinner", batRating: 10, bowlRating: 58, isWicketkeeper: false }
+      { id: "2024_usa_1", name: "Steven Taylor", role: "opener", batRating: 78, bowlRating: 40, isWicketkeeper: false },
+      { id: "2024_usa_2", name: "Monank Patel", role: "keeper", batRating: 82, bowlRating: 0, isWicketkeeper: true },
+      { id: "2024_usa_3", name: "Andries Gous", role: "topOrder", batRating: 84, bowlRating: 0, isWicketkeeper: false },
+      { id: "2024_usa_4", name: "Aaron Jones", role: "middleOrder", batRating: 86, bowlRating: 0, isWicketkeeper: false },
+      { id: "2024_usa_5", name: "Nitish Kumar", role: "middleOrder", batRating: 76, bowlRating: 0, isWicketkeeper: false },
+      { id: "2024_usa_6", name: "Corey Anderson", role: "allRounder", batRating: 83, bowlRating: 77, isWicketkeeper: false },
+      { id: "2024_usa_7", name: "Harmeet Singh", role: "allRounder", batRating: 78, bowlRating: 83, isWicketkeeper: false },
+      { id: "2024_usa_8", name: "Shadley van Schalkwyk", role: "pacer", batRating: 35, bowlRating: 82, isWicketkeeper: false },
+      { id: "2024_usa_9", name: "Jasdeep Singh", role: "pacer", batRating: 20, bowlRating: 79, isWicketkeeper: false },
+      { id: "2024_usa_10", name: "Saurabh Netravalkar", role: "pacer", batRating: 25, bowlRating: 90, isWicketkeeper: false },
+      { id: "2024_usa_11", name: "Nosthush Kenjige", role: "spinner", batRating: 15, bowlRating: 84, isWicketkeeper: false }
     ]
   },
 
@@ -392,17 +392,17 @@ export const HISTORICAL_SQUAD_POOL = [
     nationalTeam: "Zimbabwe",
     tournamentYear: "1999",
     players: [
-      { id: "1999_zim_1", name: "Grant Flower", role: "opener", batRating: 62, bowlRating: 50, isWicketkeeper: false },
-      { id: "1999_zim_2", name: "Neil Johnson", role: "opener", batRating: 64, bowlRating: 60, isWicketkeeper: false },
-      { id: "1999_zim_3", name: "Murray Goodwin", role: "topOrder", batRating: 63, bowlRating: 0, isWicketkeeper: false },
-      { id: "1999_zim_4", name: "Andy Flower", role: "keeper", batRating: 68, bowlRating: 0, isWicketkeeper: true },
-      { id: "1999_zim_5", name: "Alistair Campbell", role: "middleOrder", batRating: 60, bowlRating: 0, isWicketkeeper: false },
-      { id: "1999_zim_6", name: "Guy Whittall", role: "allRounder", batRating: 58, bowlRating: 56, isWicketkeeper: false },
-      { id: "1999_zim_7", name: "Heath Streak", role: "allRounder", batRating: 55, bowlRating: 66, isWicketkeeper: false },
-      { id: "1999_zim_8", name: "Paul Strang", role: "spinner", batRating: 35, bowlRating: 60, isWicketkeeper: false },
-      { id: "1999_zim_9", name: "Henry Olonga", role: "pacer", batRating: 10, bowlRating: 61, isWicketkeeper: false },
-      { id: "1999_zim_10", name: "Eddo Brandes", role: "pacer", batRating: 15, bowlRating: 59, isWicketkeeper: false },
-      { id: "1999_zim_11", name: "Adam Huckle", role: "spinner", batRating: 10, bowlRating: 55, isWicketkeeper: false }
+      { id: "1999_zim_1", name: "Grant Flower", role: "opener", batRating: 85, bowlRating: 70, isWicketkeeper: false },
+      { id: "1999_zim_2", name: "Neil Johnson", role: "opener", batRating: 87, bowlRating: 82, isWicketkeeper: false },
+      { id: "1999_zim_3", name: "Murray Goodwin", role: "topOrder", batRating: 86, bowlRating: 0, isWicketkeeper: false },
+      { id: "1999_zim_4", name: "Andy Flower", role: "keeper", batRating: 94, bowlRating: 0, isWicketkeeper: true },
+      { id: "1999_zim_5", name: "Alistair Campbell", role: "middleOrder", batRating: 83, bowlRating: 0, isWicketkeeper: false },
+      { id: "1999_zim_6", name: "Guy Whittall", role: "allRounder", batRating: 80, bowlRating: 77, isWicketkeeper: false },
+      { id: "1999_zim_7", name: "Heath Streak", role: "allRounder", batRating: 76, bowlRating: 89, isWicketkeeper: false },
+      { id: "1999_zim_8", name: "Paul Strang", role: "spinner", batRating: 60, bowlRating: 82, isWicketkeeper: false },
+      { id: "1999_zim_9", name: "Henry Olonga", role: "pacer", batRating: 15, bowlRating: 84, isWicketkeeper: false },
+      { id: "1999_zim_10", name: "Eddo Brandes", role: "pacer", batRating: 25, bowlRating: 82, isWicketkeeper: false },
+      { id: "1999_zim_11", name: "Adam Huckle", role: "spinner", batRating: 10, bowlRating: 78, isWicketkeeper: false }
     ]
   },
 
@@ -411,17 +411,17 @@ export const HISTORICAL_SQUAD_POOL = [
     nationalTeam: "Kenya",
     tournamentYear: "2003",
     players: [
-      { id: "2003_ken_1", name: "Kennedy Otieno", role: "keeper", batRating: 54, bowlRating: 0, isWicketkeeper: true },
-      { id: "2003_ken_2", name: "Ravindu Shah", role: "opener", batRating: 52, bowlRating: 0, isWicketkeeper: false },
-      { id: "2003_ken_3", name: "Steve Tikolo", role: "allRounder", batRating: 64, bowlRating: 60, isWicketkeeper: false },
-      { id: "2003_ken_4", name: "Hitesh Modi", role: "middleOrder", batRating: 50, bowlRating: 0, isWicketkeeper: false },
-      { id: "2003_ken_5", name: "Thomas Odoyo", role: "allRounder", batRating: 54, bowlRating: 58, isWicketkeeper: false },
-      { id: "2003_ken_6", name: "Maurice Odumbe", role: "allRounder", batRating: 60, bowlRating: 56, isWicketkeeper: false },
-      { id: "2003_ken_7", name: "Collins Obuya", role: "allRounder", batRating: 52, bowlRating: 61, isWicketkeeper: false },
-      { id: "2003_ken_8", name: "Peter Ongondo", role: "pacer", batRating: 20, bowlRating: 57, isWicketkeeper: false },
-      { id: "2003_ken_9", name: "Martin Suji", role: "pacer", batRating: 15, bowlRating: 54, isWicketkeeper: false },
-      { id: "2003_ken_10", name: "Tony Suji", role: "pacer", batRating: 10, bowlRating: 50, isWicketkeeper: false },
-      { id: "2003_ken_11", name: "Asif Karim", role: "spinner", batRating: 10, bowlRating: 62, isWicketkeeper: false }
+      { id: "2003_ken_1", name: "Kennedy Otieno", role: "keeper", batRating: 80, bowlRating: 0, isWicketkeeper: true },
+      { id: "2003_ken_2", name: "Ravindu Shah", role: "opener", batRating: 78, bowlRating: 0, isWicketkeeper: false },
+      { id: "2003_ken_3", name: "Steve Tikolo", role: "allRounder", batRating: 89, bowlRating: 83, isWicketkeeper: false },
+      { id: "2003_ken_4", name: "Hitesh Modi", role: "middleOrder", batRating: 76, bowlRating: 0, isWicketkeeper: false },
+      { id: "2003_ken_5", name: "Thomas Odoyo", role: "allRounder", batRating: 80, bowlRating: 84, isWicketkeeper: false },
+      { id: "2003_ken_6", name: "Maurice Odumbe", role: "allRounder", batRating: 86, bowlRating: 80, isWicketkeeper: false },
+      { id: "2003_ken_7", name: "Collins Obuya", role: "allRounder", batRating: 78, bowlRating: 86, isWicketkeeper: false },
+      { id: "2003_ken_8", name: "Peter Ongondo", role: "pacer", batRating: 35, bowlRating: 81, isWicketkeeper: false },
+      { id: "2003_ken_9", name: "Martin Suji", role: "pacer", batRating: 20, bowlRating: 80, isWicketkeeper: false },
+      { id: "2003_ken_10", name: "Tony Suji", role: "pacer", batRating: 15, bowlRating: 76, isWicketkeeper: false },
+      { id: "2003_ken_11", name: "Asif Karim", role: "spinner", batRating: 15, bowlRating: 87, isWicketkeeper: false }
     ]
   },
 
@@ -430,17 +430,17 @@ export const HISTORICAL_SQUAD_POOL = [
     nationalTeam: "Scotland",
     tournamentYear: "2015",
     players: [
-      { id: "2015_sco_1", name: "Kyle Coetzer", role: "opener", batRating: 61, bowlRating: 0, isWicketkeeper: false },
-      { id: "2015_sco_2", name: "Calum MacLeod", role: "opener", batRating: 59, bowlRating: 0, isWicketkeeper: false },
-      { id: "2015_sco_3", name: "Matt Machan", role: "topOrder", batRating: 54, bowlRating: 40, isWicketkeeper: false },
-      { id: "2015_sco_4", name: "Preston Mommsen", role: "middleOrder", batRating: 56, bowlRating: 0, isWicketkeeper: false },
-      { id: "2015_sco_5", name: "Richie Berrington", role: "allRounder", batRating: 58, bowlRating: 52, isWicketkeeper: false },
-      { id: "2015_sco_6", name: "Matthew Cross", role: "keeper", batRating: 54, bowlRating: 0, isWicketkeeper: true },
-      { id: "2015_sco_7", name: "Josh Davey", role: "allRounder", batRating: 48, bowlRating: 60, isWicketkeeper: false },
-      { id: "2015_sco_8", name: "Rob Taylor", role: "allRounder", batRating: 42, bowlRating: 54, isWicketkeeper: false },
-      { id: "2015_sco_9", name: "Majid Haq", role: "spinner", batRating: 15, bowlRating: 56, isWicketkeeper: false },
-      { id: "2015_sco_10", name: "Alasdair Evans", role: "pacer", batRating: 10, bowlRating: 57, isWicketkeeper: false },
-      { id: "2015_sco_11", name: "Iain Wardlaw", role: "pacer", batRating: 10, bowlRating: 58, isWicketkeeper: false }
+      { id: "2015_sco_1", name: "Kyle Coetzer", role: "opener", batRating: 86, bowlRating: 0, isWicketkeeper: false },
+      { id: "2015_sco_2", name: "Calum MacLeod", role: "opener", batRating: 84, bowlRating: 0, isWicketkeeper: false },
+      { id: "2015_sco_3", name: "Matt Machan", role: "topOrder", batRating: 79, bowlRating: 60, isWicketkeeper: false },
+      { id: "2015_sco_4", name: "Preston Mommsen", role: "middleOrder", batRating: 81, bowlRating: 0, isWicketkeeper: false },
+      { id: "2015_sco_5", name: "Richie Berrington", role: "allRounder", batRating: 83, bowlRating: 75, isWicketkeeper: false },
+      { id: "2015_sco_6", name: "Matthew Cross", role: "keeper", batRating: 80, bowlRating: 0, isWicketkeeper: true },
+      { id: "2015_sco_7", name: "Josh Davey", role: "allRounder", batRating: 70, bowlRating: 85, isWicketkeeper: false },
+      { id: "2015_sco_8", name: "Rob Taylor", role: "allRounder", batRating: 65, bowlRating: 79, isWicketkeeper: false },
+      { id: "2015_sco_9", name: "Majid Haq", role: "spinner", batRating: 25, bowlRating: 81, isWicketkeeper: false },
+      { id: "2015_sco_10", name: "Alasdair Evans", role: "pacer", batRating: 15, bowlRating: 82, isWicketkeeper: false },
+      { id: "2015_sco_11", name: "Iain Wardlaw", role: "pacer", batRating: 15, bowlRating: 83, isWicketkeeper: false }
     ]
   }
 ];

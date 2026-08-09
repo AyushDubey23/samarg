@@ -54,16 +54,7 @@ export function adjustProbabilities(batter, bowler, matchState) {
     }
   }
 
-  // OOP Checks
-  const isPureBowlerInTopOrder = (bRole === 'pacer' || bRole === 'spinner') && (batter.slotIndex !== undefined && batter.slotIndex < 3);
-  const isPureBatterInBowlerSlot = (bwRole === 'opener' || bwRole === 'toporder' || bwRole === 'middleorder' || bwRole === 'keeper') && (bowler.slotIndex !== undefined && bowler.slotIndex >= 7);
-
-  if (isPureBowlerInTopOrder) {
-    effectiveBat *= 0.55; // -45% Batting Penalty
-  }
-  if (isPureBatterInBowlerSlot) {
-    effectiveBowl *= 0.45; // -55% Bowling Penalty
-  }
+  // No Out-Of-Position (OOP) penalties - players retain full rating capability regardless of slot position!
 
   if (batter.isCaptain) effectiveBat *= 1.20;
   if (batter.isViceCaptain) effectiveBat *= 1.10;
