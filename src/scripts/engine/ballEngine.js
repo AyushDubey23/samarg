@@ -342,7 +342,11 @@ export class BallEngine {
         over: Math.floor((ballsBowled - 1) / 6),
         ballInOver: ((ballsBowled - 1) % 6) + 1,
         strikerId: striker.id,
+        strikerName: striker.name,
+        nonStrikerId: nonStriker ? nonStriker.id : null,
+        nonStrikerName: nonStriker ? nonStriker.name : null,
         bowlerId: currentBowler.id,
+        bowlerName: currentBowler.name,
         runs: ballRuns,
         isWicket: wicketFell,
         wicketType: wType,
@@ -392,9 +396,15 @@ export class BallEngine {
     };
   }
 
-  simulateMatch(teamA, teamB, isKnockout = false) {
-    const tossWinner = this.random() < 0.5 ? 'teamA' : 'teamB';
-    const tossDecision = this.random() < 0.6 ? 'bowl' : 'bat';
+  simulateMatch(teamA, teamB, isKnockout = false, forcedToss = null) {
+    let tossWinner = this.random() < 0.5 ? 'teamA' : 'teamB';
+    let tossDecision = this.random() < 0.6 ? 'bowl' : 'bat';
+
+    if (forcedToss) {
+      if (forcedToss.winner === teamA.id || forcedToss.winner === 'teamA') tossWinner = 'teamA';
+      else if (forcedToss.winner === teamB.id || forcedToss.winner === 'teamB') tossWinner = 'teamB';
+      if (forcedToss.decision === 'bat' || forcedToss.decision === 'bowl') tossDecision = forcedToss.decision;
+    }
     
     let battingFirst, bowlingFirst;
     if (tossWinner === 'teamA') {

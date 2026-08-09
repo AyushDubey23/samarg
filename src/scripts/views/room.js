@@ -318,6 +318,8 @@ export function renderRoom(viewport, roomCode) {
         renderPlacingPhase(viewport, roomCode, roomData, currentSpectatorUid, (spectatedUid) => {
           currentSpectatorUid = spectatedUid;
         });
+      } else if (roomData.status === "toss") {
+        renderTossPhase(viewport, roomCode, roomData);
       } else if (roomData.status === "simulating") {
         renderSimulatingPhase(viewport, roomCode, roomData);
       }
@@ -1607,12 +1609,20 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
           const uids = Object.keys(updatedRoom.players || {});
           const allReady = uids.length > 0 && uids.every(uid => updatedRoom.squads?.[uid]?.ready);
 
-          if (allReady && !updatedRoom.simulation?.matches) {
-            await runClientSimulationFallback(roomCode, updatedRoom);
+          if (allReady && updatedRoom.status !== "toss" && updatedRoom.status !== "simulating") {
+            await update(ref(rtdb, `rooms/${roomCode}`), {
+              status: "toss",
+              tossState: {
+                flipped: false,
+                winnerUid: null,
+                decision: null,
+                flippedBy: null
+              }
+            });
           }
         }
 
-        showToast("Roster locked successfully! Match starting...");
+        showToast("Roster locked successfully! Moving to official Coin Toss...");
       } catch (err) {
         const topLock = document.getElementById("lock-squad-btn");
         const btmLock = document.getElementById("lock-squad-btn-bottom");
@@ -1629,17 +1639,174 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
   // Auto check if all players ready in placing phase
   const playerUids = Object.keys(room.players || {});
   const allReady = playerUids.length > 0 && playerUids.every(uid => room.squads?.[uid]?.ready);
-  if (allReady && !room.simulation?.matches) {
-    runClientSimulationFallback(roomCode, room);
+  if (allReady && room.status !== "toss" && room.status !== "simulating") {
+    update(ref(rtdb, `rooms/${roomCode}`), {
+      status: "toss",
+      tossState: {
+        flipped: false,
+        winnerUid: null,
+        decision: null,
+        flippedBy: null
+      }
+    });
   }
 }
 
-async function runClientSimulationFallback(roomCode, room) {
+/**
+ * 3.5 INTERACTIVE COIN TOSS PHASE VIEW
+ */
+function renderTossPhase(viewport, roomCode, room) {
+  const currentUid = auth.currentUser ? auth.currentUser.uid : "";
+  const tossState = room.tossState || {};
+  const players = room.players || {};
+  const playerUids = Object.keys(players);
+  const p1Uid = currentUid;
+  const p2Uid = playerUids.find(id => id !== currentUid) || playerUids[0];
+
+  const p1 = players[p1Uid] || { displayName: "YOU" };
+  const p2 = players[p2Uid] || { displayName: "OPPONENT" };
+
+  const tossWinnerUid = tossState.winnerUid;
+  const isTossWinner = tossWinnerUid === currentUid;
+  const tossWinnerName = players[tossWinnerUid]?.displayName || (tossWinnerUid === currentUid ? "YOU" : "OPPONENT");
+
+  viewport.innerHTML = `
+    <div class="squad-review-container">
+      <div class="controls-card text-center" style="padding: 2.5rem 1.5rem; background: #FFFFFF; border: 2px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E; border-radius: 0px; max-width: 650px; margin: 0 auto;">
+        <span class="role-badge all-rounder" style="background: #C89B3C; color: #111111; font-size: 0.85rem; font-weight: 900; border: 1px solid #1E1E1E;">OFFICIAL MATCH TOSS</span>
+        <h1 style="font-size: 2.2rem; font-weight: 900; margin-top: 0.6rem; color: #111111;">THE COIN TOSS</h1>
+        <p style="color: #444444; font-weight: 700; font-size: 0.95rem; margin-top: 0.2rem;">
+          Both captains are out on the pitch. Spin the official World Cup coin!
+        </p>
+
+        <!-- Cap vs Cap Header -->
+        <div style="display: flex; justify-content: space-around; align-items: center; margin: 1.5rem 0; background: #FAF6ED; border: 2px solid #1E1E1E; padding: 0.85rem;">
+          <div>
+            <div style="font-weight: 900; font-size: 1.05rem; color: #111111;">${(p1.displayName || "YOU").toUpperCase()}</div>
+            <div style="font-size: 0.78rem; font-weight: 800; color: #E53926;">CAPTAIN DESIGNATED</div>
+          </div>
+          <div style="font-size: 1.5rem; font-weight: 900; color: #C89B3C;">VS</div>
+          <div>
+            <div style="font-weight: 900; font-size: 1.05rem; color: #111111;">${(p2.displayName || "OPPONENT").toUpperCase()}</div>
+            <div style="font-size: 0.78rem; font-weight: 800; color: #1E88E5;">CAPTAIN DESIGNATED</div>
+          </div>
+        </div>
+
+        <!-- 3D CSS Spinning Coin Arena -->
+        <div style="perspective: 1000px; margin: 2rem auto; width: 130px; height: 130px; position: relative;">
+          <div id="toss-coin" style="width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; transition: transform 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: ${tossState.flipped ? 'rotateY(1800deg)' : 'rotateY(0deg)'};">
+            <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background: linear-gradient(135deg, #FFD700, #C89B3C); border: 3px solid #1E1E1E; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900; color: #111; box-shadow: 2px 2px 0px #1E1E1E;">
+              HEADS
+            </div>
+            <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg); background: linear-gradient(135deg, #E0E0E0, #9E9E9E); border: 3px solid #1E1E1E; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900; color: #111; box-shadow: 2px 2px 0px #1E1E1E;">
+              TAILS
+            </div>
+          </div>
+        </div>
+
+        <div id="toss-result-box" style="margin-top: 1.5rem;">
+          ${!tossState.flipped ? `
+            <button id="spin-toss-btn" class="btn btn-primary btn-lg" style="padding: 0.85rem 2rem; font-size: 1.05rem;">
+              🪙 FLIP THE COIN
+            </button>
+          ` : `
+            <div style="margin-bottom: 1.25rem;">
+              <h2 style="font-size: 1.5rem; color: #E53926; font-weight: 900; text-transform: uppercase;">
+                🎉 ${tossWinnerName} WON THE TOSS!
+              </h2>
+            </div>
+
+            ${isTossWinner ? `
+              <div style="background: #FAF6ED; border: 2px solid #1E1E1E; padding: 1.25rem; margin-top: 1rem; border-radius: 0px; box-shadow: 2px 2px 0px #1E1E1E;">
+                <h3 style="font-size: 1.05rem; color: #111111; font-weight: 900; margin-bottom: 1rem;">
+                  ELECT YOUR DECISION:
+                </h3>
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                  <button id="elect-bat-btn" class="btn btn-primary btn-lg" style="flex: 1; max-width: 180px;">
+                    🏏 ELECT TO BAT
+                  </button>
+                  <button id="elect-bowl-btn" class="btn btn-accent btn-lg" style="flex: 1; max-width: 180px;">
+                    🎳 ELECT TO BOWL
+                  </button>
+                </div>
+              </div>
+            ` : `
+              <div style="font-size: 1.05rem; color: #333333; font-weight: 800; padding: 1rem; background: #FAF6ED; border: 2px solid #1E1E1E;">
+                Waiting for ${tossWinnerName} to decide to Bat or Bowl...
+              </div>
+            `}
+          `}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Attach spin coin button
+  const spinBtn = document.getElementById("spin-toss-btn");
+  if (spinBtn) {
+    spinBtn.addEventListener("click", async () => {
+      try {
+        spinBtn.disabled = true;
+        const coinEl = document.getElementById("toss-coin");
+        const randomRot = Math.random() < 0.5 ? 1800 : 1980;
+        if (coinEl) coinEl.style.transform = `rotateY(${randomRot}deg)`;
+
+        // Random toss winner selection
+        const winnerUid = playerUids[Math.floor(Math.random() * playerUids.length)];
+
+        setTimeout(async () => {
+          await update(ref(rtdb, `rooms/${roomCode}/tossState`), {
+            flipped: true,
+            winnerUid,
+            flippedBy: currentUid,
+            flippedAt: Date.now()
+          });
+        }, 2200);
+      } catch (err) {
+        if (spinBtn) spinBtn.disabled = false;
+        showToast(err.message, true);
+      }
+    });
+  }
+
+  // Attach elect bat / bowl buttons for toss winner
+  const electBatBtn = document.getElementById("elect-bat-btn");
+  const electBowlBtn = document.getElementById("elect-bowl-btn");
+
+  const handleDecision = async (decision) => {
+    try {
+      if (electBatBtn) electBatBtn.disabled = true;
+      if (electBowlBtn) electBowlBtn.disabled = true;
+
+      await update(ref(rtdb, `rooms/${roomCode}/tossState`), {
+        decision
+      });
+
+      // Launch simulation with toss winner & decision!
+      await runClientSimulationFallback(roomCode, room, tossWinnerUid, decision);
+    } catch (err) {
+      if (electBatBtn) electBatBtn.disabled = false;
+      if (electBowlBtn) electBowlBtn.disabled = false;
+      showToast(err.message, true);
+    }
+  };
+
+  if (electBatBtn) electBatBtn.addEventListener("click", () => handleDecision("bat"));
+  if (electBowlBtn) electBowlBtn.addEventListener("click", () => handleDecision("bowl"));
+}
+
+async function runClientSimulationFallback(roomCode, room, tossWinnerUid = null, tossDecision = "bat") {
   try {
     const players = room.players || {};
     const squads = room.squads || {};
     const uids = Object.keys(players);
-    const engine = new BallEngine(Math.floor(Math.random() * 2147483647));
+
+    // Deterministic seed based on roomCode so both players generate 100% identical simulation
+    let seed = 0;
+    for (let i = 0; i < roomCode.length; i++) {
+      seed = (seed * 31 + roomCode.charCodeAt(i)) & 0x7fffffff;
+    }
+    const engine = new BallEngine(seed);
     const simulatedMatches = [];
 
     if (room.mode === "solo") {
@@ -1677,7 +1844,8 @@ async function runClientSimulationFallback(roomCode, room) {
         ];
 
         const opp = { id: `ai_team_${idx + 1}`, name: tm.name, players: aiPlayers };
-        const sim = engine.simulateMatch(playerTeam, opp, false);
+        const forcedToss = idx === 0 ? { winner: tossWinnerUid || playerUid, decision: tossDecision } : null;
+        const sim = engine.simulateMatch(playerTeam, opp, false, forcedToss);
         simulatedMatches.push({
           matchId: `${roomCode}_match_${idx + 1}`,
           round: idx + 1,
@@ -1695,7 +1863,8 @@ async function runClientSimulationFallback(roomCode, room) {
       const teamA = { id: p1Uid, name: players[p1Uid]?.displayName || "Player 1", players: squads[p1Uid]?.slots || [] };
       const teamB = { id: p2Uid, name: players[p2Uid]?.displayName || "Player 2", players: squads[p2Uid]?.slots || [] };
 
-      const sim = engine.simulateMatch(teamA, teamB, true);
+      const forcedToss = { winner: tossWinnerUid || p1Uid, decision: tossDecision };
+      const sim = engine.simulateMatch(teamA, teamB, true, forcedToss);
       simulatedMatches.push({
         matchId: `${roomCode}_match_1`,
         round: 1,
@@ -1870,71 +2039,8 @@ function renderSimulatingPhase(viewport, roomCode, room) {
         <p style="color: var(--chalk-white-dim); margin-top: 1rem;">MATCH BROADCAST STARTING IN</p>
       </div>
 
-      <!-- Post Match Complete Glorious Champions Victory Card -->
-      <div id="pb-finished-screen" style="display: none; margin-top: 2rem;">
-        <div id="champions-victory-card" style="text-align: center; background: radial-gradient(circle at center, #2e1a05 0%, #0d0903 100%); border: 3px solid #ffd700; border-radius: 16px; padding: 2rem 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(255,215,0,0.3);">
-          <div style="font-size: 3rem; margin-bottom: 0.4rem;">🏆 👑 🏆</div>
-          <span class="role-badge all-rounder" style="background: linear-gradient(135deg, #ffd700, #ff8c00); color: black; font-weight: 900; font-size: 0.85rem; padding: 4px 12px; text-transform: uppercase;">
-            WORLD CUP CHAMPION
-          </span>
-          <h1 id="champion-team-title" style="font-size: 2.5rem; margin-top: 0.6rem; background: linear-gradient(135deg, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">
-            ${standings[0]?.teamName || "Champion Team"}
-          </h1>
-          <p id="champion-sub-title" style="font-size: 1.05rem; color: #ffe0b2; margin-top: 0.2rem;">
-            Final Points: <strong>${standings[0]?.points || 0} PTS</strong> • NRR: <strong>${standings[0]?.nrr > 0 ? '+' : ''}${standings[0]?.nrr || '0.00'}</strong>
-          </p>
-        </div>
-
-        <h2 style="font-size: 1.5rem; color: var(--willow-tan); border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; text-transform: uppercase;">
-          Final Tournament Standings
-        </h2>
-        <table class="standings-table">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Team</th>
-              <th>Pld</th>
-              <th>Won</th>
-              <th>Lost</th>
-              <th>Tied</th>
-              <th>Points</th>
-              <th>Net Run Rate</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${standings.map((s, index) => {
-              const isUser = s.teamId === currentUid;
-              return `
-                <tr class="${isUser ? 'player-row-highlight' : ''}">
-                  <td>#${index + 1}</td>
-                  <td>${s.teamName} ${isUser ? '<span class="you-tag">YOU</span>' : ''}</td>
-                  <td>${s.wins + s.losses + s.ties}</td>
-                  <td>${s.wins}</td>
-                  <td>${s.losses}</td>
-                  <td>${s.ties}</td>
-                  <td><strong>${s.points}</strong></td>
-                  <td style="font-family: var(--font-family-mono);">${s.nrr > 0 ? '+' : ''}${s.nrr}</td>
-                </tr>
-              `;
-            }).join("")}
-          </tbody>
-        </table>
-
-        <!-- Chemistry Report details -->
-        <div class="career-stats-widget" style="margin-top: 2rem;">
-          <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1.1rem; margin-bottom: 1rem;">Chemistry & Partnership Report</h3>
-          <div style="font-size: 0.95rem; color: var(--chalk-white-dim); line-height: 1.6; display: flex; flex-direction: column; gap: 0.6rem;">
-            <div>✓ <strong>teammate chemistry links</strong> were active for players who played in the same national squads historically.</div>
-            <div>✓ Batting partnerships combining <strong>Anchor</strong> and <strong>Aggressor</strong> temperaments boosted strike rotations.</div>
-            <div>✓ Captains with <strong>Calm-under-pressure</strong> composure successfully stabilized wickets cascades.</div>
-          </div>
-        </div>
-
-        <div class="flex justify-between" style="margin-top: 2rem;">
-          <button id="post-submit-leaderboard-btn" class="btn btn-accent">Submit to Leaderboard</button>
-          <a href="#/" class="btn btn-secondary">Return to Lobby</a>
-        </div>
-      </div>
+      <!-- Post Match Complete Glorious Champions Victory Card (Populated dynamically on match completion) -->
+      <div id="pb-finished-screen" style="display: none; margin-top: 2rem;"></div>
     </div>
   `;
 
@@ -1961,33 +2067,15 @@ function renderSimulatingPhase(viewport, roomCode, room) {
       if (statusTitle) statusTitle.innerText = "Match Live in progress";
 
       // Execute Cinematic fast-forward scheduler loop
-      startCinematicHighlightLoop(sim.matches);
+      startCinematicHighlightLoop(sim.matches, standings, currentUid, roomCode);
     }
   }, 250);
-
-  // Attach submit to leaderboard handler
-  const submitBtn = document.getElementById("post-submit-leaderboard-btn");
-  if (submitBtn) {
-    submitBtn.addEventListener("click", async () => {
-      try {
-        submitBtn.disabled = true;
-        const submitFn = httpsCallable(functions, "submitToLeaderboard");
-        await submitFn({ code: roomCode, displayName: auth.currentUser?.displayName });
-        showToast("Roster performance submitted to leaderboard!");
-      } catch (err) {
-        submitBtn.disabled = false;
-        showToast(err.message, true);
-      }
-    });
-  }
 }
 
 // Fixed 50-second compressed cinematic playback loops
-function startCinematicHighlightLoop(matches) {
+function startCinematicHighlightLoop(matches, standings = [], currentUid = "", roomCode = "") {
   if (!matches || matches.length === 0) return;
 
-  // Let's run simulation highlights of the first match (human vs human or user vs AI)
-  // For other games, they run in parallel but user spectates match 0
   const match = matches[0];
   const i1 = match.inningsData[0];
   const i2 = match.inningsData[1];
@@ -1999,6 +2087,17 @@ function startCinematicHighlightLoop(matches) {
   const teamBEl = document.getElementById("pb-teamB");
   if (teamAEl) teamAEl.innerText = team1Name;
   if (teamBEl) teamBEl.innerText = team2Name;
+
+  // Build ID lookup maps for player names
+  const bMap1 = {};
+  (i1.battingCard || []).forEach(p => { if (p && p.id) bMap1[p.id] = p; });
+  const bwMap1 = {};
+  (i1.bowlingCard || []).forEach(p => { if (p && p.id) bwMap1[p.id] = p; });
+
+  const bMap2 = {};
+  (i2.battingCard || []).forEach(p => { if (p && p.id) bMap2[p.id] = p; });
+  const bwMap2 = {};
+  (i2.bowlingCard || []).forEach(p => { if (p && p.id) bwMap2[p.id] = p; });
 
   const allDeliveries = [];
   
@@ -2013,8 +2112,6 @@ function startCinematicHighlightLoop(matches) {
   });
 
   const totalBalls = allDeliveries.length;
-  // Calculate pace intervals: ~50 seconds split between total balls
-  // Notable balls (boundaries, wickets) pause longer, normal balls tick fast
   const delayNormal = 200; // fast tick for dots/singles
   const delayNotable = 1800; // long pause for highlights
 
@@ -2044,12 +2141,93 @@ function startCinematicHighlightLoop(matches) {
 
   function tickPlayback() {
     if (ballIndex >= totalBalls) {
-      // Playback complete, reveal standings
+      // Playback complete, reveal standings & winner victory card dynamically
       const statusTitle = document.getElementById("sim-status-title");
       if (statusTitle) statusTitle.innerText = "Match Complete! Standings settled.";
-      
+
       const finishedScreen = document.getElementById("pb-finished-screen");
-      if (finishedScreen) finishedScreen.style.display = "block";
+      if (finishedScreen) {
+        finishedScreen.innerHTML = `
+          <div id="champions-victory-card" style="text-align: center; background: radial-gradient(circle at center, #2e1a05 0%, #0d0903 100%); border: 3px solid #ffd700; border-radius: 0px; padding: 2rem 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(255,215,0,0.3);">
+            <div style="font-size: 3rem; margin-bottom: 0.4rem;">🏆 👑 🏆</div>
+            <span class="role-badge all-rounder" style="background: linear-gradient(135deg, #ffd700, #ff8c00); color: black; font-weight: 900; font-size: 0.85rem; padding: 4px 12px; text-transform: uppercase;">
+              WORLD CUP CHAMPION
+            </span>
+            <h1 id="champion-team-title" style="font-size: 2.5rem; margin-top: 0.6rem; background: linear-gradient(135deg, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">
+              ${standings[0]?.teamName || "Champion Team"}
+            </h1>
+            <p id="champion-sub-title" style="font-size: 1.05rem; color: #ffe0b2; margin-top: 0.2rem;">
+              Final Points: <strong>${standings[0]?.points || 0} PTS</strong> • NRR: <strong>${standings[0]?.nrr > 0 ? '+' : ''}${standings[0]?.nrr || '0.00'}</strong>
+            </p>
+          </div>
+
+          <h2 style="font-size: 1.5rem; color: #C89B3C; border-bottom: 2px solid #1E1E1E; padding-bottom: 0.5rem; text-transform: uppercase; font-weight: 900;">
+            Final Tournament Standings
+          </h2>
+          <table class="standings-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Team</th>
+                <th>Pld</th>
+                <th>Won</th>
+                <th>Lost</th>
+                <th>Tied</th>
+                <th>Points</th>
+                <th>Net Run Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${standings.map((s, index) => {
+                const isUser = s.teamId === currentUid;
+                return `
+                  <tr class="${isUser ? 'player-row-highlight' : ''}">
+                    <td>#${index + 1}</td>
+                    <td>${s.teamName} ${isUser ? '<span class="you-tag">YOU</span>' : ''}</td>
+                    <td>${s.wins + s.losses + s.ties}</td>
+                    <td>${s.wins}</td>
+                    <td>${s.losses}</td>
+                    <td>${s.ties}</td>
+                    <td><strong>${s.points}</strong></td>
+                    <td style="font-family: var(--font-family-mono);">${s.nrr > 0 ? '+' : ''}${s.nrr}</td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+          </table>
+
+          <div class="user-stats-card" style="margin-top: 2rem;">
+            <h3 style="color: #C89B3C; text-transform: uppercase; font-size: 1.1rem; margin-bottom: 1rem; font-weight: 900;">Chemistry & Partnership Report</h3>
+            <div style="font-size: 0.95rem; color: #333333; font-weight: 700; line-height: 1.6; display: flex; flex-direction: column; gap: 0.6rem;">
+              <div>✓ <strong>teammate chemistry links</strong> were active for players who played in the same national squads historically.</div>
+              <div>✓ Batting partnerships combining <strong>Anchor</strong> and <strong>Aggressor</strong> temperaments boosted strike rotations.</div>
+              <div>✓ Captains with <strong>Calm-under-pressure</strong> composure successfully stabilized wickets cascades.</div>
+            </div>
+          </div>
+
+          <div class="flex justify-between" style="margin-top: 2rem;">
+            <button id="post-submit-leaderboard-btn" class="btn btn-accent">Submit to Leaderboard</button>
+            <a href="#/" class="btn btn-secondary">Return to Lobby</a>
+          </div>
+        `;
+
+        const submitBtn = document.getElementById("post-submit-leaderboard-btn");
+        if (submitBtn) {
+          submitBtn.addEventListener("click", async () => {
+            try {
+              submitBtn.disabled = true;
+              const submitFn = httpsCallable(functions, "submitToLeaderboard");
+              await submitFn({ code: roomCode, displayName: auth.currentUser?.displayName });
+              showToast("Roster performance submitted to leaderboard!");
+            } catch (err) {
+              submitBtn.disabled = false;
+              showToast(err.message, true);
+            }
+          });
+        }
+
+        finishedScreen.style.display = "block";
+      }
       return;
     }
 
@@ -2059,13 +2237,12 @@ function startCinematicHighlightLoop(matches) {
     const commList = document.getElementById("pb-commentary-feed-list");
     const overList = document.getElementById("pb-current-over-list");
 
-    const currentInningsData = ball.innings === 1 ? i1 : i2;
-    const bCard = currentInningsData.battingCard || {};
-    const bwCard = currentInningsData.bowlingCard || {};
+    const bMap = ball.innings === 1 ? bMap1 : bMap2;
+    const bwMap = ball.innings === 1 ? bwMap1 : bwMap2;
 
-    const strikerName = ball.strikerName || (bCard[ball.strikerId] ? bCard[ball.strikerId].name : "Batter");
-    const bowlerName = ball.bowlerName || (bwCard[ball.bowlerId] ? bwCard[ball.bowlerId].name : "Bowler");
-    const nonStrikerName = ball.nonStrikerName || (bCard[ball.nonStrikerId] ? bCard[ball.nonStrikerId].name : "Batter");
+    const strikerName = ball.strikerName || (bMap[ball.strikerId] ? bMap[ball.strikerId].name : "Striker");
+    const bowlerName = ball.bowlerName || (bwMap[ball.bowlerId] ? bwMap[ball.bowlerId].name : "Bowler");
+    const nonStrikerName = ball.nonStrikerName || (bMap[ball.nonStrikerId] ? bMap[ball.nonStrikerId].name : "Non-Striker");
 
     const striker = getBatter(ball.strikerId || "striker_" + ballIndex, strikerName);
     const nonStriker = getBatter(ball.nonStrikerId || "nonstriker_" + ballIndex, nonStrikerName);
