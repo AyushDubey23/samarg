@@ -1,30 +1,34 @@
 :root {
-  /* Color Palette - 7-0 Vintage Retro Modern Theme */
+  /* Color Palette - 7-0 Vintage Retro High Contrast Theme */
   --bg-cream: #F4EFE0;
   --bg-card: #FFFFFF;
-  --bg-dark: #1A1A1A;
-  --bg-medium: #222222;
-  --bg-light: #2A2A2A;
+  --bg-dark: #F4EFE0;      /* Page background is warm cream */
+  --bg-medium: #FFFFFF;    /* Cards are clean off-white */
+  --bg-light: #FAF6ED;     /* Light container background */
 
   --border-dark: #1E1E1E;
-  --border-light: #E0D8C8;
+  --border-light: #D8D0C0;
 
   --primary-coral: #E53926;
   --primary-coral-hover: #C82D1D;
+  --primary: #E53926;
 
   --pitch-green: #277748;
   --pitch-green-stripe: #2F8351;
-  --pitch-line: rgba(255, 255, 255, 0.85);
+  --pitch-line: rgba(255, 255, 255, 0.95);
 
   --accent-gold: #C89B3C;
-  --accent-gold-dark: #A47B28;
+  --accent-gold-dark: #8C6A20;
   --accent-blue: #1E88E5;
   --accent-red: #E53926;
 
-  --chalk-black: #111111;
-  --chalk-white: #FFFFFF;
-  --chalk-white-dim: #555555;
-  --chalk-white-dark: #888888;
+  --chalk-black: #111111;     /* Deep black text on white/cream */
+  --chalk-white: #FFFFFF;     /* Pure white text on red/black */
+  --chalk-white-dim: #222222; /* Charcoal subtext */
+  --chalk-white-dark: #444444;/* Secondary dark text */
+
+  --text-dark: #111111;
+  --text-light: #FFFFFF;
 
   --willow-tan: #C89B3C;
   --willow-tan-dark: #8C6A20;
@@ -47,7 +51,7 @@
   --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 12px 30px rgba(0, 0, 0, 0.15);
 
-  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-bg: #FFFFFF;
   --glass-border: #1E1E1E;
 
   /* Transitions */

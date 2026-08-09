@@ -5,7 +5,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1.5rem;
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 2px solid #1E1E1E;
   padding-bottom: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -25,7 +25,8 @@
 
 .meter-lbl {
   font-size: 0.8rem;
-  color: var(--chalk-white-dim);
+  color: #111111;
+  font-weight: 800;
   margin-bottom: 0.25rem;
   display: flex;
   justify-content: space-between;
@@ -33,15 +34,17 @@
 
 .meter-track {
   width: 100%;
-  height: 6px;
-  background: var(--bg-light);
-  border-radius: var(--border-radius-sm);
+  height: 8px;
+  background: #EADECC;
+  border: 1px solid #1E1E1E;
+  border-radius: 4px;
   overflow: hidden;
 }
 
 .meter-fill {
   height: 100%;
-  border-radius: var(--border-radius-sm);
+  border-radius: 4px;
+  background: var(--primary-coral);
   transition: width var(--transition-medium);
 }
 
@@ -53,29 +56,31 @@
 }
 
 .slot-card {
-  background: var(--bg-medium);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-md);
+  background: #FFFFFF;
+  border: 2px solid #1E1E1E;
+  border-radius: 10px;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   min-height: 140px;
+  box-shadow: 3px 3px 0px #1E1E1E;
   transition: all var(--transition-fast);
   position: relative;
 }
 
 .slot-card.empty {
   border-style: dashed;
+  background: #FAF6ED;
 }
 .slot-card.empty:hover {
-  border-color: var(--willow-tan);
-  background: var(--bg-light);
+  border-color: #E53926;
+  background: #FFFFFF;
 }
 
 .slot-card.filled {
-  border-color: var(--primary);
-  background: linear-gradient(135deg, var(--bg-medium) 0%, rgba(14, 40, 20, 0.4) 100%);
+  border-color: #1E1E1E;
+  background: #FFFFFF;
 }
 
 .slot-header {
@@ -84,44 +89,47 @@
   gap: 0.5rem;
   margin-bottom: 0.5rem;
   font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--chalk-white-dark);
+  font-weight: 800;
+  color: #333333;
 }
 
 .slot-idx {
-  background: var(--bg-light);
-  width: 18px;
-  height: 18px;
+  background: #111111;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
-  color: var(--chalk-white-dim);
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #FFFFFF;
 }
 
 .slot-card.filled .slot-idx {
-  background: var(--primary);
-  color: var(--chalk-white);
+  background: var(--primary-coral);
+  color: #FFFFFF;
 }
 
 .slot-lbl {
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  color: #111111;
+  font-weight: 900;
 }
 
 .empty-placeholder {
-  color: var(--chalk-white-dark);
+  color: #555555;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 700;
   text-align: center;
   margin-top: 1rem;
 }
 
 .player-brief .player-name {
   font-size: 0.95rem;
-  font-weight: 700;
-  color: var(--chalk-white);
+  font-weight: 900;
+  color: #111111;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -129,7 +137,8 @@
 
 .player-brief .player-meta {
   font-size: 0.75rem;
-  color: var(--chalk-white-dim);
+  color: #444444;
+  font-weight: 700;
   margin-top: 0.1rem;
 }
 
@@ -144,8 +153,8 @@
   background: transparent;
   border: none;
   color: var(--accent-red);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.78rem;
+  font-weight: 800;
   cursor: pointer;
   align-self: flex-start;
   margin-top: 1rem;
@@ -153,16 +162,18 @@
 }
 
 .remove-player-btn:hover {
-  color: var(--chalk-white);
+  color: #111111;
   text-decoration: underline;
 }
 
 /* Scout Panel */
 .scout-control-panel {
-  background: var(--bg-medium);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-lg);
+  background: #FFFFFF;
+  border: 2px solid #1E1E1E;
+  border-radius: 12px;
   padding: 1.5rem;
+  box-shadow: 4px 4px 0px #1E1E1E;
+  color: #111111;
 }
 
 .scout-actions-row {
@@ -175,11 +186,12 @@
 
 .rescouts-counter {
   font-size: 0.95rem;
-  color: var(--chalk-white-dim);
+  color: #111111;
+  font-weight: 800;
 }
 
 .scouted-squad-container {
-  border-top: 1px solid var(--glass-border);
+  border-top: 2px solid #1E1E1E;
   padding-top: 1rem;
 }
 
@@ -189,32 +201,34 @@
   align-items: center;
   flex-wrap: wrap;
   padding: 0.75rem 1rem;
-  background: var(--bg-light);
-  border-radius: var(--border-radius-sm);
-  border-left: 4px solid var(--willow-tan);
+  background: #FAF6ED;
+  border-radius: 6px;
+  border: 2px solid #1E1E1E;
+  border-left: 5px solid var(--willow-tan);
+  color: #111111;
+  font-weight: 800;
 }
 
 .scouted-squad-header.champion-squad-glow {
   border-left-color: var(--accent-gold);
-  background: linear-gradient(90deg, rgba(255, 176, 31, 0.05) 0%, var(--bg-light) 100%);
-  box-shadow: 0 0 15px rgba(255, 176, 31, 0.05);
+  background: #FFFDF0;
 }
 
 .champ-badge {
-  background: var(--accent-gold-glow);
-  border: 1.5px solid var(--accent-gold);
-  color: var(--accent-gold);
+  background: #C89B3C;
+  border: 1.5px solid #1E1E1E;
+  color: #FFFFFF;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 900;
   padding: 0.25rem 0.5rem;
-  border-radius: var(--border-radius-sm);
+  border-radius: 4px;
 }
 
 .scout-loader {
   text-align: center;
-  color: var(--chalk-white-dim);
+  color: #333333;
   padding: 2rem;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 /* Scouted Players grid */
@@ -225,18 +239,19 @@
 }
 
 .player-draft-card {
-  background: var(--bg-light);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-md);
+  background: #FFFFFF;
+  border: 2px solid #1E1E1E;
+  border-radius: 8px;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  box-shadow: 3px 3px 0px #1E1E1E;
   transition: all var(--transition-fast);
 }
 
 .player-draft-card.disabled {
-  opacity: 0.4;
+  opacity: 0.45;
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -249,16 +264,18 @@
 }
 
 .pd-name {
-  font-weight: 700;
-  color: var(--chalk-white);
+  font-weight: 900;
+  color: #111111;
 }
 
 .pd-role {
   font-size: 0.75rem;
-  background: var(--bg-medium);
+  background: #FAF6ED;
   padding: 0.15rem 0.4rem;
-  border-radius: var(--border-radius-sm);
-  color: var(--chalk-white-dim);
+  border-radius: 4px;
+  border: 1px solid #1E1E1E;
+  color: #111111;
+  font-weight: 800;
   text-transform: capitalize;
 }
 
@@ -267,14 +284,15 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 0.5rem;
   font-size: 0.8rem;
-  color: var(--chalk-white-dim);
+  color: #222222;
+  font-weight: 700;
   margin-top: 0.75rem;
-  border-top: 1px solid rgba(255,255,255,0.03);
+  border-top: 1px solid #1E1E1E;
   padding-top: 0.5rem;
 }
 
 .draft-options {
-  border-top: 1px solid rgba(255,255,255,0.05);
+  border-top: 1px solid #1E1E1E;
   padding-top: 0.5rem;
   display: flex;
   flex-direction: column;
@@ -283,8 +301,8 @@
 
 .draft-lbl {
   font-size: 0.75rem;
-  color: var(--chalk-white-dark);
-  font-weight: 600;
+  color: #111111;
+  font-weight: 800;
 }
 
 .draft-slots-list {
@@ -294,47 +312,49 @@
 }
 
 .draft-select-btn {
-  background: var(--willow-tan-dark);
-  border: 1px solid var(--willow-tan);
-  color: var(--willow-tan);
+  background: #111111;
+  border: 1.5px solid #111111;
+  color: #FFFFFF;
   font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.2rem 0.4rem;
-  border-radius: var(--border-radius-sm);
+  font-weight: 800;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .draft-select-btn:hover {
-  background: var(--willow-tan);
-  color: var(--bg-dark);
+  background: var(--primary-coral);
+  border-color: #1E1E1E;
+  color: #FFFFFF;
 }
 
 .no-slot-lbl {
   font-size: 0.75rem;
   color: var(--accent-red);
-  font-weight: 600;
+  font-weight: 800;
   text-align: center;
   display: block;
 }
 
 /* Multiplayer Draft Card Item (room.js) */
 .draft-card-item {
-  background: var(--bg-light);
-  border: 1.5px solid var(--glass-border);
-  border-radius: var(--border-radius-md);
+  background: #FFFFFF;
+  border: 2px solid #1E1E1E;
+  border-radius: 8px;
+  color: #111111;
   transition: all var(--transition-fast);
 }
 
 .draft-card-item:hover:not(.claimed-dim) {
-  border-color: var(--primary);
-  background: var(--bg-medium);
+  border-color: var(--primary-coral);
+  background: #FFFDF0;
   transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  box-shadow: 3px 3px 0px #1E1E1E;
 }
 
 .draft-card-item.claimed-dim {
-  opacity: 0.35;
+  opacity: 0.4;
   pointer-events: none;
   filter: grayscale(0.6);
 }

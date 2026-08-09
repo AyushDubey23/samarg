@@ -1,4 +1,4 @@
-/* Pitch View Styling matching 7-0 Sete A Zero reference */
+/* Authentic Cricket Field & Pitch Styling */
 
 .pitch-stadium {
   position: relative;
@@ -12,49 +12,79 @@
     #2F8351 30px,
     #2F8351 60px
   );
-  border: 3px solid var(--border-dark);
+  border: 3px solid #1E1E1E;
   border-radius: var(--border-radius-md);
   padding: 1.5rem 1rem 1rem 1rem;
   overflow: hidden;
   box-shadow: var(--shadow-retro-md);
 }
 
-/* Field Boundary Markings */
+/* White Oval Cricket Boundary Line */
 .pitch-stadium::before {
   content: '';
   position: absolute;
-  top: 12px;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  border: 2px solid rgba(255, 255, 255, 0.7);
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border: 2.5px solid #FFFFFF;
+  border-radius: 50% / 40%;
   pointer-events: none;
+  z-index: 1;
 }
 
-/* Center circle marking */
+/* 30-Yard Inner Circle Oval Line */
 .pitch-stadium::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 110px;
-  height: 110px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 50%;
+  width: 82%;
+  height: 82%;
+  border: 2px dashed rgba(255, 255, 255, 0.7);
+  border-radius: 50% / 40%;
   pointer-events: none;
+  z-index: 1;
 }
 
-/* Pitch center lane */
+/* 22-Yard Center Cricket Pitch Strip */
 .pitch-center-lane {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80%;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.5);
+  width: 74px;
+  height: 180px;
+  background: #d9be8b;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
   pointer-events: none;
+  z-index: 1;
+}
+
+/* Crease Lines & Wickets Stumps on the Pitch Strip */
+.pitch-center-lane::before {
+  content: '';
+  position: absolute;
+  top: 25px;
+  left: 5px;
+  right: 5px;
+  height: 2px;
+  background: #FFFFFF;
+  box-shadow: 0 128px 0 #FFFFFF; /* Bottom Crease Line */
+}
+
+.pitch-center-lane::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 4px;
+  background: repeating-linear-gradient(90deg, #FFFFFF, #FFFFFF 4px, transparent 4px, transparent 8px);
+  box-shadow: 0 156px 0 #FFFFFF; /* Bottom Stumps */
 }
 
 /* Role zone grouping */
@@ -65,14 +95,14 @@
 }
 
 .pitch-zone-header {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 900;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.85);
+  color: #FFFFFF;
   text-align: center;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   margin-bottom: 0.75rem;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
 
 .pitch-grid-row {
@@ -87,7 +117,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 72px;
+  width: 76px;
   position: relative;
   cursor: pointer;
   transition: transform var(--transition-fast);
@@ -97,36 +127,36 @@
   transform: translateY(-3px);
 }
 
-/* Outer circle avatar matching reference image circular badges */
+/* Outer circle avatar matching 7-0 circular badges */
 .player-avatar-circle {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   background: #FFFFFF;
-  border: 2px solid var(--border-dark);
+  border: 2px solid #1E1E1E;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  color: var(--chalk-black);
+  color: #111111;
   font-weight: 900;
   font-size: 0.95rem;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
   transition: all var(--transition-fast);
 }
 
 /* Empty vs Filled contrasting status */
 .pitch-player-slot.empty .player-avatar-circle {
-  border: 2px dashed rgba(255, 255, 255, 0.85);
-  background: rgba(0, 0, 0, 0.2);
+  border: 2.5px dashed #FFFFFF;
+  background: rgba(0, 0, 0, 0.45);
   color: #FFFFFF;
   box-shadow: none;
 }
 
 .pitch-player-slot.empty.target-pulse .player-avatar-circle {
-  border: 3px solid var(--primary-coral) !important;
-  background: rgba(229, 57, 38, 0.25) !important;
-  box-shadow: 0 0 12px rgba(229, 57, 38, 0.6) !important;
+  border: 3px solid #E53926 !important;
+  background: rgba(229, 57, 38, 0.35) !important;
+  box-shadow: 0 0 14px rgba(229, 57, 38, 0.8) !important;
   animation: pulseSlot 1.2s infinite alternate;
 }
 
@@ -136,38 +166,39 @@
 }
 
 .pitch-player-slot.filled .player-avatar-circle {
-  border: 2px solid var(--border-dark);
+  border: 2px solid #1E1E1E;
   background: #FFFFFF;
-  color: var(--chalk-black);
+  color: #111111;
 }
 
-/* Name plate underneath matching reference image black pills */
+/* Name plate underneath matching black pills */
 .player-name-plate {
   margin-top: 0.35rem;
-  padding: 0.15rem 0.4rem;
+  padding: 0.2rem 0.45rem;
   border-radius: 4px;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 900;
   text-align: center;
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   letter-spacing: 0.02em;
-  background: var(--chalk-black);
+  background: #111111;
   color: #FFFFFF;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.3);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .pitch-player-slot.empty .player-name-plate {
-  background: rgba(0, 0, 0, 0.4);
-  color: rgba(255, 255, 255, 0.7);
-  border: none;
+  background: rgba(0, 0, 0, 0.65);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .pitch-player-slot.filled .player-name-plate {
-  background: var(--chalk-white);
-  color: var(--bg-dark);
+  background: #111111;
+  color: #FFFFFF;
 }
 
 /* Rating overall chip badge */
@@ -178,89 +209,15 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--bg-light);
-  border: 1.5px solid var(--glass-border);
+  background: #FFFFFF;
+  border: 1.5px solid #1E1E1E;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.65rem;
-  font-weight: 800;
-  font-family: var(--font-family-mono);
-  color: var(--willow-tan);
-}
-
-.pitch-player-slot.filled:hover .rating-badge-chip {
-  border-color: var(--primary);
-}
-
-/* Captain designation badge */
-.designation-badge {
-  position: absolute;
-  bottom: -4px;
-  left: -4px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--accent-gold);
-  border: 1px solid var(--bg-dark);
-  color: var(--bg-dark);
-  font-size: 0.6rem;
   font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow-sm);
-}
-
-/* reserve backups drawer container */
-.backups-drawer-container {
-  margin-top: 2rem;
-  background: var(--bg-medium);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-md);
-  overflow: hidden;
-}
-
-.backups-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.85rem 1.25rem;
-  cursor: pointer;
-  background: rgba(255, 255, 255, 0.01);
-  border-bottom: 1px solid var(--glass-border);
-}
-
-.backups-header h4 {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--chalk-white-dim);
-}
-
-.backups-header svg {
-  width: 16px;
-  height: 16px;
-  fill: var(--chalk-white-dark);
-  transition: transform var(--transition-medium);
-}
-
-.backups-drawer-container.collapsed .backups-header svg {
-  transform: rotate(-90deg);
-}
-
-.backups-list {
-  padding: 1rem;
-  display: flex;
-  gap: 1rem;
-  overflow-x: auto;
-  transition: max-height var(--transition-medium);
-}
-
-.backups-drawer-container.collapsed .backups-list {
-  max-height: 0;
-  padding: 0;
-  border: none;
+  font-family: var(--font-family-mono);
+  color: var(--primary-coral);
 }
 
 /* Spectator bottom tabs selectors */
@@ -269,7 +226,7 @@
   justify-content: center;
   gap: 0.75rem;
   margin-top: 1.5rem;
-  border-top: 1px solid var(--glass-border);
+  border-top: 1.5px solid #1E1E1E;
   padding-top: 1rem;
 }
 
@@ -277,44 +234,45 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--bg-medium);
-  border: 1px solid var(--glass-border);
+  background: #FFFFFF;
+  border: 1.5px solid #1E1E1E;
   border-radius: 20px;
   padding: 0.45rem 1rem;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 900;
   cursor: pointer;
-  color: var(--chalk-white-dim);
+  color: #111111;
+  box-shadow: 2px 2px 0px #1E1E1E;
   transition: all var(--transition-fast);
 }
 
 .team-tab-btn:hover {
-  background: var(--bg-light);
-  color: var(--chalk-white);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #1E1E1E;
 }
 
 .team-tab-btn.active {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: white;
+  background: var(--primary-coral);
+  border-color: #1E1E1E;
+  color: #FFFFFF;
 }
 
 .tab-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--chalk-white-dark);
+  background: #111111;
   display: inline-block;
 }
 
 .team-tab-btn.active .tab-dot {
-  background: white;
+  background: #FFFFFF;
 }
 
 .team-tab-btn.online .tab-dot {
-  background: #39d353; /* Online green */
+  background: #39d353;
 }
 
 .team-tab-btn.offline .tab-dot {
-  background: var(--accent-red); /* Offline red */
+  background: #E53926;
 }

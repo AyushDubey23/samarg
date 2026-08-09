@@ -449,10 +449,10 @@ function renderLobby(viewport, roomCode, room) {
           </div>
 
           <!-- Inline Name Editor for User -->
-          <div style="margin-top: 1.25rem; padding: 0.85rem; background: var(--bg-light); border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border);">
-            <label style="font-size: 0.8rem; color: var(--willow-tan); display: block; margin-bottom: 0.35rem; font-weight: bold;">Your Player Display Name:</label>
+          <div style="margin-top: 1.25rem; padding: 0.85rem; background: #FFFFFF; border-radius: 8px; border: 2px solid #1E1E1E; box-shadow: 2px 2px 0px #1E1E1E;">
+            <label style="font-size: 0.85rem; color: #C89B3C; display: block; margin-bottom: 0.35rem; font-weight: 900;">YOUR PLAYER DISPLAY NAME:</label>
             <div style="display: flex; gap: 0.5rem;">
-              <input type="text" id="inline-player-name-input" class="btn btn-secondary btn-sm" style="flex: 1; text-align: left; padding: 0.45rem 0.75rem; color: white; font-size: 0.9rem;" value="${userDisplayName}" placeholder="Type your player name...">
+              <input type="text" id="inline-player-name-input" style="flex: 1; text-align: left; padding: 0.5rem 0.75rem; color: #111111; background: #FFFFFF; border: 2px solid #1E1E1E; font-size: 0.9rem; font-weight: 800;" value="${userDisplayName}" placeholder="Type your player name...">
               <button id="inline-save-name-btn" class="btn btn-accent btn-sm">Save Name</button>
             </div>
           </div>
@@ -475,15 +475,15 @@ function renderLobby(viewport, roomCode, room) {
         </div>
 
         <!-- Room setup summary details -->
-        <div class="career-stats-widget">
-          <h3 style="text-transform: uppercase; font-size: 1rem; color: var(--willow-tan); margin-bottom: 1rem;">Match Settings</h3>
-          <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.95rem;">
+        <div class="career-stats-widget" style="background: #FFFFFF; border: 2px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E; padding: 1.5rem; color: #111111;">
+          <h3 style="text-transform: uppercase; font-size: 1.1rem; color: #C89B3C; margin-bottom: 1rem; font-weight: 900;">Match Settings</h3>
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.95rem; color: #111111; font-weight: 700;">
             <div><strong>Difficulty:</strong> ${room.difficulty === 'openBook' ? 'Open Book (Classic)' : 'Blind Scout (Almanac)'}</div>
             <div><strong>Pick Timer Limit:</strong> ${room.turnTimerSeconds} seconds</div>
             <div><strong>Requires Password:</strong> ${room.password ? 'Yes' : 'No'}</div>
-            <div class="auth-upgrade-callout" style="margin-top: 1rem;">
-              <strong>Lobby Invite Info:</strong>
-              Share the Room Code <strong>${roomCode}</strong> or copy the web link to invite friends. Everyone drafts together live!
+            <div class="auth-upgrade-callout" style="margin-top: 1rem; background: #FAF6ED; border: 2px solid #C89B3C; padding: 0.85rem; border-radius: 6px; color: #111111;">
+              <strong style="color: #C89B3C; font-size: 0.9rem; text-transform: uppercase;">Lobby Invite Info:</strong><br>
+              Share Room Code <strong style="color: #E53926; font-size: 1.05rem;">${roomCode}</strong> or copy web link to invite friends. Everyone drafts live together!
             </div>
           </div>
         </div>
@@ -491,18 +491,18 @@ function renderLobby(viewport, roomCode, room) {
     </div>
 
     <!-- Room Join Modal Overlay for Direct Link Visitors & Name Setup -->
-    <div id="room-join-modal" style="${needsNamePrompt ? 'display: flex;' : 'display: none;'} position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
-      <div class="career-stats-widget" style="width: 100%; max-width: 400px; padding: 1.75rem; background: var(--bg-medium); border: 1px solid var(--glass-border);">
-        <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1.1rem; margin-bottom: 1.25rem;">Enter Your Player Name</h3>
+    <div id="room-join-modal" style="${needsNamePrompt ? 'display: flex;' : 'display: none;'} position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+      <div class="career-stats-widget" style="width: 100%; max-width: 420px; padding: 1.75rem; background: #FFFFFF; border: 2.5px solid #1E1E1E; box-shadow: 6px 6px 0px #1E1E1E;">
+        <h3 style="color: #C89B3C; text-transform: uppercase; font-size: 1.2rem; margin-bottom: 1.25rem; font-weight: 900;">Enter Your Player Name</h3>
         <div style="display: flex; flex-direction: column; gap: 1rem;">
           <label>
-            <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Enter Your Display Name:</span>
-            <input type="text" id="direct-join-player-name" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem;" placeholder="Enter your name" value="${userDisplayName !== 'Guest Player' ? userDisplayName : ''}">
+            <span style="display: block; font-size: 0.88rem; color: #111111; margin-bottom: 0.35rem; font-weight: 800;">Enter Your Display Name:</span>
+            <input type="text" id="direct-join-player-name" style="width: 100%; border: 2px solid #1E1E1E; text-align: left; padding: 0.6rem; color: #111111; background: #FFFFFF; font-size: 0.95rem; font-weight: 800;" placeholder="Enter your name" value="${userDisplayName !== 'Guest Player' ? userDisplayName : ''}">
           </label>
           ${room.password ? `
             <label>
-              <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Room Password:</span>
-              <input type="password" id="direct-join-password" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem;" placeholder="Enter room password">
+              <span style="display: block; font-size: 0.88rem; color: #111111; margin-bottom: 0.35rem; font-weight: 800;">Room Password:</span>
+              <input type="password" id="direct-join-password" style="width: 100%; border: 2px solid #1E1E1E; text-align: left; padding: 0.6rem; color: #111111; background: #FFFFFF; font-size: 0.95rem; font-weight: 800;" placeholder="Enter room password">
             </label>
           ` : ''}
           <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">

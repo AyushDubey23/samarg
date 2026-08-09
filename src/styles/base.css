@@ -39,9 +39,9 @@ body {
 
 /* Typography Hierarchy */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: -0.01em;
-  color: var(--chalk-black);
+  color: #111111;
 }
 
 .brand-font {
@@ -52,7 +52,7 @@ h1, h2, h3, h4, h5, h6 {
 a {
   color: var(--primary-coral);
   text-decoration: none;
-  font-weight: 700;
+  font-weight: 800;
   transition: color var(--transition-fast);
 }
 a:hover {
@@ -78,7 +78,7 @@ a:hover {
   font-size: 2.2rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--chalk-black);
+  color: #111111;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -94,7 +94,7 @@ a:hover {
   letter-spacing: 0;
   text-transform: none;
   font-weight: 800;
-  color: var(--chalk-white-dim);
+  color: #333333;
 }
 
 .nav-links {
@@ -117,12 +117,13 @@ a:hover {
   text-align: center;
   padding: 1.5rem;
   font-size: 0.85rem;
-  color: var(--chalk-white-dim);
+  color: #333333;
+  font-weight: 700;
   border-top: 2px solid var(--border-dark);
   background: #ECE5D4;
 }
 
-/* Global Shared Button Design - Retro Hard Shadow Style matching 7-0 reference */
+/* Global Shared Button Design - Retro Hard Shadow Style */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -130,35 +131,35 @@ a:hover {
   gap: 0.5rem;
   font-family: var(--font-family-sans);
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 0.75rem 1.5rem;
   border-radius: var(--border-radius-sm);
-  border: 2px solid var(--border-dark);
+  border: 2px solid #1E1E1E;
   cursor: pointer;
   transition: all var(--transition-fast);
   white-space: nowrap;
   box-shadow: var(--shadow-retro-sm);
 }
 
-.btn-primary, .btn-accent {
+.btn-primary {
   background-color: var(--primary-coral);
-  color: var(--chalk-white);
+  color: #FFFFFF !important;
   box-shadow: var(--shadow-retro-md);
 }
-.btn-primary:hover, .btn-accent:hover {
+.btn-primary:hover {
   background-color: var(--primary-coral-hover);
   transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0px #1E1E1E;
+  box-shadow: 4px 4px 0px #1E1E1E;
 }
-.btn-primary:active, .btn-accent:active {
+.btn-primary:active {
   transform: translate(2px, 2px);
   box-shadow: 1px 1px 0px #1E1E1E;
 }
-.btn-primary:disabled, .btn-accent:disabled {
+.btn-primary:disabled {
   background-color: #E0D8C8;
-  color: #888888;
+  color: #888888 !important;
   border-color: #A09888;
   cursor: not-allowed;
   box-shadow: none;
@@ -166,9 +167,9 @@ a:hover {
 }
 
 .btn-secondary {
-  background-color: var(--chalk-white);
-  color: var(--chalk-black);
-  border: 2px solid var(--border-dark);
+  background-color: #FFFFFF;
+  color: #111111 !important;
+  border: 2px solid #1E1E1E;
   box-shadow: var(--shadow-retro-sm);
 }
 .btn-secondary:hover {
@@ -179,20 +180,90 @@ a:hover {
 
 .btn-accent {
   background-color: var(--willow-tan);
-  color: var(--bg-dark);
+  color: #111111 !important;
+  border: 2px solid #1E1E1E;
+  box-shadow: var(--shadow-retro-sm);
 }
 .btn-accent:hover {
-  background-color: var(--chalk-white);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+  background-color: #FFFFFF;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #1E1E1E;
 }
 
 .btn-danger {
   background-color: var(--accent-red);
-  color: var(--chalk-white);
+  color: #FFFFFF !important;
+  border: 2px solid #1E1E1E;
 }
 .btn-danger:hover {
-  background-color: hsl(355, 80%, 45%);
-  box-shadow: 0 0 15px var(--accent-red-glow);
+  background-color: #C82D1D;
+}
+
+/* Global Form Inputs High Contrast Styling */
+input[type="text"], input[type="password"], select {
+  background: #FFFFFF !important;
+  color: #111111 !important;
+  border: 2px solid #1E1E1E !important;
+  border-radius: 6px !important;
+  padding: 0.6rem 0.85rem !important;
+  font-weight: 800 !important;
+  font-size: 0.95rem !important;
+  font-family: var(--font-family-sans) !important;
+  outline: none !important;
+}
+
+input::placeholder {
+  color: #666666 !important;
+  font-weight: 600 !important;
+}
+
+/* Mode Selection Pills / Toggle Buttons */
+.speed-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.speed-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 0.6rem 0.75rem;
+  background: #FFFFFF;
+  color: #111111;
+  border: 2px solid #1E1E1E;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--transition-fast);
+  box-shadow: 2px 2px 0px #1E1E1E;
+}
+
+.speed-btn:hover {
+  background: #FAF6ED;
+}
+
+.speed-btn.active {
+  background: #111111;
+  color: #FFFFFF;
+  border-color: #111111;
+  box-shadow: 2px 2px 0px #C89B3C;
+}
+
+/* Global Card Container High Contrast Fix */
+.career-stats-widget, .user-stats-card, .graph-card, .controls-card, .step-card {
+  background: #FFFFFF !important;
+  border: 2px solid #1E1E1E !important;
+  border-radius: 10px !important;
+  box-shadow: 4px 4px 0px #1E1E1E !important;
+  color: #111111 !important;
+}
+
+.career-stats-widget h3, .user-stats-card h3, .graph-card h3, .controls-card h3 {
+  color: #C89B3C !important;
+  font-weight: 900 !important;
+  font-size: 1.1rem !important;
 }
 
 /* Utility classes */
@@ -204,20 +275,6 @@ a:hover {
 .mb-4 { margin-bottom: 2rem; }
 
 /* Status Toast and Ticker */
-#global-ticker {
-  background: var(--willow-tan-dark);
-  border-top: 1px solid var(--willow-tan);
-  padding: 0.5rem 1rem;
-  font-size: 0.85rem;
-  color: var(--chalk-white);
-  text-align: center;
-  font-weight: 500;
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  align-items: center;
-}
-
 #toast-container {
   position: fixed;
   bottom: 2rem;
@@ -229,17 +286,14 @@ a:hover {
 }
 
 .toast {
-  background: var(--bg-medium);
-  border-left: 4px solid var(--primary);
-  border-right: 1px solid var(--glass-border);
-  border-top: 1px solid var(--glass-border);
-  border-bottom: 1px solid var(--glass-border);
-  color: var(--chalk-white);
+  background: #111111;
+  border: 2px solid #1E1E1E;
+  color: #FFFFFF;
   padding: 1rem 1.5rem;
   border-radius: var(--border-radius-sm);
-  box-shadow: var(--shadow-md);
+  box-shadow: 4px 4px 0px #C89B3C;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 800;
   display: flex;
   align-items: center;
   gap: 0.75rem;

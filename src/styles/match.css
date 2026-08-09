@@ -1,41 +1,45 @@
 /* Match Center Broadcast Theme */
 .broadcast-header {
-  background: var(--bg-medium);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-md);
+  background: #FFFFFF;
+  border: 2px solid #1E1E1E;
+  border-radius: 10px;
   padding: 1rem 2rem;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 2rem;
+  box-shadow: 3px 3px 0px #1E1E1E;
 }
 
 .bh-team {
   font-size: 1.25rem;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
+  color: #111111;
   flex: 1;
 }
 
 .bh-vs {
   background: var(--willow-tan);
-  color: var(--bg-dark);
+  color: #FFFFFF;
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 900;
   width: 28px;
   height: 28px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 1px solid #1E1E1E;
 }
 
 .tv-scoreboard {
-  background: #020704; /* Ultra dark television graphic theme */
-  border-left: 5px solid var(--primary);
+  background: #FFFFFF;
+  border: 2px solid #1E1E1E;
+  border-left: 6px solid var(--primary-coral);
   padding: 1.25rem;
-  border-radius: var(--border-radius-sm);
-  box-shadow: var(--shadow-md);
+  border-radius: 8px;
+  box-shadow: 4px 4px 0px #1E1E1E;
 }
 
 .score-row {
@@ -46,31 +50,32 @@
 
 .score-team {
   font-size: 1.2rem;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--chalk-white);
+  color: #111111;
 }
 
 .score-runs {
   font-size: 2.2rem;
-  font-weight: 800;
-  color: var(--primary);
+  font-weight: 900;
+  color: var(--primary-coral);
   font-family: var(--font-family-mono);
 }
 
 .score-overs {
   font-size: 1rem;
-  color: var(--chalk-white-dim);
+  color: #333333;
+  font-weight: 800;
   font-family: var(--font-family-mono);
 }
 
 .chase-row {
   margin-top: 0.5rem;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  border-top: 1.5px solid #1E1E1E;
   padding-top: 0.5rem;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 800;
   color: var(--willow-tan);
 }
 
@@ -88,18 +93,20 @@
 }
 
 .active-card-group {
-  background: var(--bg-medium);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-md);
+  background: #FFFFFF;
+  border: 2px solid #1E1E1E;
+  border-radius: 10px;
   padding: 1rem;
+  box-shadow: 3px 3px 0px #1E1E1E;
 }
 
 .active-card-group h4 {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 900;
   text-transform: uppercase;
-  color: var(--chalk-white-dark);
+  color: #C89B3C;
   margin-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1.5px solid #1E1E1E;
   padding-bottom: 0.25rem;
 }
 
@@ -107,21 +114,23 @@
   display: flex;
   justify-content: space-between;
   padding: 0.4rem 0.5rem;
-  border-radius: var(--border-radius-sm);
+  border-radius: 4px;
   font-size: 0.95rem;
-  color: var(--chalk-white-dim);
+  color: #111111;
+  font-weight: 800;
 }
 
 .active-player-item.striker-highlight {
-  background: rgba(46, 117, 72, 0.15);
-  border: 1px solid rgba(46, 117, 72, 0.3);
-  color: var(--chalk-white);
-  font-weight: 600;
+  background: #FFFDF0;
+  border: 1.5px solid var(--primary-coral);
+  color: #111111;
+  font-weight: 900;
 }
 
 .ap-stats {
   font-family: var(--font-family-mono);
-  font-weight: 600;
+  font-weight: 800;
+  color: #111111;
 }
 
 /* Over outcome circles strip */
@@ -139,30 +148,30 @@
 }
 
 .over-ball-circle {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: var(--bg-light);
-  border: 1px solid var(--glass-border);
+  background: #FAF6ED;
+  border: 1.5px solid #1E1E1E;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 900;
   font-family: var(--font-family-mono);
-  color: var(--chalk-white-dim);
+  color: #111111;
 }
 
 .over-ball-circle.boundary {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
+  background: #277748;
+  color: #FFFFFF;
+  border-color: #1E1E1E;
 }
 
 .over-ball-circle.wicket {
-  background: var(--accent-red);
-  color: white;
-  border-color: var(--accent-red);
+  background: #E53926;
+  color: #FFFFFF;
+  border-color: #1E1E1E;
 }
 
 /* Mid Layout section: Graph & Controls */
@@ -179,34 +188,19 @@
 }
 
 .graph-card, .controls-card {
-  background: var(--bg-medium);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-md);
+  background: #FFFFFF;
+  border: 2px solid #1E1E1E;
+  border-radius: 10px;
   padding: 1rem;
+  box-shadow: 3px 3px 0px #1E1E1E;
 }
 
 .graph-card h4, .controls-card h4 {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  color: var(--chalk-white-dark);
-  margin-bottom: 0.5rem;
-}
-
-.speed-buttons {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.speed-btn {
-  flex: 1;
-  padding: 0.4rem;
   font-size: 0.85rem;
-}
-
-.speed-btn.active {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #C89B3C;
+  margin-bottom: 0.5rem;
 }
 
 .control-actions {
@@ -216,16 +210,18 @@
 
 /* Commentary list */
 .commentary-card {
-  background: var(--bg-medium);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-md);
+  background: #FFFFFF;
+  border: 2px solid #1E1E1E;
+  border-radius: 10px;
   padding: 1.25rem;
+  box-shadow: 3px 3px 0px #1E1E1E;
 }
 
 .commentary-card h4 {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 900;
   text-transform: uppercase;
-  color: var(--chalk-white-dark);
+  color: #C89B3C;
   margin-bottom: 0.5rem;
 }
 
@@ -241,40 +237,40 @@
 .commentary-item {
   font-size: 0.9rem;
   padding: 0.6rem 0.8rem;
-  background: var(--bg-light);
-  border-radius: var(--border-radius-sm);
-  border-left: 3px solid var(--glass-border);
-  color: var(--chalk-white-dim);
+  background: #FAF6ED;
+  border-radius: 6px;
+  border: 1.5px solid #1E1E1E;
+  border-left: 4px solid #1E1E1E;
+  color: #111111;
+  font-weight: 700;
   line-height: 1.4;
 }
 
 .comm-ball {
-  font-weight: 700;
+  font-weight: 900;
   font-family: var(--font-family-mono);
-  color: var(--willow-tan);
+  color: #E53926;
   margin-right: 0.5rem;
 }
 
 .commentary-item.boundary {
-  border-left-color: var(--primary);
-  background: rgba(46, 117, 72, 0.05);
-  color: var(--chalk-white);
+  border-left-color: #277748;
+  background: #E8F5E9;
+  color: #111111;
 }
 
 .commentary-item.wicket {
-  border-left-color: var(--accent-red);
-  background: rgba(224, 60, 60, 0.05);
-  color: var(--chalk-white);
-  font-weight: 500;
+  border-left-color: #E53926;
+  background: #FFEBEE;
+  color: #111111;
+  font-weight: 800;
 }
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
-}
+
 .result-ticker-alert {
-  background: var(--willow-tan-dark);
-  border: 1px solid var(--willow-tan);
-  border-radius: var(--border-radius-md);
+  background: #FFFFFF;
+  border: 2px solid #1E1E1E;
+  border-radius: 10px;
   padding: 1rem;
+  box-shadow: 3px 3px 0px #1E1E1E;
+  color: #111111;
 }

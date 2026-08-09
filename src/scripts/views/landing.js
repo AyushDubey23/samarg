@@ -60,15 +60,15 @@ export async function renderLanding(container) {
         </p>
 
         <!-- Multiplayer game creator configurations card -->
-        <div class="career-stats-widget" style="padding: 1.5rem; max-width: 500px; margin-top: 1.5rem;">
-          <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1rem; margin-bottom: 1.25rem;">
+        <div class="career-stats-widget" style="padding: 1.5rem; max-width: 500px; margin-top: 1.5rem; background: #FFFFFF; border: 2px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E;">
+          <h3 style="color: #C89B3C; text-transform: uppercase; font-size: 1.1rem; margin-bottom: 1.25rem; font-weight: 900;">
             Create Room or Join Lobby
           </h3>
 
           <div style="display: flex; flex-direction: column; gap: 1rem;">
             <!-- Mode Selector -->
             <div>
-              <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Match Mode:</span>
+              <span style="display: block; font-size: 0.85rem; color: #111111; margin-bottom: 0.35rem; font-weight: 800;">Match Mode:</span>
               <div class="speed-buttons">
                 <button class="speed-btn mode-select-btn active" data-mode="duel">2-Player Duel</button>
                 <button class="speed-btn mode-select-btn" data-mode="cup">4-Player Cup</button>
@@ -78,7 +78,7 @@ export async function renderLanding(container) {
 
             <!-- Difficulty Selector -->
             <div>
-              <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Draft Difficulty:</span>
+              <span style="display: block; font-size: 0.85rem; color: #111111; margin-bottom: 0.35rem; font-weight: 800;">Draft Difficulty:</span>
               <div class="speed-buttons">
                 <button class="speed-btn diff-select-btn active" data-diff="openBook">Open Book (Classic)</button>
                 <button class="speed-btn diff-select-btn" data-diff="blindScout">Blind Scout (Memory)</button>
@@ -87,7 +87,7 @@ export async function renderLanding(container) {
 
             <!-- Turn Timer Picker -->
             <div>
-              <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Pick Time Limit:</span>
+              <span style="display: block; font-size: 0.85rem; color: #111111; margin-bottom: 0.35rem; font-weight: 800;">Pick Time Limit:</span>
               <div class="speed-buttons">
                 <button class="speed-btn timer-select-btn active" data-timer="20">20 Seconds</button>
                 <button class="speed-btn timer-select-btn" data-timer="30">30 Seconds</button>
@@ -97,8 +97,8 @@ export async function renderLanding(container) {
 
             <!-- Password -->
             <label>
-              <span style="display: block; font-size: 0.8rem; color: var(--chalk-white-dark); margin-bottom: 0.25rem;">Room Password (Optional):</span>
-              <input type="password" id="room-password" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.5rem; color: white;" placeholder="Leave blank for open room">
+              <span style="display: block; font-size: 0.85rem; color: #111111; margin-bottom: 0.35rem; font-weight: 800;">Room Password (Optional):</span>
+              <input type="password" id="room-password" style="width: 100%; border: 2px solid #1E1E1E; text-align: left; padding: 0.6rem; color: #111111; background: #FFFFFF; font-weight: 800;" placeholder="LEAVE BLANK FOR OPEN ROOM">
             </label>
 
             <!-- Actions buttons -->
@@ -114,14 +114,14 @@ export async function renderLanding(container) {
     </div>
 
     <!-- Create Room Name Dialog overlay -->
-    <div id="create-dialog-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
-      <div class="career-stats-widget" style="width: 100%; max-width: 400px; padding: 1.75rem; background: var(--bg-medium); border: 1px solid var(--glass-border);">
-        <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1.1rem; margin-bottom: 1.25rem;">Create Room — Enter Name</h3>
+    <div id="create-dialog-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+      <div class="career-stats-widget" style="width: 100%; max-width: 420px; padding: 1.75rem; background: #FFFFFF; border: 2.5px solid #1E1E1E; box-shadow: 6px 6px 0px #1E1E1E;">
+        <h3 style="color: #C89B3C; text-transform: uppercase; font-size: 1.2rem; margin-bottom: 1.25rem; font-weight: 900;">Create Room — Enter Name</h3>
         
         <div style="display: flex; flex-direction: column; gap: 1rem;">
           <label>
-            <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Your Display Name:</span>
-            <input type="text" id="create-player-name" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem;" placeholder="e.g. Captain Player" value="${user?.displayName || ''}">
+            <span style="display: block; font-size: 0.88rem; color: #111111; margin-bottom: 0.35rem; font-weight: 800;">Your Display Name:</span>
+            <input type="text" id="create-player-name" style="width: 100%; border: 2px solid #1E1E1E; text-align: left; padding: 0.6rem; color: #111111; background: #FFFFFF; font-size: 0.95rem; font-weight: 800;" placeholder="e.g. Captain Player" value="${user?.displayName || ''}">
           </label>
           
           <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
@@ -133,22 +133,22 @@ export async function renderLanding(container) {
     </div>
 
     <!-- Hidden Join Dialog overlay -->
-    <div id="join-dialog-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
-      <div class="career-stats-widget" style="width: 100%; max-width: 400px; padding: 1.75rem; background: var(--bg-medium); border: 1px solid var(--glass-border);">
-        <h3 style="color: var(--willow-tan); text-transform: uppercase; font-size: 1.1rem; margin-bottom: 1.25rem;">Join Existing Room</h3>
+    <div id="join-dialog-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); z-index: 999; align-items: center; justify-content: center; padding: 1rem;">
+      <div class="career-stats-widget" style="width: 100%; max-width: 420px; padding: 1.75rem; background: #FFFFFF; border: 2.5px solid #1E1E1E; box-shadow: 6px 6px 0px #1E1E1E;">
+        <h3 style="color: #C89B3C; text-transform: uppercase; font-size: 1.2rem; margin-bottom: 1.25rem; font-weight: 900;">Join Existing Room</h3>
         
         <div style="display: flex; flex-direction: column; gap: 1rem;">
           <label>
-            <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Your Display Name:</span>
-            <input type="text" id="join-player-name" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem;" placeholder="e.g. Player Two" value="${user?.displayName || ''}">
+            <span style="display: block; font-size: 0.88rem; color: #111111; margin-bottom: 0.35rem; font-weight: 800;">Your Display Name:</span>
+            <input type="text" id="join-player-name" style="width: 100%; border: 2px solid #1E1E1E; text-align: left; padding: 0.6rem; color: #111111; background: #FFFFFF; font-size: 0.95rem; font-weight: 800;" placeholder="e.g. Player Two" value="${user?.displayName || ''}">
           </label>
           <label>
-            <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Enter Room Code:</span>
-            <input type="text" id="join-room-code" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem; text-transform: uppercase;" placeholder="e.g. AB12XY">
+            <span style="display: block; font-size: 0.88rem; color: #111111; margin-bottom: 0.35rem; font-weight: 800;">Enter Room Code:</span>
+            <input type="text" id="join-room-code" style="width: 100%; border: 2px solid #1E1E1E; text-align: left; padding: 0.6rem; color: #111111; background: #FFFFFF; font-size: 0.95rem; text-transform: uppercase; font-weight: 800;" placeholder="e.g. AB12XY">
           </label>
           <label>
-            <span style="display: block; font-size: 0.85rem; color: var(--chalk-white-dark); margin-bottom: 0.35rem;">Enter Password (If required):</span>
-            <input type="password" id="join-room-password" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); text-align: left; padding: 0.6rem; color: white; font-size: 0.95rem;" placeholder="Leave blank if none">
+            <span style="display: block; font-size: 0.88rem; color: #111111; margin-bottom: 0.35rem; font-weight: 800;">Enter Password (If required):</span>
+            <input type="password" id="join-room-password" style="width: 100%; border: 2px solid #1E1E1E; text-align: left; padding: 0.6rem; color: #111111; background: #FFFFFF; font-size: 0.95rem; font-weight: 800;" placeholder="Leave blank if none">
           </label>
           <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
             <button id="submit-join-btn" class="btn btn-primary" style="flex: 1;">Confirm & Join</button>
