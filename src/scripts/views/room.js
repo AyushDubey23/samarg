@@ -669,6 +669,8 @@ function renderDraftPhase(viewport, roomCode, room) {
   const activePlayer = (room.players || {})[activeUid];
   const isActiveTurn = activeUid === currentUid;
   const reveal = draftState.currentReveal;
+  const userSquadData = (room.squads || {})[currentUid] || {};
+  const rerollsLeft = userSquadData.rerollsLeft !== undefined ? userSquadData.rerollsLeft : 1;
 
   // Clear slot machine animation timer when squad is revealed
   if (reveal && slotAnimationTimer) {
