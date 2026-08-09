@@ -1,38 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
-  <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1E1E1E"/>
-      <stop offset="100%" stop-color="#0A0A0A"/>
-    </linearGradient>
-    <linearGradient id="coralGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#FF5252"/>
-      <stop offset="100%" stop-color="#E53926"/>
-    </linearGradient>
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFF5C0"/>
-      <stop offset="50%" stop-color="#D4AF37"/>
-      <stop offset="100%" stop-color="#AA7C11"/>
-    </linearGradient>
-  </defs>
+  <!-- Background Cream Box -->
+  <rect x="16" y="16" width="480" height="480" fill="#FAF6ED" stroke="#1E1E1E" stroke-width="24"/>
+  <rect x="36" y="36" width="440" height="440" fill="none" stroke="#E53926" stroke-width="6"/>
 
-  <!-- Outer Dark Circle Container -->
-  <circle cx="256" cy="256" r="248" fill="url(#bgGrad)" stroke="url(#goldGrad)" stroke-width="14"/>
+  <!-- SAMARG XI Brand Text -->
+  <text x="256" y="240" font-family="'Outfit', 'Impact', sans-serif" font-size="110" font-weight="900" letter-spacing="-2" text-anchor="middle">
+    <tspan fill="#111111">SAMARG </tspan>
+    <tspan fill="#E53926">XI</tspan>
+  </text>
 
-  <!-- Inner Coral Accent Ring -->
-  <circle cx="256" cy="256" r="226" fill="none" stroke="url(#coralGrad)" stroke-width="6"/>
+  <!-- Subtitle Text -->
+  <text x="256" y="330" font-family="'Outfit', sans-serif" font-size="46" font-weight="900" letter-spacing="1" fill="#333333" text-anchor="middle">
+    CRICKET DRAFT
+  </text>
 
-  <!-- Bold Stylized SXI Monogram Text -->
-  <text x="256" y="320" 
-        font-family="'Bebas Neue', 'Outfit', 'Impact', sans-serif" 
-        font-size="210" 
-        font-weight="900" 
-        letter-spacing="6" 
-        text-anchor="middle" 
-        fill="url(#goldGrad)" 
-        stroke="#FFFFFF" 
-        stroke-width="3">SXI</text>
-
-  <!-- Cricket Ball Seam Line Underneath SXI -->
-  <path d="M 120,380 Q 256,430 392,380" fill="none" stroke="url(#coralGrad)" stroke-width="12" stroke-linecap="round"/>
-  <path d="M 120,380 Q 256,430 392,380" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="6 6" stroke-linecap="round"/>
+  <!-- Decorative Cricket Seam Curve -->
+  <path d="M 70,400 Q 256,450 442,400" fill="none" stroke="#E53926" stroke-width="12" stroke-linecap="round"/>
+  <path d="M 70,400 Q 256,450 442,400" fill="none" stroke="#111111" stroke-width="3" stroke-dasharray="8 8" stroke-linecap="round"/>
 </svg>
