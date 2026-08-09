@@ -1329,7 +1329,39 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
 
   // Check XI status for Locking button
   const totalPlaced = slots.filter(s => s !== null).length;
-  const isFinalizable = totalPlaced === 11 && spectatorSquad.captainId && spectatorSquad.viceCaptainId && spectatorSquad.keeperId && spectatorSquad.captainId !== spectatorSquad.viceCaptainId && !spectatorSquad.ready;
+  const validPlaced = slots.filter(s => s !== null);
+
+  let effectiveCaptainId = spectatorSquad.captainId || "";
+  let effectiveViceCaptainId = spectatorSquad.viceCaptainId || "";
+  let effectiveKeeperId = spectatorSquad.keeperId || "";
+
+  if (!effectiveKeeperId && validPlaced.length > 0) {
+    const naturalWK = validPlaced.find(p => p.isWicketkeeper || p.isWK || (p.role || '').toLowerCase().includes('keep'));
+    const nonBowler = validPlaced.find(p => {
+      const r = (p.role || '').toLowerCase();
+      return !r.includes('all') && !r.includes('pace') && !r.includes('fast') && !r.includes('spin') && (p.bowlRating || 0) < 45;
+    });
+    if (naturalWK) effectiveKeeperId = naturalWK.id;
+    else if (nonBowler) effectiveKeeperId = nonBowler.id;
+    else effectiveKeeperId = validPlaced[0].id;
+  }
+
+  if (!effectiveCaptainId && validPlaced.length > 0) {
+    const bestPlayer = [...validPlaced].sort((a, b) => ((b.batRating || 0) + (b.bowlRating || 0)) - ((a.batRating || 0) + (a.bowlRating || 0)))[0];
+    if (bestPlayer) effectiveCaptainId = bestPlayer.id;
+  }
+
+  if (!effectiveViceCaptainId && validPlaced.length > 0) {
+    const secondBest = validPlaced.find(p => String(p.id) !== String(effectiveCaptainId));
+    if (secondBest) effectiveViceCaptainId = secondBest.id;
+  }
+
+  const isFinalizable = totalPlaced === 11 &&
+                        effectiveCaptainId &&
+                        effectiveViceCaptainId &&
+                        effectiveKeeperId &&
+                        effectiveCaptainId !== effectiveViceCaptainId &&
+                        !spectatorSquad.ready;
 
   viewport.innerHTML = `
     <div style="margin-bottom: 2rem;">
@@ -1391,7 +1423,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                       else if (isAllRounder) borderColor = '#ab47bc';
                       if (player?.isCaptain) borderColor = '#ffb703';
 
-                      const isK = player && (String(player.id) === String(spectatorSquad.keeperId) || player.isWicketkeeper || player.isWK);
+                      const isK = player && (String(player.id) === String(spectatorSquad.keeperId || effectiveKeeperId) || player.isWicketkeeper || player.isWK);
 
                       return `
                         <div class="pitch-player-slot ${player ? 'filled' : 'empty'}" data-slot-index="${idx}" style="pointer-events: ${spectatorSquad.ready || !isOwnBoard ? 'none' : 'auto'}; position: relative;">
@@ -1403,8 +1435,8 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                                 <span class="rating-chip" style="background: #111111; color: #C89B3C; padding: 1px 5px; border-radius: 0px; font-size: 0.65rem; font-weight: 900; border: 1px solid #1E1E1E;">#${getJerseyNumber(player)}</span>
                               </div>
 
-                              ${player.isCaptain ? '<span class="designation-badge" style="position: absolute; top: -6px; right: -8px; background: #ffb703; color: #000; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 0px; border: 1px solid #1E1E1E; z-index: 6;">C</span>' : ''}
-                              ${player.isViceCaptain ? '<span class="designation-badge" style="position: absolute; top: -6px; right: -8px; background: #e0e0e0; color: #000; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 0px; border: 1px solid #1E1E1E; z-index: 6;">VC</span>' : ''}
+                              ${String(player.id) === String(spectatorSquad.captainId || effectiveCaptainId) ? '<span class="designation-badge" style="position: absolute; top: -6px; right: -8px; background: #ffb703; color: #000; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 0px; border: 1px solid #1E1E1E; z-index: 6;">C</span>' : ''}
+                              ${String(player.id) === String(spectatorSquad.viceCaptainId || effectiveViceCaptainId) ? '<span class="designation-badge" style="position: absolute; top: -6px; right: -8px; background: #e0e0e0; color: #000; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 0px; border: 1px solid #1E1E1E; z-index: 6;">VC</span>' : ''}
                               ${isK ? '<span class="designation-badge" style="position: absolute; top: -6px; left: -8px; background: #2E7D32; color: #FFF; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 0px; border: 1px solid #1E1E1E; z-index: 6;">WK</span>' : ''}
                             ` : `
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px;">
@@ -1479,7 +1511,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
               <h4 style="margin-bottom: 1rem; text-transform: uppercase; color: #C89B3C; font-weight: 900;">Designations & Lock</h4>
               ${spectatorSquad.ready ? `
                 <div style="padding: 1rem; background: #FFFDE7; border: 2px solid #C89B3C; color: #111111; font-weight: 900; text-align: center; border-radius: 0px; box-shadow: 2px 2px 0px #1E1E1E;">
-                  🔒 YOUR SQUAD IS LOCKED & READY! Waiting for opponent to designate Captain & Vice-Captain...
+                  🔒 YOUR SQUAD IS LOCKED & READY! Waiting for opponent to lock XI...
                 </div>
               ` : `
                 <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
@@ -1487,7 +1519,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                     <span style="display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 900; color: #111111;">Select Captain (C - 2x points):</span>
                     <select id="captain-select" style="width: 100%; background: #FFFFFF; color: #111111 !important; border: 2px solid #1E1E1E; padding: 0.6rem 0.85rem; font-weight: 800; font-size: 0.95rem; border-radius: 0px; outline: none; cursor: pointer;">
                       <option value="">-- Choose Captain --</option>
-                      ${slots.filter(s => s !== null && s.id !== spectatorSquad.viceCaptainId).map(p => `<option value="${p.id}" ${p.id === spectatorSquad.captainId ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
+                      ${slots.filter(s => s !== null && s.id !== (spectatorSquad.viceCaptainId || effectiveViceCaptainId)).map(p => `<option value="${p.id}" ${p.id === (spectatorSquad.captainId || effectiveCaptainId) ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
                     </select>
                   </label>
 
@@ -1495,7 +1527,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                     <span style="display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 900; color: #111111;">Select Vice-Captain (VC - 1.5x points):</span>
                     <select id="vice-captain-select" style="width: 100%; background: #FFFFFF; color: #111111 !important; border: 2px solid #1E1E1E; padding: 0.6rem 0.85rem; font-weight: 800; font-size: 0.95rem; border-radius: 0px; outline: none; cursor: pointer;">
                       <option value="">-- Choose Vice-Captain --</option>
-                      ${slots.filter(s => s !== null && s.id !== spectatorSquad.captainId).map(p => `<option value="${p.id}" ${p.id === spectatorSquad.viceCaptainId ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
+                      ${slots.filter(s => s !== null && s.id !== (spectatorSquad.captainId || effectiveCaptainId)).map(p => `<option value="${p.id}" ${p.id === (spectatorSquad.viceCaptainId || effectiveViceCaptainId) ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
                     </select>
                   </label>
 
@@ -1506,10 +1538,9 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                       ${slots.filter(s => {
                         if (!s) return false;
                         const role = (s.role || '').toLowerCase();
-                        // All-rounders and bowlers CANNOT be WK
                         const isBowlerOrAR = role.includes('all') || role.includes('pace') || role.includes('fast') || role.includes('spin') || (s.bowlRating || 0) >= 45;
                         return !isBowlerOrAR;
-                      }).map(p => `<option value="${p.id}" ${p.id === spectatorSquad.keeperId || p.isWicketkeeper ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
+                      }).map(p => `<option value="${p.id}" ${p.id === (spectatorSquad.keeperId || effectiveKeeperId) || p.isWicketkeeper ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
                     </select>
                   </label>
 
@@ -1585,38 +1616,22 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
         }
         const slotIdx = parseInt(slot.getAttribute("data-slot-index"), 10);
         try {
-          try {
-            const placePlayerFn = httpsCallable(functions, "placePlayer");
-            await placePlayerFn({ code: roomCode, playerId: activeBenchPlayerId, slotIndex: slotIdx });
-          } catch (fnErr) {
-            console.warn("Cloud function placePlayer failed, performing RTDB direct place fallback:", fnErr);
-            const userSquad = room.squads?.[currentUid] || { slots: Array(11).fill(null), bench: [] };
-            const currentBench = [...(userSquad.bench || [])];
-            
-            const rawSlots = userSquad.slots || [];
-            const currentSlots = Array(11).fill(null);
-            for (let i = 0; i < 11; i++) {
-              if (rawSlots[i]) currentSlots[i] = rawSlots[i];
-            }
+          const userSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
+          const userSlots = getFilledSlotsArray(userSquad.slots);
+          let updatedBench = [...ensureArray(userSquad.bench)];
+          const currentSlots = [...userSlots];
 
-            const playerIdx = currentBench.findIndex(p => String(p.id) === String(activeBenchPlayerId));
-            if (playerIdx !== -1) {
-              const playerToPlace = currentBench.splice(playerIdx, 1)[0];
-              const existingPlayer = currentSlots[slotIdx];
-              if (existingPlayer) {
-                currentBench.push(existingPlayer);
-              }
-              currentSlots[slotIdx] = playerToPlace;
+          const pIndex = updatedBench.findIndex(p => String(p.id) === String(activeBenchPlayerId));
+          if (pIndex !== -1) {
+            const [movedPlayer] = updatedBench.splice(pIndex, 1);
+            currentSlots[slotIdx] = movedPlayer;
 
-              const sanitizedSlots = currentSlots.map(s => s || null);
+            const sanitizedSlots = currentSlots.map(s => s || null);
 
-              await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), {
-                bench: currentBench,
-                slots: sanitizedSlots
-              });
-            } else {
-              throw new Error("Player is not on your backup bench.");
-            }
+            await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), {
+              bench: updatedBench,
+              slots: sanitizedSlots
+            });
           }
           activeBenchPlayerId = null;
         } catch (err) {
@@ -1633,7 +1648,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
       capSelect.addEventListener("change", async () => {
         const val = capSelect.value;
         const updates = { captainId: val };
-        if (val && val === spectatorSquad.viceCaptainId) {
+        if (val && val === (spectatorSquad.viceCaptainId || effectiveViceCaptainId)) {
           updates.viceCaptainId = ""; // Auto-clear Vice Captain if same player selected!
         }
         await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), updates);
@@ -1644,7 +1659,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
       vcSelect.addEventListener("change", async () => {
         const val = vcSelect.value;
         const updates = { viceCaptainId: val };
-        if (val && val === spectatorSquad.captainId) {
+        if (val && val === (spectatorSquad.captainId || effectiveCaptainId)) {
           updates.captainId = ""; // Auto-clear Captain if same player selected!
         }
         await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), updates);
@@ -1660,9 +1675,9 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
 
     // Handle Lock XI click handler
     const handleLockSubmit = async () => {
-      const cId = capSelect?.value || spectatorSquad.captainId || "";
-      const vcId = vcSelect?.value || spectatorSquad.viceCaptainId || "";
-      const kId = keeperSelect?.value || spectatorSquad.keeperId || "";
+      const cId = capSelect?.value || spectatorSquad.captainId || effectiveCaptainId;
+      const vcId = vcSelect?.value || spectatorSquad.viceCaptainId || effectiveViceCaptainId;
+      const kId = keeperSelect?.value || spectatorSquad.keeperId || effectiveKeeperId;
 
       if (!cId || !vcId || !kId) {
         showToast("Please designate Captain, Vice-Captain, AND Wicketkeeper first!", true);
@@ -1680,30 +1695,26 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
         if (topLock) topLock.disabled = true;
         if (btmLock) btmLock.disabled = true;
 
-        try {
-          const finalizeFn = httpsCallable(functions, "finalizeSquad");
-          await finalizeFn({ code: roomCode, captainId: cId, viceCaptainId: vcId, keeperId: kId });
-        } catch (fnErr) {
-          console.warn("Cloud function finalizeSquad failed, performing RTDB direct finalize fallback:", fnErr);
-          const userSquad = room.squads?.[currentUid] || { slots: Array(11).fill(null), bench: [] };
-          const updatedSlots = (userSquad.slots || []).map(p => {
-            if (!p) return null;
-            return {
-              ...p,
-              isCaptain: String(p.id) === String(cId),
-              isViceCaptain: String(p.id) === String(vcId),
-              isWicketkeeper: String(p.id) === String(kId),
-              isWK: String(p.id) === String(kId)
-            };
-          });
-          await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), {
-            ready: true,
-            slots: updatedSlots,
-            captainId: cId,
-            viceCaptainId: vcId,
-            keeperId: kId
-          });
-        }
+        const userSquad = room.squads?.[currentUid] || { slots: Array(11).fill(null), bench: [] };
+        const currentSlots = getFilledSlotsArray(userSquad.slots);
+        const updatedSlots = currentSlots.map(p => {
+          if (!p) return null;
+          return {
+            ...p,
+            isCaptain: String(p.id) === String(cId),
+            isViceCaptain: String(p.id) === String(vcId),
+            isWicketkeeper: String(p.id) === String(kId),
+            isWK: String(p.id) === String(kId)
+          };
+        });
+
+        await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), {
+          ready: true,
+          slots: updatedSlots,
+          captainId: cId,
+          viceCaptainId: vcId,
+          keeperId: kId
+        });
 
         // Verify if all players in room have locked their squad
         const updatedRoomSnap = await get(ref(rtdb, `rooms/${roomCode}`));
