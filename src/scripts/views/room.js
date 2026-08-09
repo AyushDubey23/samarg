@@ -787,12 +787,16 @@ function renderDraftPhase(viewport, roomCode, room) {
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 0.35rem; max-height: 380px; overflow-y: auto;" id="rolled-players-grid">
                   ${reveal.players.map((p, idx) => {
-                    const isClaimed = (draftState.claimedPlayerIds || []).includes(p.id);
+                    const claimedIds = draftState.claimedPlayerIds || [];
+                    const claimedNames = (draftState.claimedPlayerNames || []).map(n => String(n).toLowerCase().trim());
+                    const isClaimedById = claimedIds.includes(p.id);
+                    const isClaimedByName = claimedNames.includes(String(p.name || '').toLowerCase().trim());
+                    const isClaimed = isClaimedById || isClaimedByName;
                     const isSelected = selectedDraftPlayerId === p.id;
                     return `
                       <div class="draft-card-item ${isClaimed ? 'claimed-dim' : ''} ${isSelected ? 'selected-coral' : ''}" 
                            data-player-id="${p.id}" 
-                           style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: ${isSelected ? 'var(--primary-coral)' : (isClaimed ? '#E5E0D5' : '#FFFFFF')}; color: ${isSelected ? '#FFFFFF' : '#111111'}; border: ${isSelected ? '2px solid #1E1E1E' : '1.5px solid #D8D0C0'}; border-radius: 0px; cursor: ${isClaimed || !isActiveTurn ? 'not-allowed' : 'pointer'};">
+                           style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: ${isSelected ? 'var(--primary-coral)' : (isClaimed ? '#E5E0D5' : '#FFFFFF')}; color: ${isSelected ? '#FFFFFF' : '#111111'}; border: ${isSelected ? '2px solid #1E1E1E' : '1.5px solid #D8D0C0'}; border-radius: 0px; cursor: ${isClaimed || !isActiveTurn ? 'not-allowed' : 'pointer'}; opacity: ${isClaimed ? 0.6 : 1.0};">
                         <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
                           <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.82rem; min-width: 24px;">#${idx + 1}</span>
                           <div style="font-weight: 800; font-size: 0.85rem;">${p.name}</div>
@@ -801,7 +805,7 @@ function renderDraftPhase(viewport, roomCode, room) {
                           <span style="font-size: 0.72rem; background: ${isSelected ? '#FFFFFF' : '#E53926'}; color: ${isSelected ? '#E53926' : '#FFFFFF'}; font-weight: 900; padding: 2px 5px; border: 1px solid #1E1E1E;">BAT ${p.batRating || 75}</span>
                           <span style="font-size: 0.72rem; background: ${isSelected ? '#FFFFFF' : '#1E88E5'}; color: ${isSelected ? '#1E88E5' : '#FFFFFF'}; font-weight: 900; padding: 2px 5px; border: 1px solid #1E1E1E;">BOWL ${p.bowlRating || 0}</span>
                         </div>
-                        ${isClaimed ? `<div style="font-size: 0.62rem; font-weight: 900; margin-left: 0.35rem;">CLAIMED</div>` : ''}
+                        ${isClaimed ? `<div style="font-size: 0.62rem; font-weight: 900; margin-left: 0.35rem; color: #D32F2F;">TAKEN</div>` : ''}
                       </div>
                     `;
                   }).join("")}
@@ -822,10 +826,10 @@ function renderDraftPhase(viewport, roomCode, room) {
           <div class="pitch-stadium" style="padding: 0.75rem; margin-bottom: 1rem; min-height: 280px;">
             <div class="pitch-center-lane"></div>
             ${[
-              { name: "Top Order", indices: [0, 1, 2] },
-              { name: "Middle Order", indices: [3, 4, 5] },
-              { name: "Keeper", indices: [6] },
-              { name: "Bowlers", indices: [7, 8, 9, 10] }
+              { name: "Top Order (3 Batters - 2 Openers)", indices: [0, 1, 2] },
+              { name: "Middle Order (3 Batters)", indices: [3, 4, 5] },
+              { name: "All-Rounders (2 ARs)", indices: [6, 7] },
+              { name: "Specialist Bowlers (3 Bowlers)", indices: [8, 9, 10] }
             ].map(zone => `
               <div class="pitch-zone" style="margin-bottom: 0.5rem;">
                 <div class="pitch-zone-header">${zone.name}</div>
@@ -1244,15 +1248,15 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
 
   // Zone classifications (4 compact rows)
   const zoneInfo = [
-    { name: "Top Order / Batting", indices: [0, 1, 2] },
-    { name: "Middle Order / All-Rounders", indices: [3, 4, 5] },
-    { name: "Wicketkeeper / Specialist", indices: [6] },
-    { name: "Spin & Pace Bowlers", indices: [7, 8, 9, 10] }
+    { name: "Top Order (3 Batters - 2 Openers)", indices: [0, 1, 2] },
+    { name: "Middle Order (3 Batters)", indices: [3, 4, 5] },
+    { name: "All-Rounders (2 ARs)", indices: [6, 7] },
+    { name: "Specialist Bowlers (3 Bowlers)", indices: [8, 9, 10] }
   ];
 
   // Check XI status for Locking button
   const totalPlaced = slots.filter(s => s !== null).length;
-  const isFinalizable = totalPlaced === 11 && !spectatorSquad.ready;
+  const isFinalizable = totalPlaced === 11 && spectatorSquad.captainId && spectatorSquad.viceCaptainId && spectatorSquad.keeperId && spectatorSquad.captainId !== spectatorSquad.viceCaptainId && !spectatorSquad.ready;
 
   viewport.innerHTML = `
     <div style="margin-bottom: 2rem;">
@@ -1281,7 +1285,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
         <div style="margin-bottom: 1rem;">
           ${totalPlaced === 11 ? `
             <div class="validation-success-alert" style="background: rgba(46, 125, 50, 0.2); border: 1px solid #4caf50; color: #a5d6a7; padding: 0.75rem; border-radius: 8px;">
-              ✓ All 11 Playing XI Positions Filled! Ready to Lock and Simulate.
+              ✓ All 11 Playing XI Positions Filled! Select C, VC, and WK below to Lock.
             </div>
           ` : `
             <div class="validation-error-alert" style="background: rgba(211, 47, 47, 0.2); border: 1px solid #ef5350; color: #ef9a9a; padding: 0.75rem; border-radius: 8px;">
@@ -1314,6 +1318,8 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                       else if (isAllRounder) borderColor = '#ab47bc';
                       if (player?.isCaptain) borderColor = '#ffb703';
 
+                      const isK = player && (String(player.id) === String(spectatorSquad.keeperId) || player.isWicketkeeper || player.isWK);
+
                       return `
                         <div class="pitch-player-slot ${player ? 'filled' : 'empty'}" data-slot-index="${idx}" style="pointer-events: ${spectatorSquad.ready || !isOwnBoard ? 'none' : 'auto'}; position: relative;">
                           <div class="player-avatar-circle" style="position: relative; overflow: visible; border-color: ${borderColor}; width: 44px; height: 44px; border-radius: 50%; background: #111111; color: #FFFFFF; font-family: var(--font-family-mono); font-weight: 900; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
@@ -1326,6 +1332,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
 
                               ${player.isCaptain ? '<span class="designation-badge" style="position: absolute; top: -6px; right: -8px; background: #ffb703; color: #000; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 0px; border: 1px solid #1E1E1E; z-index: 6;">C</span>' : ''}
                               ${player.isViceCaptain ? '<span class="designation-badge" style="position: absolute; top: -6px; right: -8px; background: #e0e0e0; color: #000; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 0px; border: 1px solid #1E1E1E; z-index: 6;">VC</span>' : ''}
+                              ${isK ? '<span class="designation-badge" style="position: absolute; top: -6px; left: -8px; background: #2E7D32; color: #FFF; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 0px; border: 1px solid #1E1E1E; z-index: 6;">WK</span>' : ''}
                             ` : `
                               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px;">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -1393,7 +1400,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
             </div>
           </div>
 
-          <!-- Captain/VC designating inputs & Ready Lock button -->
+          <!-- Captain/VC/WK designating inputs & Ready Lock button -->
           ${isOwnBoard ? `
             <div class="career-stats-widget" style="margin-top: 1rem;">
               <h4 style="margin-bottom: 1rem; text-transform: uppercase; color: #C89B3C; font-weight: 900;">Designations & Lock</h4>
@@ -1410,6 +1417,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                       ${slots.filter(s => s !== null && s.id !== spectatorSquad.viceCaptainId).map(p => `<option value="${p.id}" ${p.id === spectatorSquad.captainId ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
                     </select>
                   </label>
+
                   <label style="position: relative; z-index: 19; margin-top: 0.25rem;">
                     <span style="display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 900; color: #111111;">Select Vice-Captain (VC - 1.5x points):</span>
                     <select id="vice-captain-select" style="width: 100%; background: #FFFFFF; color: #111111 !important; border: 2px solid #1E1E1E; padding: 0.6rem 0.85rem; font-weight: 800; font-size: 0.95rem; border-radius: 0px; outline: none; cursor: pointer;">
@@ -1418,7 +1426,21 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                     </select>
                   </label>
 
-                  <button id="lock-squad-btn-bottom" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem; padding: 0.85rem; font-size: 0.95rem; font-weight: 900; background: var(--primary-coral); border: 2px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E;" ${totalPlaced === 11 && spectatorSquad.captainId && spectatorSquad.viceCaptainId && spectatorSquad.captainId !== spectatorSquad.viceCaptainId ? '' : 'disabled'}>
+                  <label style="position: relative; z-index: 18; margin-top: 0.25rem;">
+                    <span style="display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 900; color: #111111;">Select Wicketkeeper (WK):</span>
+                    <select id="keeper-select" style="width: 100%; background: #FFFFFF; color: #111111 !important; border: 2px solid #1E1E1E; padding: 0.6rem 0.85rem; font-weight: 800; font-size: 0.95rem; border-radius: 0px; outline: none; cursor: pointer;">
+                      <option value="">-- Choose Wicketkeeper --</option>
+                      ${slots.filter(s => {
+                        if (!s) return false;
+                        const role = (s.role || '').toLowerCase();
+                        // All-rounders and bowlers CANNOT be WK
+                        const isBowlerOrAR = role.includes('all') || role.includes('pace') || role.includes('fast') || role.includes('spin') || (s.bowlRating || 0) >= 45;
+                        return !isBowlerOrAR;
+                      }).map(p => `<option value="${p.id}" ${p.id === spectatorSquad.keeperId || p.isWicketkeeper ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
+                    </select>
+                  </label>
+
+                  <button id="lock-squad-btn-bottom" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem; padding: 0.85rem; font-size: 0.95rem; font-weight: 900; background: var(--primary-coral); border: 2px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E;" ${isFinalizable ? '' : 'disabled'}>
                     🔒 LOCK SQUAD & START MATCH (${totalPlaced}/11)
                   </button>
                 </div>
@@ -1426,8 +1448,6 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
             </div>
           ` : ''}
         </div>
-      </div>
-    </div>
       </div>
     </div>
   `;
@@ -1533,9 +1553,9 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
       });
     });
 
-    // Handle designations update with mutual exclusion (C and VC cannot be same player)
     const capSelect = document.getElementById("captain-select");
     const vcSelect = document.getElementById("vice-captain-select");
+    const keeperSelect = document.getElementById("keeper-select");
 
     if (capSelect) {
       capSelect.addEventListener("change", async () => {
@@ -1559,13 +1579,21 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
       });
     }
 
+    if (keeperSelect) {
+      keeperSelect.addEventListener("change", async () => {
+        const val = keeperSelect.value;
+        await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), { keeperId: val });
+      });
+    }
+
     // Handle Lock XI click handler
     const handleLockSubmit = async () => {
       const cId = capSelect?.value || spectatorSquad.captainId || "";
       const vcId = vcSelect?.value || spectatorSquad.viceCaptainId || "";
+      const kId = keeperSelect?.value || spectatorSquad.keeperId || "";
 
-      if (!cId || !vcId) {
-        showToast("Please designate both a Captain and a Vice-Captain first!", true);
+      if (!cId || !vcId || !kId) {
+        showToast("Please designate Captain, Vice-Captain, AND Wicketkeeper first!", true);
         return;
       }
 
@@ -1582,7 +1610,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
 
         try {
           const finalizeFn = httpsCallable(functions, "finalizeSquad");
-          await finalizeFn({ code: roomCode, captainId: cId, viceCaptainId: vcId });
+          await finalizeFn({ code: roomCode, captainId: cId, viceCaptainId: vcId, keeperId: kId });
         } catch (fnErr) {
           console.warn("Cloud function finalizeSquad failed, performing RTDB direct finalize fallback:", fnErr);
           const userSquad = room.squads?.[currentUid] || { slots: Array(11).fill(null), bench: [] };
@@ -1591,14 +1619,17 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
             return {
               ...p,
               isCaptain: String(p.id) === String(cId),
-              isViceCaptain: String(p.id) === String(vcId)
+              isViceCaptain: String(p.id) === String(vcId),
+              isWicketkeeper: String(p.id) === String(kId),
+              isWK: String(p.id) === String(kId)
             };
           });
           await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), {
             ready: true,
             slots: updatedSlots,
             captainId: cId,
-            viceCaptainId: vcId
+            viceCaptainId: vcId,
+            keeperId: kId
           });
         }
 
@@ -1692,14 +1723,18 @@ function renderTossPhase(viewport, roomCode, room) {
           </div>
         </div>
 
-        <!-- 3D CSS Spinning Coin Arena -->
-        <div style="perspective: 1000px; margin: 2rem auto; width: 130px; height: 130px; position: relative;">
-          <div id="toss-coin" style="width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; transition: transform 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform: ${tossState.flipped ? 'rotateY(1800deg)' : 'rotateY(0deg)'};">
-            <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background: linear-gradient(135deg, #FFD700, #C89B3C); border: 3px solid #1E1E1E; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900; color: #111; box-shadow: 2px 2px 0px #1E1E1E;">
-              HEADS
+        <!-- Real Metallic 3D Coin Arena -->
+        <div style="perspective: 1000px; margin: 3rem auto 2.5rem auto; width: 140px; height: 140px; position: relative;">
+          <div id="toss-coin" style="width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; transition: transform 2.6s cubic-bezier(0.15, 0.85, 0.35, 1.2); transform: ${tossState.flipped ? 'translateY(0) rotateY(1800deg) scale(1)' : 'translateY(0) rotateY(0deg) scale(1)'};">
+            <!-- Heads Side (Gold) -->
+            <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background: radial-gradient(circle at 35% 35%, #FFF2A1, #D4AF37 60%, #aa820a); border: 5px solid #1E1E1E; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: #111111; box-shadow: inset 0 0 12px rgba(255,255,255,0.7), inset 0 -4px 10px rgba(0,0,0,0.5), 0 6px 15px rgba(0,0,0,0.4); text-shadow: 0 1px 2px rgba(255,255,255,0.8);">
+              <span style="font-size: 1.8rem; margin-bottom: -2px;">👑</span>
+              <span>HEADS</span>
             </div>
-            <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg); background: linear-gradient(135deg, #E0E0E0, #9E9E9E); border: 3px solid #1E1E1E; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900; color: #111; box-shadow: 2px 2px 0px #1E1E1E;">
-              TAILS
+            <!-- Tails Side (Silver) -->
+            <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg); background: radial-gradient(circle at 35% 35%, #FFFFFF, #B0BEC5 60%, #546E7A); border: 5px solid #1E1E1E; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: #111111; box-shadow: inset 0 0 12px rgba(255,255,255,0.8), inset 0 -4px 10px rgba(0,0,0,0.5), 0 6px 15px rgba(0,0,0,0.4); text-shadow: 0 1px 2px rgba(255,255,255,0.8);">
+              <span style="font-size: 1.8rem; margin-bottom: -2px;">🦅</span>
+              <span>TAILS</span>
             </div>
           </div>
         </div>
@@ -1741,15 +1776,26 @@ function renderTossPhase(viewport, roomCode, room) {
     </div>
   `;
 
-  // Attach spin coin button
+  // Attach spin coin button with realistic arc flip physics
   const spinBtn = document.getElementById("spin-toss-btn");
   if (spinBtn) {
     spinBtn.addEventListener("click", async () => {
       try {
         spinBtn.disabled = true;
         const coinEl = document.getElementById("toss-coin");
-        const randomRot = Math.random() < 0.5 ? 1800 : 1980;
-        if (coinEl) coinEl.style.transform = `rotateY(${randomRot}deg)`;
+        const isHeads = Math.random() < 0.5;
+        const targetRot = isHeads ? 1800 : 1980;
+
+        if (coinEl) {
+          coinEl.style.transition = "transform 1.3s cubic-bezier(0.2, 0.8, 0.4, 1)";
+          coinEl.style.transform = `translateY(-140px) rotateY(${targetRot / 2}deg) scale(1.35)`;
+          setTimeout(() => {
+            if (coinEl) {
+              coinEl.style.transition = "transform 1.3s cubic-bezier(0.6, 0, 0.8, 0.2)";
+              coinEl.style.transform = `translateY(0px) rotateY(${targetRot}deg) scale(1)`;
+            }
+          }, 1300);
+        }
 
         // Random toss winner selection
         const winnerUid = playerUids[Math.floor(Math.random() * playerUids.length)];
@@ -1761,7 +1807,7 @@ function renderTossPhase(viewport, roomCode, room) {
             flippedBy: currentUid,
             flippedAt: Date.now()
           });
-        }, 2200);
+        }, 2600);
       } catch (err) {
         if (spinBtn) spinBtn.disabled = false;
         showToast(err.message, true);

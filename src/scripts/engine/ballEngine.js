@@ -20,31 +20,30 @@ export class BallEngine {
   }
 
   selectBowler(team, lastBowlerId, overNumber, oversBowledMap, maxOversPerBowler) {
-    // 1. Specialist Bowlers (slots 7-10) and Top All-Rounder (slot 4-6)
-    const specialistBowlers = team.filter((p, idx) => {
+    // Strictly filter candidates to All-Rounders & Bowlers who are NOT designated Wicketkeepers
+    const eligibleBowlers = team.filter((p, idx) => {
+      const role = (p.role || '').toLowerCase();
+      const isWK = p.isWicketkeeper || p.isWK || p.isKeeper || role.includes('keep');
+      if (isWK) return false;
+
       const pos = p.slotIndex !== undefined ? p.slotIndex : idx;
-      return pos >= 7 && pos <= 10;
+      // Positions 6-10 are All-Rounders & Bowlers, or role includes allRounder/pacer/spinner or bowlRating > 45
+      const isBowlerRole = role.includes('all') || role.includes('pace') || role.includes('fast') || role.includes('spin') || (p.bowlRating || 0) >= 45 || pos >= 6;
+      return isBowlerRole;
     });
 
-    const allRounders = team.filter((p, idx) => {
-      const pos = p.slotIndex !== undefined ? p.slotIndex : idx;
-      return (pos >= 4 && pos <= 6) || (p.bowlRating >= 50 && !specialistBowlers.includes(p));
-    });
-    allRounders.sort((a, b) => (b.bowlRating || 0) - (a.bowlRating || 0));
-
-    let designatedBowlers = [...specialistBowlers];
-    if (allRounders.length > 0 && designatedBowlers.length < 5) {
-      designatedBowlers.push(allRounders[0]); // 1 All-Rounder
-    }
-
-    // Filter available options from designated bowlers (max 4 overs per bowler)
-    let options = designatedBowlers.filter(p => (oversBowledMap[p.id] || 0) < maxOversPerBowler && p.id !== lastBowlerId);
+    // Filter available options from eligible bowlers (max 4 overs per bowler)
+    let options = eligibleBowlers.filter(p => (oversBowledMap[p.id] || 0) < maxOversPerBowler && p.id !== lastBowlerId);
 
     if (options.length === 0) {
-      options = team.filter(p => (oversBowledMap[p.id] || 0) < maxOversPerBowler && p.id !== lastBowlerId);
+      options = eligibleBowlers.filter(p => (oversBowledMap[p.id] || 0) < maxOversPerBowler);
     }
     if (options.length === 0) {
-      options = team.filter(p => p.id !== lastBowlerId);
+      options = eligibleBowlers;
+    }
+    if (options.length === 0) {
+      // Emergency fallback if no eligible bowler
+      options = team.filter(p => !p.isWicketkeeper && !p.isWK && !p.isKeeper);
     }
 
     options.sort((a, b) => {
