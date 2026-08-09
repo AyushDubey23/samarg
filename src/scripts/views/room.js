@@ -588,6 +588,12 @@ function renderLobby(viewport, roomCode, room) {
   const startBtn = document.getElementById("start-draft-btn");
   if (startBtn) {
     startBtn.addEventListener("click", async () => {
+      const playerUids = Object.keys(room.players || {});
+      if (room.mode === "duel" && playerUids.length < 2) {
+        showToast("Waiting for 2nd player to join room before starting draft!", true);
+        return;
+      }
+
       try {
         startBtn.disabled = true;
         try {
@@ -595,16 +601,19 @@ function renderLobby(viewport, roomCode, room) {
           await startDraftFn({ code: roomCode });
         } catch (fnErr) {
           console.warn("Cloud function startDraft failed, performing RTDB direct start fallback:", fnErr);
-          const playerUids = Object.keys(room.players || {});
-          const shuffledUids = [...playerUids].sort(() => Math.random() - 0.5);
+          const currentPlayersMap = room.players || {};
+          const uids = Object.keys(currentPlayersMap);
+          const shuffledUids = [...uids].sort(() => Math.random() - 0.5);
           const squads = {};
           shuffledUids.forEach(uid => {
             squads[uid] = {
               ready: false,
               slots: Array(11).fill(null),
-              bench: []
+              bench: [],
+              rerollsLeft: 1
             };
           });
+          const turnTimerSec = room.turnTimerSeconds || 20;
           await update(ref(rtdb, `rooms/${roomCode}`), {
             status: "drafting",
             squads,
@@ -613,8 +622,9 @@ function renderLobby(viewport, roomCode, room) {
               turnIndex: 0,
               activePlayerUid: shuffledUids[0],
               currentReveal: null,
-              turnDeadline: null,
-              claimedPlayerIds: []
+              turnDeadline: Date.now() + turnTimerSec * 1000,
+              claimedPlayerIds: [],
+              claimedPlayerNames: []
             }
           });
         }
@@ -703,8 +713,8 @@ function renderDraftPhase(viewport, roomCode, room) {
   const p1Uid = currentUid;
   const p2Uid = playerUids.find(id => id !== currentUid) || playerUids[0];
 
-  const p1 = playersMap[p1Uid] || { displayName: "PLAYER 1 - YOU" };
-  const p2 = playersMap[p2Uid] || { displayName: "PLAYER 2" };
+  const p1Name = (playersMap[currentUid]?.displayName || auth.currentUser?.displayName || "YOU").toUpperCase();
+  const p2Name = (p2.displayName && p2.displayName !== "PLAYER 2" ? p2.displayName : "OPPONENT").toUpperCase();
 
   const p1Squad = room.squads?.[p1Uid] || { slots: Array(11).fill(null), bench: [] };
   const p2Squad = room.squads?.[p2Uid] || { slots: Array(11).fill(null), bench: [] };
@@ -736,7 +746,7 @@ function renderDraftPhase(viewport, roomCode, room) {
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 ${activeUid === p1Uid ? '<span style="background: #d32f2f; color: white; padding: 2px 6px; border-radius: 0px; font-size: 0.65rem; font-weight: 900;">YOUR TURN</span>' : ''}
-                <span style="font-weight: 900; font-size: 1.05rem; color: #111;">PLAYER 1 - YOU</span>
+                <span style="font-weight: 900; font-size: 1.05rem; color: #111;">${p1Name} (YOU)</span>
               </div>
               <span style="font-family: var(--font-family-mono); font-weight: 800; font-size: 1.1rem; color: #111;">${p1Count}/11</span>
             </div>
@@ -747,7 +757,7 @@ function renderDraftPhase(viewport, roomCode, room) {
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 ${activeUid === p2Uid ? '<span style="background: #d32f2f; color: white; padding: 2px 6px; border-radius: 0px; font-size: 0.65rem; font-weight: 900;">ON THE CLOCK</span>' : ''}
-                <span style="font-weight: 900; font-size: 1.05rem; color: #111;">${(p2.displayName || "PLAYER 2").toUpperCase()}</span>
+                <span style="font-weight: 900; font-size: 1.05rem; color: #111;">${p2Name}</span>
                 ${activeUid === p2Uid ? '<span style="font-size: 0.75rem; color: #d32f2f;">choosing...</span>' : ''}
               </div>
               <div style="text-align: right;">
