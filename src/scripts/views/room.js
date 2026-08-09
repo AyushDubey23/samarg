@@ -6,6 +6,11 @@ import { validateDraftXI } from "../utils/draftRules.js";
 import { signInAnonymously } from "firebase/auth";
 import { BallEngine } from "../engine/ballEngine.js";
 
+const POSITION_LABELS = [
+  "OPENER 1", "OPENER 2", "TOP ORDER 1", "TOP ORDER 2", "TOP ORDER 3",
+  "MIDDLE ORDER 1", "KEEPER", "ALL-ROUNDER", "SPINNER", "PACER 1", "PACER 2"
+];
+
 const AUTHENTIC_FALLBACK_SQUADS = [
   {
     nationalTeam: "India",
@@ -400,7 +405,7 @@ function renderLobby(viewport, roomCode, room) {
   // Count ready players
   const readyCount = Object.values(players).filter(p => p.ready).length;
   const maxPlayers = room.mode === "duel" ? 2 : (room.mode === "cup" ? 4 : 1);
-  const startEnabled = playerUids.length === maxPlayers && readyCount === maxPlayers;
+  const startEnabled = playerUids.length >= 1;
 
   const userDisplayName = players[currentUid]?.displayName || "";
   const needsNamePrompt = !userJoined || !userDisplayName || userDisplayName === "Guest Player" || userDisplayName === "Player" || userDisplayName.startsWith("Guest");
