@@ -68,9 +68,7 @@ function updateAuthUI(user) {
   if (!container) return;
 
   if (user.isAnonymous) {
-    container.innerHTML = `
-      <span style="font-size: 0.8rem; font-weight: 800; color: #555;">Guest Session</span>
-    `;
+    container.innerHTML = "";
   } else {
     container.innerHTML = `
       <div style="display: flex; align-items: center; gap: 0.75rem;">
