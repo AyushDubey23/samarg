@@ -5,6 +5,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  border-radius: 0 !important; /* Enforce Sharp Edges everywhere */
 }
 
 body {
@@ -30,7 +31,6 @@ body {
 }
 ::-webkit-scrollbar-thumb {
   background: #C0B8A6;
-  border-radius: var(--border-radius-sm);
   border: 1px solid var(--border-dark);
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -123,7 +123,7 @@ a:hover {
   background: #ECE5D4;
 }
 
-/* Global Shared Button Design - Retro Hard Shadow Style */
+/* Global Shared Button Design - Retro Sharp Edges */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -135,7 +135,7 @@ a:hover {
   text-transform: uppercase;
   letter-spacing: 0.03em;
   padding: 0.75rem 1.5rem;
-  border-radius: var(--border-radius-sm);
+  border-radius: 0px !important;
   border: 2px solid #1E1E1E;
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -199,12 +199,12 @@ a:hover {
   background-color: #C82D1D;
 }
 
-/* Global Form Inputs High Contrast Styling */
+/* Global Form Inputs High Contrast & Sharp Edges */
 input[type="text"], input[type="password"], select {
   background: #FFFFFF !important;
   color: #111111 !important;
   border: 2px solid #1E1E1E !important;
-  border-radius: 6px !important;
+  border-radius: 0px !important;
   padding: 0.6rem 0.85rem !important;
   font-weight: 800 !important;
   font-size: 0.95rem !important;
@@ -231,7 +231,7 @@ input::placeholder {
   background: #FFFFFF;
   color: #111111;
   border: 2px solid #1E1E1E;
-  border-radius: 6px;
+  border-radius: 0px !important;
   font-size: 0.85rem;
   font-weight: 800;
   cursor: pointer;
@@ -251,11 +251,11 @@ input::placeholder {
   box-shadow: 2px 2px 0px #C89B3C;
 }
 
-/* Global Card Container High Contrast Fix */
+/* Global Card Container High Contrast & Sharp Edges */
 .career-stats-widget, .user-stats-card, .graph-card, .controls-card, .step-card {
   background: #FFFFFF !important;
   border: 2px solid #1E1E1E !important;
-  border-radius: 10px !important;
+  border-radius: 0px !important;
   box-shadow: 4px 4px 0px #1E1E1E !important;
   color: #111111 !important;
 }
@@ -288,9 +288,9 @@ input::placeholder {
 .toast {
   background: #111111;
   border: 2px solid #1E1E1E;
+  border-radius: 0px !important;
   color: #FFFFFF;
   padding: 1rem 1.5rem;
-  border-radius: var(--border-radius-sm);
   box-shadow: 4px 4px 0px #C89B3C;
   font-size: 0.9rem;
   font-weight: 800;

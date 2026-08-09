@@ -672,6 +672,36 @@ function renderLobby(viewport, roomCode, room) {
   }
 }
 
+function playWhistleSound() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc1.type = "sine";
+    osc2.type = "sine";
+    osc1.frequency.setValueAtTime(2800, ctx.currentTime);
+    osc2.frequency.setValueAtTime(3200, ctx.currentTime);
+
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.28);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc1.start(ctx.currentTime);
+    osc2.start(ctx.currentTime);
+    osc1.stop(ctx.currentTime + 0.28);
+    osc2.stop(ctx.currentTime + 0.28);
+  } catch (err) {
+    console.warn("Whistle sound error:", err);
+  }
+}
+
 /**
  * 2. LIVE DRAFT PHASE VIEW
  */
@@ -679,6 +709,7 @@ let slotAnimationTimer = null;
 let selectedDraftPlayerId = null;
 let draftSpectatedUid = null;
 let lastTurnActiveUid = null;
+let lastSignaledTurnUid = null;
 
 function renderDraftPhase(viewport, roomCode, room) {
   const currentUid = auth.currentUser ? auth.currentUser.uid : "";
@@ -687,6 +718,12 @@ function renderDraftPhase(viewport, roomCode, room) {
   const activePlayer = (room.players || {})[activeUid];
   const isActiveTurn = activeUid === currentUid;
   const reveal = draftState.currentReveal;
+
+  // Play short whistle sound when it becomes your turn to roll/pick
+  if (isActiveTurn && lastSignaledTurnUid !== currentUid) {
+    lastSignaledTurnUid = currentUid;
+    playWhistleSound();
+  }
 
   // Auto-switch spectated view to active turn player when turn changes
   if (activeUid !== lastTurnActiveUid) {
@@ -726,16 +763,16 @@ function renderDraftPhase(viewport, roomCode, room) {
   viewport.innerHTML = `
     <div class="squad-review-container">
       <!-- LIVE LINEUPS Header Bar -->
-      <div style="background: #fdfbf7; border: 2px solid #111; border-radius: 10px; padding: 0.75rem 1.25rem; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+      <div style="background: #fdfbf7; border: 2px solid #111; border-radius: 0px; padding: 0.75rem 1.25rem; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
         <div style="font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #777; margin-bottom: 0.4rem;">
           LIVE LINEUPS
         </div>
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
           <!-- Player 1 Box -->
-          <div style="flex: 1; min-width: 200px; padding: 0.75rem 1rem; background: ${activeUid === p1Uid ? '#e8f5e9' : '#fff'}; border: 2px solid ${activeUid === p1Uid ? '#2e7d32' : '#ccc'}; border-radius: 6px; position: relative;">
+          <div style="flex: 1; min-width: 200px; padding: 0.75rem 1rem; background: ${activeUid === p1Uid ? '#e8f5e9' : '#fff'}; border: 2px solid ${activeUid === p1Uid ? '#2e7d32' : '#ccc'}; border-radius: 0px; position: relative;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <div style="display: flex; align-items: center; gap: 0.5rem;">
-                ${activeUid === p1Uid ? '<span style="background: #d32f2f; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.65rem; font-weight: 900;">YOUR TURN</span>' : ''}
+                ${activeUid === p1Uid ? '<span style="background: #d32f2f; color: white; padding: 2px 6px; border-radius: 0px; font-size: 0.65rem; font-weight: 900;">YOUR TURN</span>' : ''}
                 <span style="font-weight: 900; font-size: 1.05rem; color: #111;">PLAYER 1 - YOU</span>
               </div>
               <span style="font-family: var(--font-family-mono); font-weight: 800; font-size: 1.1rem; color: #111;">${p1Count}/11</span>
@@ -743,10 +780,10 @@ function renderDraftPhase(viewport, roomCode, room) {
           </div>
 
           <!-- Player 2 Box -->
-          <div style="flex: 1; min-width: 200px; padding: 0.75rem 1rem; background: ${activeUid === p2Uid ? '#ffebee' : '#fff'}; border: 2px solid ${activeUid === p2Uid ? '#d32f2f' : '#ccc'}; border-radius: 6px; position: relative;">
+          <div style="flex: 1; min-width: 200px; padding: 0.75rem 1rem; background: ${activeUid === p2Uid ? '#ffebee' : '#fff'}; border: 2px solid ${activeUid === p2Uid ? '#d32f2f' : '#ccc'}; border-radius: 0px; position: relative;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <div style="display: flex; align-items: center; gap: 0.5rem;">
-                ${activeUid === p2Uid ? '<span style="background: #d32f2f; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.65rem; font-weight: 900;">ON THE CLOCK</span>' : ''}
+                ${activeUid === p2Uid ? '<span style="background: #d32f2f; color: white; padding: 2px 6px; border-radius: 0px; font-size: 0.65rem; font-weight: 900;">ON THE CLOCK</span>' : ''}
                 <span style="font-weight: 900; font-size: 1.05rem; color: #111;">${(p2.displayName || "PLAYER 2").toUpperCase()}</span>
                 ${activeUid === p2Uid ? '<span style="font-size: 0.75rem; color: #d32f2f;">choosing...</span>' : ''}
               </div>
@@ -783,7 +820,7 @@ function renderDraftPhase(viewport, roomCode, room) {
             </div>
           ` : `
             <div>
-              <div style="background: #fdfbf7; color: #111; padding: 1.15rem; border-radius: 10px; border: 2px solid #e0d8c8; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+              <div style="background: #fdfbf7; color: #111; padding: 1.15rem; border-radius: 0px; border: 2px solid #e0d8c8; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 <div style="font-size: 0.7rem; text-transform: uppercase; color: #888; font-weight: 800; letter-spacing: 1px;">DRAWN</div>
                 <h2 style="font-size: 1.8rem; margin: 0.2rem 0; font-weight: 900; color: #111;">
                   <span style="color: #d32f2f;">${reveal.nationalTeam}</span>
@@ -793,7 +830,7 @@ function renderDraftPhase(viewport, roomCode, room) {
                 </div>
               </div>
 
-              <div style="margin-top: 1rem; background: #fdfbf7; border: 2px solid #e0d8c8; border-radius: 10px; padding: 0.75rem;">
+              <div style="margin-top: 1rem; background: #fdfbf7; border: 2px solid #e0d8c8; border-radius: 0px; padding: 0.75rem;">
                 <div class="flex justify-between align-center" style="margin-bottom: 0.5rem;">
                   <div style="font-size: 0.75rem; font-weight: 900; color: #777; text-transform: uppercase; letter-spacing: 1px;">
                     PICK A PLAYER
@@ -806,13 +843,16 @@ function renderDraftPhase(viewport, roomCode, room) {
                     return `
                       <div class="draft-card-item ${isClaimed ? 'claimed-dim' : ''} ${isSelected ? 'selected-coral' : ''}" 
                            data-player-id="${p.id}" 
-                           style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: ${isSelected ? 'var(--primary-coral)' : (isClaimed ? '#E5E0D5' : '#FFFFFF')}; color: ${isSelected ? '#FFFFFF' : '#111111'}; border: ${isSelected ? '2px solid #1E1E1E' : '1.5px solid #D8D0C0'}; border-radius: 6px; cursor: ${isClaimed || !isActiveTurn ? 'not-allowed' : 'pointer'};">
+                           style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: ${isSelected ? 'var(--primary-coral)' : (isClaimed ? '#E5E0D5' : '#FFFFFF')}; color: ${isSelected ? '#FFFFFF' : '#111111'}; border: ${isSelected ? '2px solid #1E1E1E' : '1.5px solid #D8D0C0'}; border-radius: 0px; cursor: ${isClaimed || !isActiveTurn ? 'not-allowed' : 'pointer'};">
                         <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
                           <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.82rem; min-width: 24px;">#${idx + 1}</span>
                           <div style="font-weight: 800; font-size: 0.85rem;">${p.name}</div>
                         </div>
-                        <span style="font-size: 0.8rem; background: ${isSelected ? '#FFFFFF' : 'var(--primary-coral)'}; color: ${isSelected ? 'var(--primary-coral)' : '#FFFFFF'}; font-weight: 900; padding: 2px 6px; border-radius: 4px;">${p.batRating}</span>
-                        ${isClaimed ? `<div style="font-size: 0.62rem; font-weight: 900;">CLAIMED</div>` : ''}
+                        <div style="display: flex; gap: 0.35rem; align-items: center;">
+                          <span style="font-size: 0.72rem; background: ${isSelected ? '#FFFFFF' : '#E53926'}; color: ${isSelected ? '#E53926' : '#FFFFFF'}; font-weight: 900; padding: 2px 5px; border: 1px solid #1E1E1E;">BAT ${p.batRating || 75}</span>
+                          <span style="font-size: 0.72rem; background: ${isSelected ? '#FFFFFF' : '#1E88E5'}; color: ${isSelected ? '#1E88E5' : '#FFFFFF'}; font-weight: 900; padding: 2px 5px; border: 1px solid #1E1E1E;">BOWL ${p.bowlRating || 0}</span>
+                        </div>
+                        ${isClaimed ? `<div style="font-size: 0.62rem; font-weight: 900; margin-left: 0.35rem;">CLAIMED</div>` : ''}
                       </div>
                     `;
                   }).join("")}
