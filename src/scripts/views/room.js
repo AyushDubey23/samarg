@@ -317,6 +317,10 @@ export function renderRoom(viewport, roomCode) {
       } else if (roomData.status === "drafting") {
         renderDraftPhase(viewport, roomCode, roomData);
       } else if (roomData.status === "placing") {
+        const userUid = auth.currentUser ? auth.currentUser.uid : "";
+        if (!currentSpectatorUid || currentSpectatorUid !== userUid) {
+          currentSpectatorUid = userUid;
+        }
         renderPlacingPhase(viewport, roomCode, roomData, currentSpectatorUid, (spectatedUid) => {
           currentSpectatorUid = spectatedUid;
         });
@@ -906,25 +910,33 @@ function renderDraftPhase(viewport, roomCode, room) {
     rollBtn.addEventListener("click", async () => {
       try {
         rollBtn.disabled = true;
-        startSlotMachineAnimation();
         const rolledSquad = await fetchClientRandomSquad(draftState);
+        const targetTeamLabel = `${rolledSquad.nationalTeam} (${rolledSquad.tournamentYear})`;
+        startSlotMachineAnimation(targetTeamLabel);
+
         const turnTimerSec = room.turnTimerSeconds || 20;
         const squadId = rolledSquad.squadId || `${rolledSquad.nationalTeam}_${rolledSquad.tournamentYear}`;
         const currentRolledIds = Array.isArray(draftState.rolledSquadIds) ? draftState.rolledSquadIds : [];
         const updatedRolledIds = [...currentRolledIds, squadId];
 
-        await update(ref(rtdb, `rooms/${roomCode}/draftState`), {
-          turnDeadline: Date.now() + turnTimerSec * 1000,
-          rolledSquadIds: updatedRolledIds,
-          currentReveal: {
-            squadId,
-            nationalTeam: rolledSquad.nationalTeam,
-            tournamentYear: rolledSquad.tournamentYear,
-            players: rolledSquad.players,
-            rolledAt: Date.now(),
-            rolledBy: currentUid
+        setTimeout(async () => {
+          try {
+            await update(ref(rtdb, `rooms/${roomCode}/draftState`), {
+              turnDeadline: Date.now() + turnTimerSec * 1000,
+              rolledSquadIds: updatedRolledIds,
+              currentReveal: {
+                squadId,
+                nationalTeam: rolledSquad.nationalTeam,
+                tournamentYear: rolledSquad.tournamentYear,
+                players: rolledSquad.players,
+                rolledAt: Date.now(),
+                rolledBy: currentUid
+              }
+            });
+          } catch (updateErr) {
+            showToast(updateErr.message, true);
           }
-        });
+        }, 900);
       } catch (err) {
         rollBtn.disabled = false;
         if (slotAnimationTimer) {
@@ -948,28 +960,36 @@ function renderDraftPhase(viewport, roomCode, room) {
       }
       try {
         rerollBtn.disabled = true;
-        startSlotMachineAnimation();
         const rolledSquad = await fetchClientRandomSquad(draftState);
+        const targetTeamLabel = `${rolledSquad.nationalTeam} (${rolledSquad.tournamentYear})`;
+        startSlotMachineAnimation(targetTeamLabel);
+
         const turnTimerSec = room.turnTimerSeconds || 20;
         const squadId = rolledSquad.squadId || `${rolledSquad.nationalTeam}_${rolledSquad.tournamentYear}`;
         const currentRolledIds = Array.isArray(draftState.rolledSquadIds) ? draftState.rolledSquadIds : [];
         const updatedRolledIds = [...currentRolledIds, squadId];
 
-        const updates = {};
-        updates[`rooms/${roomCode}/draftState/turnDeadline`] = Date.now() + turnTimerSec * 1000;
-        updates[`rooms/${roomCode}/draftState/rolledSquadIds`] = updatedRolledIds;
-        updates[`rooms/${roomCode}/draftState/currentReveal`] = {
-          squadId,
-          nationalTeam: rolledSquad.nationalTeam,
-          tournamentYear: rolledSquad.tournamentYear,
-          players: rolledSquad.players,
-          rolledAt: Date.now(),
-          rolledBy: currentUid
-        };
-        updates[`rooms/${roomCode}/squads/${currentUid}/rerollsLeft`] = rerollsLeft - 1;
+        setTimeout(async () => {
+          try {
+            const updates = {};
+            updates[`rooms/${roomCode}/draftState/turnDeadline`] = Date.now() + turnTimerSec * 1000;
+            updates[`rooms/${roomCode}/draftState/rolledSquadIds`] = updatedRolledIds;
+            updates[`rooms/${roomCode}/draftState/currentReveal`] = {
+              squadId,
+              nationalTeam: rolledSquad.nationalTeam,
+              tournamentYear: rolledSquad.tournamentYear,
+              players: rolledSquad.players,
+              rolledAt: Date.now(),
+              rolledBy: currentUid
+            };
+            updates[`rooms/${roomCode}/squads/${currentUid}/rerollsLeft`] = rerollsLeft - 1;
 
-        await update(ref(rtdb), updates);
-        showToast("🎲 Squad Rerolled! Select your player.");
+            await update(ref(rtdb), updates);
+            showToast("🎲 Squad Rerolled! Select your player.");
+          } catch (updateErr) {
+            showToast(updateErr.message, true);
+          }
+        }, 900);
       } catch (err) {
         if (rerollBtn) rerollBtn.disabled = false;
         showToast(err.message, true);
@@ -1188,8 +1208,8 @@ function renderDraftPhase(viewport, roomCode, room) {
   }
 }
 
-// Cinematic slot-machine visual cycles
-function startSlotMachineAnimation() {
+// Cinematic slot-machine visual cycles ending on the drawn team
+function startSlotMachineAnimation(finalTeamName = null) {
   if (slotAnimationTimer) {
     clearInterval(slotAnimationTimer);
     slotAnimationTimer = null;
@@ -1198,7 +1218,7 @@ function startSlotMachineAnimation() {
   const textEl = document.getElementById("slot-machine-display");
   if (!textEl) return;
 
-  let speed = 60;
+  let speed = 50;
   let counter = 0;
 
   slotAnimationTimer = setInterval(() => {
@@ -1209,13 +1229,17 @@ function startSlotMachineAnimation() {
     counter++;
   }, speed);
 
-  // Safety auto-terminate after 1000ms max so it never runs continuously
+  // Terminate animation after 900ms and display final drawn team
   setTimeout(() => {
     if (slotAnimationTimer) {
       clearInterval(slotAnimationTimer);
       slotAnimationTimer = null;
     }
-  }, 1000);
+    const el = document.getElementById("slot-machine-display");
+    if (el && finalTeamName) {
+      el.innerText = String(finalTeamName).toUpperCase();
+    }
+  }, 900);
 }
 
 const FAMOUS_JERSEYS = {
