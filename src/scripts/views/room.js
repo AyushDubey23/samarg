@@ -672,12 +672,45 @@ function renderLobby(viewport, roomCode, room) {
  */
 let slotAnimationTimer = null;
 let selectedDraftPlayerId = null;
+let draftSpectatedUid = null;
+let lastTurnActiveUid = null;
+
 function renderDraftPhase(viewport, roomCode, room) {
   const currentUid = auth.currentUser ? auth.currentUser.uid : "";
   const draftState = room.draftState || {};
-  const activePlayer = room.players[draftState.activePlayerUid];
-  const isActiveTurn = draftState.activePlayerUid === currentUid;
+  const activeUid = draftState.activePlayerUid;
+  const activePlayer = (room.players || {})[activeUid];
+  const isActiveTurn = activeUid === currentUid;
   const reveal = draftState.currentReveal;
+
+  // Auto-switch spectated view to active turn player when turn changes
+  if (activeUid !== lastTurnActiveUid) {
+    lastTurnActiveUid = activeUid;
+    draftSpectatedUid = activeUid;
+  }
+  if (!draftSpectatedUid) {
+    draftSpectatedUid = activeUid || currentUid;
+  }
+
+  // Player 1 (User) and Player 2 (Opponent) identification
+  const playersMap = room.players || {};
+  const playerUids = Object.keys(playersMap);
+  const p1Uid = currentUid;
+  const p2Uid = playerUids.find(id => id !== currentUid) || playerUids[0];
+
+  const p1 = playersMap[p1Uid] || { displayName: "PLAYER 1 - YOU" };
+  const p2 = playersMap[p2Uid] || { displayName: "PLAYER 2" };
+
+  const p1Squad = room.squads?.[p1Uid] || { slots: Array(11).fill(null), bench: [] };
+  const p2Squad = room.squads?.[p2Uid] || { slots: Array(11).fill(null), bench: [] };
+
+  const p1Count = getFilledSlotsArray(p1Squad.slots).filter(s => s !== null).length + (p1Squad.bench ? p1Squad.bench.length : 0);
+  const p2Count = getFilledSlotsArray(p2Squad.slots).filter(s => s !== null).length + (p2Squad.bench ? p2Squad.bench.length : 0);
+
+  // Spectated player squad
+  const isViewingOpponent = draftSpectatedUid !== currentUid;
+  const spectatedSquad = room.squads?.[draftSpectatedUid] || { slots: Array(11).fill(null), bench: [] };
+  const spectatedSlots = getFilledSlotsArray(spectatedSquad.slots);
 
   // Clear previous animations if reveal is null
   if (!reveal && slotAnimationTimer) {
@@ -687,20 +720,48 @@ function renderDraftPhase(viewport, roomCode, room) {
 
   viewport.innerHTML = `
     <div class="squad-review-container">
-      <!-- Active turn headers & timer ring -->
-      <div class="flex justify-between align-center" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem; margin-bottom: 1.5rem;">
-        <div>
-          <span class="role-badge ${isActiveTurn ? 'opener' : 'keeper'}">
-            ${isActiveTurn ? 'YOUR TURN' : 'OPPONENT TURN'}
-          </span>
-          <h2 style="font-size: 1.5rem; margin-top: 0.4rem;">
-            ${isActiveTurn ? 'Roll the squad and claim your player!' : `Waiting for ${activePlayer?.displayName}...`}
-          </h2>
+      <!-- LIVE LINEUPS Header Bar -->
+      <div style="background: #fdfbf7; border: 2px solid #111; border-radius: 10px; padding: 0.75rem 1.25rem; margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <div style="font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; color: #777; margin-bottom: 0.4rem;">
+          LIVE LINEUPS
         </div>
-        <div id="draft-timer-badge" class="tv-scoreboard" style="padding: 0.6rem 1.2rem; min-width: 70px; text-align: center; border-left: 3px solid var(--willow-tan);">
-          <div class="score-overs" style="font-size: 0.75rem; text-transform: uppercase;">Time Left</div>
-          <div class="score-runs" id="draft-countdown-sec" style="font-size: 1.7rem; color: var(--willow-tan);">20s</div>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <!-- Player 1 Box -->
+          <div style="flex: 1; min-width: 200px; padding: 0.75rem 1rem; background: ${activeUid === p1Uid ? '#e8f5e9' : '#fff'}; border: 2px solid ${activeUid === p1Uid ? '#2e7d32' : '#ccc'}; border-radius: 6px; position: relative;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                ${activeUid === p1Uid ? '<span style="background: #d32f2f; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.65rem; font-weight: 900;">YOUR TURN</span>' : ''}
+                <span style="font-weight: 900; font-size: 1.05rem; color: #111;">PLAYER 1 - YOU</span>
+              </div>
+              <span style="font-family: var(--font-family-mono); font-weight: 800; font-size: 1.1rem; color: #111;">${p1Count}/11</span>
+            </div>
+          </div>
+
+          <!-- Player 2 Box -->
+          <div style="flex: 1; min-width: 200px; padding: 0.75rem 1rem; background: ${activeUid === p2Uid ? '#ffebee' : '#fff'}; border: 2px solid ${activeUid === p2Uid ? '#d32f2f' : '#ccc'}; border-radius: 6px; position: relative;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                ${activeUid === p2Uid ? '<span style="background: #d32f2f; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.65rem; font-weight: 900;">ON THE CLOCK</span>' : ''}
+                <span style="font-weight: 900; font-size: 1.05rem; color: #111;">${(p2.displayName || "PLAYER 2").toUpperCase()}</span>
+                ${activeUid === p2Uid ? '<span style="font-size: 0.75rem; color: #d32f2f;">choosing...</span>' : ''}
+              </div>
+              <div style="text-align: right;">
+                <span id="draft-countdown-sec" style="font-family: var(--font-family-mono); font-weight: 900; font-size: 1.3rem; color: #d32f2f; margin-right: 0.75rem;">20s</span>
+                <span style="font-family: var(--font-family-mono); font-weight: 800; font-size: 1.1rem; color: #111;">${p2Count}/11</span>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <!-- View Switcher Tabs -->
+      <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; justify-content: flex-start;">
+        <button id="view-tab-opponent" class="btn btn-sm ${isViewingOpponent ? 'btn-accent' : 'btn-secondary'}" style="font-weight: 800;">
+          Watch ${(p2.displayName || "Player 2").split(" ")[0]}
+        </button>
+        <button id="view-tab-self" class="btn btn-sm ${!isViewingOpponent ? 'btn-accent' : 'btn-secondary'}" style="font-weight: 800;">
+          My team ${p1Count}/11
+        </button>
       </div>
 
       <div class="match-mid-layout">
@@ -708,9 +769,8 @@ function renderDraftPhase(viewport, roomCode, room) {
         <div class="graph-card" style="display: flex; flex-direction: column; justify-content: center; min-height: 350px;">
           ${!reveal ? `
             <div class="text-center" style="padding: 2rem;">
-              <!-- Slot machine slot display before roll -->
               <div id="slot-machine-display" class="tv-scoreboard" style="margin-bottom: 2rem; font-size: 1.5rem; text-transform: uppercase; font-weight: 800; padding: 1.5rem; border-color: var(--willow-tan);">
-                ROLL NEXT SQUAD
+                ${isActiveTurn ? 'ROLL NEXT SQUAD' : 'WAITING FOR ROLL'}
               </div>
               <button id="roll-squad-btn" class="btn btn-accent btn-lg" ${isActiveTurn ? '' : 'disabled'}>
                 ${isActiveTurn ? 'Roll Squad' : 'Waiting for Roll...'}
@@ -718,7 +778,6 @@ function renderDraftPhase(viewport, roomCode, room) {
             </div>
           ` : `
             <div>
-              <!-- Retro Header Card matching reference image -->
               <div style="background: #fdfbf7; color: #111; padding: 1.15rem; border-radius: 10px; border: 2px solid #e0d8c8; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                 <div style="font-size: 0.7rem; text-transform: uppercase; color: #888; font-weight: 800; letter-spacing: 1px;">DRAWN</div>
                 <h2 style="font-size: 1.8rem; margin: 0.2rem 0; font-weight: 900; color: #111;">
@@ -727,43 +786,28 @@ function renderDraftPhase(viewport, roomCode, room) {
                 <div style="font-size: 1.15rem; font-weight: 800; color: #d32f2f; font-family: var(--font-family-mono);">
                   Tournament ${reveal.tournamentYear}
                 </div>
-                <div style="margin-top: 0.85rem; border-top: 1px solid #e5dec9; padding-top: 0.65rem; display: flex; gap: 0.5rem;">
-                  <button id="roll-squad-btn" class="btn btn-secondary btn-sm" style="flex: 1; background: #fff; border: 2px solid #111; color: #111; font-weight: 800; font-size: 0.8rem;">
-                    🔄 RE-ROLL TEAM
-                  </button>
-                </div>
               </div>
 
-              <!-- Retro Pick A Player List matching reference image -->
               <div style="margin-top: 1rem; background: #fdfbf7; border: 2px solid #e0d8c8; border-radius: 10px; padding: 0.75rem;">
                 <div class="flex justify-between align-center" style="margin-bottom: 0.5rem;">
                   <div style="font-size: 0.75rem; font-weight: 900; color: #777; text-transform: uppercase; letter-spacing: 1px;">
                     PICK A PLAYER
                   </div>
-                  <span style="font-size: 0.68rem; color: #d32f2f; font-weight: bold;">Tap player, then tap pitch spot!</span>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 0.35rem; max-height: 380px; overflow-y: auto; padding-right: 0.25rem;" id="rolled-players-grid">
+                <div style="display: flex; flex-direction: column; gap: 0.35rem; max-height: 380px; overflow-y: auto;" id="rolled-players-grid">
                   ${reveal.players.map((p, idx) => {
                     const isClaimed = (draftState.claimedPlayerIds || []).includes(p.id);
                     const isSelected = selectedDraftPlayerId === p.id;
                     return `
                       <div class="draft-card-item ${isClaimed ? 'claimed-dim' : ''} ${isSelected ? 'selected-coral' : ''}" 
                            data-player-id="${p.id}" 
-                           style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: ${isSelected ? 'var(--primary-coral)' : (isClaimed ? '#E5E0D5' : '#FFFFFF')}; color: ${isSelected ? '#FFFFFF' : '#111111'}; border: ${isSelected ? '2px solid #1E1E1E' : '1.5px solid #D8D0C0'}; border-radius: 6px; box-shadow: ${isSelected ? '3px 3px 0px #1E1E1E' : 'none'}; cursor: ${isClaimed || !isActiveTurn ? 'not-allowed' : 'pointer'}; position: relative;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1; min-width: 0;">
-                          <span style="font-family: var(--font-family-mono); font-weight: 900; color: ${isSelected ? '#FFFFFF' : '#777777'}; font-size: 0.82rem; min-width: 24px;">#${idx + 1}</span>
-                          <img src="${getPlayerPhoto(p.name)}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid #1E1E1E;" alt="${p.name}" />
-                          <div style="min-width: 0; flex: 1;">
-                            <div style="font-weight: 800; font-size: 0.85rem; color: ${isSelected ? '#FFFFFF' : '#111111'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
-                            <span style="font-size: 0.62rem; background: ${isSelected ? 'rgba(255,255,255,0.25)' : '#EAE4D6'}; color: ${isSelected ? '#FFFFFF' : '#333333'}; padding: 1px 4px; border-radius: 3px; font-weight: 800;">${getRoleShort(p.role)}</span>
-                          </div>
+                           style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: ${isSelected ? 'var(--primary-coral)' : (isClaimed ? '#E5E0D5' : '#FFFFFF')}; color: ${isSelected ? '#FFFFFF' : '#111111'}; border: ${isSelected ? '2px solid #1E1E1E' : '1.5px solid #D8D0C0'}; border-radius: 6px; cursor: ${isClaimed || !isActiveTurn ? 'not-allowed' : 'pointer'};">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+                          <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.82rem; min-width: 24px;">#${idx + 1}</span>
+                          <div style="font-weight: 800; font-size: 0.85rem;">${p.name}</div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0;">
-                          <span style="font-size: 0.8rem; background: ${isSelected ? '#FFFFFF' : 'var(--primary-coral)'}; color: ${isSelected ? 'var(--primary-coral)' : '#FFFFFF'}; font-weight: 900; padding: 2px 6px; border-radius: 4px; box-shadow: 1px 1px 0px #1E1E1E;">${p.batRating}</span>
-                        </div>
-                        ${isClaimed ? `
-                          <div style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #111; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.62rem; font-weight: 900;">CLAIMED</div>
-                        ` : ''}
+                        <span style="font-size: 0.8rem; background: ${isSelected ? '#FFFFFF' : 'var(--primary-coral)'}; color: ${isSelected ? 'var(--primary-coral)' : '#FFFFFF'}; font-weight: 900; padding: 2px 6px; border-radius: 4px;">${p.batRating}</span>
+                        ${isClaimed ? `<div style="font-size: 0.62rem; font-weight: 900;">CLAIMED</div>` : ''}
                       </div>
                     `;
                   }).join("")}
@@ -776,11 +820,11 @@ function renderDraftPhase(viewport, roomCode, room) {
         <!-- Room activity log & Side-by-side Field Setup canvas -->
         <div class="controls-card" style="background: #FFFFFF; border: 2px solid #1E1E1E; border-radius: 12px; padding: 1rem; box-shadow: 3px 3px 0px #1E1E1E;">
           <div class="flex justify-between align-center" style="border-bottom: 2px solid #1E1E1E; padding-bottom: 0.5rem; margin-bottom: 0.75rem;">
-            <h4 style="text-transform: uppercase; font-size: 0.95rem; margin: 0; color: #111; font-weight: 900;">FIELD SETUP (PLAYING XI)</h4>
-            <span class="role-badge all-rounder" style="font-size: 0.75rem; background: #C89B3C; color: #111; font-weight: 900; border: 1px solid #1E1E1E;">${getFilledSlotsArray(((room.squads || {})[currentUid] || {}).slots).filter(s => s !== null).length}/11 PLACED</span>
+            <h4 style="text-transform: uppercase; font-size: 0.95rem; margin: 0; color: #111; font-weight: 900;">FIELD SETUP (${isViewingOpponent ? (p2.displayName || 'OPPONENT') : 'MY TEAM'})</h4>
+            <span class="role-badge all-rounder" style="font-size: 0.75rem; background: #C89B3C; color: #111; font-weight: 900; border: 1px solid #1E1E1E;">${spectatedSlots.filter(s => s !== null).length}/11 PLACED</span>
           </div>
 
-          <!-- STADIUM PITCH GRAPHIC SIDE-BY-SIDE matching reference images -->
+          <!-- STADIUM PITCH GRAPHIC SIDE-BY-SIDE -->
           <div class="pitch-stadium" style="padding: 0.75rem; margin-bottom: 1rem; min-height: 280px;">
             <div class="pitch-center-lane"></div>
             ${[
@@ -793,24 +837,18 @@ function renderDraftPhase(viewport, roomCode, room) {
                 <div class="pitch-zone-header">${zone.name}</div>
                 <div class="pitch-grid-row">
                   ${zone.indices.map(idx => {
-                    const p = getFilledSlotsArray(((room.squads || {})[currentUid] || {}).slots)[idx];
+                    const p = spectatedSlots[idx];
                     const oop = isOutOfPosition(p, idx);
-                    const isTargetPulse = selectedDraftPlayerId && !p;
+                    const isTargetPulse = selectedDraftPlayerId && !p && !isViewingOpponent;
                     return `
                       <div class="pitch-player-slot ${p ? 'filled' : 'empty'} ${isTargetPulse ? 'target-pulse' : ''}" data-slot-index="${idx}">
-                        <div class="player-avatar-circle">
-                          ${p ? `
-                            <span style="font-size: 0.9rem; font-weight: 900;">${idx + 1}</span>
-                          ` : `
-                            <span>${idx + 1}</span>
-                          `}
+                        <div class="player-avatar-circle" style="${oop ? 'border: 2px solid #D32F2F;' : ''}">
+                          ${p ? (p.batRating || 75) : (idx + 1)}
                         </div>
                         <div class="player-name-plate">
-                          ${p ? p.name.split(" ").slice(-1)[0].toUpperCase() : 'EMPTY'}
+                          ${p ? p.name.split(" ").slice(-1)[0].toUpperCase() : POSITION_LABELS[idx]}
                         </div>
-                        ${oop ? `
-                          <span style="font-size: 0.5rem; background: #E53926; color: white; padding: 0 3px; border-radius: 2px; font-weight: 900; margin-top: 2px; white-space: nowrap;">⚠️ OOP</span>
-                        ` : ''}
+                        ${oop ? `<div style="position:absolute; top:-6px; right:-6px; background:#D32F2F; color:#FFF; font-size:0.55rem; font-weight:900; padding:1px 3px; border-radius:3px;">OOP</div>` : ''}
                       </div>
                     `;
                   }).join('')}
@@ -990,71 +1028,83 @@ function renderDraftPhase(viewport, roomCode, room) {
       timerBadge.innerText = `${secondsLeft}s`;
 
       if (secondsLeft === 0 && isActiveTurn) {
-        // Timer expired — auto-claim a random unclaimed player from the revealed squad
+        // Timer expired — auto-assign a random player from reveal (or auto-roll if unrolled) to a random empty pitch slot!
         clearInterval(timerInterval);
         try {
-          if (reveal && reveal.players && reveal.players.length > 0) {
-            // Find unclaimed players in this reveal
-            const claimedIds = draftState.claimedPlayerIds || [];
-            const availablePlayers = ensureArray(reveal.players).filter(p => !claimedIds.includes(p.id));
+          let currentRevealData = reveal;
+          if (!currentRevealData) {
+            // Auto-roll squad first if player timed out without rolling
+            const rolledSquad = await fetchClientRandomSquad(draftState);
+            const squadId = rolledSquad.squadId || `${rolledSquad.nationalTeam}_${rolledSquad.tournamentYear}`;
+            currentRevealData = {
+              squadId,
+              nationalTeam: rolledSquad.nationalTeam,
+              tournamentYear: rolledSquad.tournamentYear,
+              players: rolledSquad.players,
+              rolledAt: Date.now(),
+              rolledBy: currentUid
+            };
+          }
 
-            if (availablePlayers.length > 0) {
-              // Pick a random unclaimed player
-              const randomPick = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+          const claimedIds = draftState.claimedPlayerIds || [];
+          const availablePlayers = ensureArray(currentRevealData.players).filter(p => !claimedIds.includes(p.id));
 
-              // Auto-claim using direct RTDB write (same as manual claim fallback)
-              const userSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
-              const currentBench = ensureArray(userSquad.bench);
-              const updatedBench = [...currentBench, randomPick];
+          if (availablePlayers.length > 0) {
+            // Pick a random unclaimed player
+            const randomPick = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
 
-              const turnOrder = draftState.turnOrder || [];
-              const currentTurnIndex = draftState.turnIndex || 0;
-              const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
-              const nextActiveUid = turnOrder[nextTurnIndex];
+            const userSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
+            const currentSlots = [...getFilledSlotsArray(userSquad.slots)];
+            const currentBench = [...ensureArray(userSquad.bench)];
 
-              const updatedClaimed = [...ensureArray(claimedIds), randomPick.id];
-
-              const updates = {};
-              updates[`rooms/${roomCode}/squads/${currentUid}/bench`] = updatedBench;
-              updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
-              updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
-              updates[`rooms/${roomCode}/draftState/claimedPlayerIds`] = updatedClaimed;
-              updates[`rooms/${roomCode}/draftState/currentReveal`] = null;
-              updates[`rooms/${roomCode}/draftState/turnDeadline`] = null;
-
-              // Check if all players reached 11 squad picks
-              let allComplete = true;
-              turnOrder.forEach(uid => {
-                const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
-                const sqSlots = getFilledSlotsArray(sq.slots);
-                const sqBench = ensureArray((uid === currentUid) ? updatedBench : sq.bench);
-                const count = sqBench.length + sqSlots.filter(s => s !== null).length;
-                if (count < 11) allComplete = false;
-              });
-
-              if (allComplete) {
-                updates[`rooms/${roomCode}/status`] = "placing";
-              }
-
-              await update(ref(rtdb), updates);
-              showToast(`⏱ Time's up! Auto-picked ${randomPick.name}`, false);
-            } else {
-              // All players in this reveal are claimed — just clear the reveal and advance turn
-              const turnOrder = draftState.turnOrder || [];
-              const currentTurnIndex = draftState.turnIndex || 0;
-              const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
-              const nextActiveUid = turnOrder[nextTurnIndex];
-
-              await update(ref(rtdb, `rooms/${roomCode}/draftState`), {
-                currentReveal: null,
-                turnDeadline: null,
-                turnIndex: nextTurnIndex,
-                activePlayerUid: nextActiveUid
-              });
-              showToast("⏱ Time's up! No unclaimed players left — turn skipped.", false);
+            // Find all empty pitch slot indices
+            const emptyIndices = [];
+            for (let i = 0; i < 11; i++) {
+              if (currentSlots[i] === null) emptyIndices.push(i);
             }
+
+            let slotAssignedText = "reserves";
+            if (emptyIndices.length > 0) {
+              const randSlotIdx = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+              currentSlots[randSlotIdx] = randomPick;
+              slotAssignedText = `Slot #${randSlotIdx + 1}`;
+            } else {
+              currentBench.push(randomPick);
+            }
+
+            const turnOrder = draftState.turnOrder || [];
+            const currentTurnIndex = draftState.turnIndex || 0;
+            const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
+            const nextActiveUid = turnOrder[nextTurnIndex];
+            const updatedClaimed = [...ensureArray(claimedIds), randomPick.id];
+
+            const updates = {};
+            updates[`rooms/${roomCode}/squads/${currentUid}/slots`] = currentSlots;
+            updates[`rooms/${roomCode}/squads/${currentUid}/bench`] = currentBench;
+            updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
+            updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
+            updates[`rooms/${roomCode}/draftState/claimedPlayerIds`] = updatedClaimed;
+            updates[`rooms/${roomCode}/draftState/currentReveal`] = null;
+            updates[`rooms/${roomCode}/draftState/turnDeadline`] = null;
+
+            // Check if all players reached 11 squad picks
+            let allComplete = true;
+            turnOrder.forEach(uid => {
+              const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
+              const sqSlots = getFilledSlotsArray((uid === currentUid) ? currentSlots : sq.slots);
+              const sqBench = ensureArray((uid === currentUid) ? currentBench : sq.bench);
+              const count = sqBench.length + sqSlots.filter(s => s !== null).length;
+              if (count < 11) allComplete = false;
+            });
+
+            if (allComplete) {
+              updates[`rooms/${roomCode}/status`] = "placing";
+            }
+
+            await update(ref(rtdb), updates);
+            showToast(`⏱ Time's up! Auto-assigned ${randomPick.name} to ${slotAssignedText}`, false);
           } else {
-            // No squad was revealed (player never rolled) — skip the turn
+            // No players available — advance turn
             const turnOrder = draftState.turnOrder || [];
             const currentTurnIndex = draftState.turnIndex || 0;
             const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
@@ -1066,7 +1116,7 @@ function renderDraftPhase(viewport, roomCode, room) {
               turnIndex: nextTurnIndex,
               activePlayerUid: nextActiveUid
             });
-            showToast("⏱ Time's up! You didn't roll — turn skipped.", false);
+            showToast("⏱ Time's up! Turn skipped.", false);
           }
         } catch (err) {
           console.warn("Timer auto-pick error:", err);
