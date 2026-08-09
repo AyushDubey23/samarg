@@ -757,7 +757,7 @@ function renderDraftPhase(viewport, roomCode, room) {
         </button>
       </div>
 
-      <div class="match-mid-layout">
+      <div class="match-mid-layout draft-phase-container">
         <!-- Draft board controls (Roll / Reveals) -->
         <div class="graph-card" style="display: flex; flex-direction: column; justify-content: center; min-height: 350px;">
           ${!reveal ? `

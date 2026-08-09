@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <radialGradient id="ballGrad" cx="35%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FF5252"/>
+      <stop offset="55%" stop-color="#D32F2F"/>
+      <stop offset="85%" stop-color="#8B0000"/>
+      <stop offset="100%" stop-color="#4A0000"/>
+    </radialGradient>
+    <linearGradient id="seamGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="50%" stop-color="#FFFDE7"/>
+      <stop offset="100%" stop-color="#D4AF37"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="240" fill="#111111"/>
+  <circle cx="256" cy="256" r="230" fill="url(#ballGrad)"/>
+
+  <!-- Cricket Ball Seam -->
+  <path d="M 96,160 Q 256,290 416,160" fill="none" stroke="url(#seamGrad)" stroke-width="18" stroke-linecap="round"/>
+  <path d="M 96,160 Q 256,290 416,160" fill="none" stroke="#111111" stroke-width="3" stroke-dasharray="8 8" stroke-linecap="round"/>
+
+  <!-- Secondary Seam Curve -->
+  <path d="M 120,352 Q 256,220 392,352" fill="none" stroke="url(#seamGrad)" stroke-width="14" stroke-linecap="round" opacity="0.85"/>
+  <path d="M 120,352 Q 256,220 392,352" fill="none" stroke="#111111" stroke-width="2" stroke-dasharray="6 6" stroke-linecap="round"/>
+
+  <!-- Golden Crown Star Overlay -->
+  <polygon points="256,70 275,115 325,115 284,145 300,192 256,162 212,192 228,145 187,115 237,115" fill="#D4AF37" stroke="#FFF" stroke-width="2"/>
+</svg>
