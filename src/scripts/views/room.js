@@ -905,30 +905,24 @@ function renderDraftPhase(viewport, roomCode, room) {
       try {
         rollBtn.disabled = true;
         startSlotMachineAnimation();
-        try {
-          const rollSquadFn = httpsCallable(functions, "rollSquad");
-          await rollSquadFn({ code: roomCode });
-        } catch (fnErr) {
-          console.warn("Cloud function rollSquad failed, performing RTDB direct roll fallback:", fnErr);
-          const rolledSquad = await fetchClientRandomSquad(draftState);
-          const turnTimerSec = room.turnTimerSeconds || 20;
-          const squadId = rolledSquad.squadId || `${rolledSquad.nationalTeam}_${rolledSquad.tournamentYear}`;
-          const currentRolledIds = Array.isArray(draftState.rolledSquadIds) ? draftState.rolledSquadIds : [];
-          const updatedRolledIds = [...currentRolledIds, squadId];
+        const rolledSquad = await fetchClientRandomSquad(draftState);
+        const turnTimerSec = room.turnTimerSeconds || 20;
+        const squadId = rolledSquad.squadId || `${rolledSquad.nationalTeam}_${rolledSquad.tournamentYear}`;
+        const currentRolledIds = Array.isArray(draftState.rolledSquadIds) ? draftState.rolledSquadIds : [];
+        const updatedRolledIds = [...currentRolledIds, squadId];
 
-          await update(ref(rtdb, `rooms/${roomCode}/draftState`), {
-            turnDeadline: Date.now() + turnTimerSec * 1000,
-            rolledSquadIds: updatedRolledIds,
-            currentReveal: {
-              squadId,
-              nationalTeam: rolledSquad.nationalTeam,
-              tournamentYear: rolledSquad.tournamentYear,
-              players: rolledSquad.players,
-              rolledAt: Date.now(),
-              rolledBy: currentUid
-            }
-          });
-        }
+        await update(ref(rtdb, `rooms/${roomCode}/draftState`), {
+          turnDeadline: Date.now() + turnTimerSec * 1000,
+          rolledSquadIds: updatedRolledIds,
+          currentReveal: {
+            squadId,
+            nationalTeam: rolledSquad.nationalTeam,
+            tournamentYear: rolledSquad.tournamentYear,
+            players: rolledSquad.players,
+            rolledAt: Date.now(),
+            rolledBy: currentUid
+          }
+        });
       } catch (err) {
         rollBtn.disabled = false;
         if (slotAnimationTimer) {
