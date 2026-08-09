@@ -1001,7 +1001,6 @@ function renderDraftPhase(viewport, roomCode, room) {
         }
 
         selectedDraftPlayerId = playerId;
-        showToast("Player selected! Now tap an empty pitch spot to place them.");
         renderDraftPhase(viewport, roomCode, room);
       });
     });
@@ -1065,7 +1064,6 @@ function renderDraftPhase(viewport, roomCode, room) {
 
         try {
           await update(ref(rtdb), updates);
-          showToast(`Placed ${targetPlayer.name} into Slot #${slotIdx + 1}!`);
         } catch (err) {
           showToast(err.message, true);
         }
@@ -1557,7 +1555,6 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
         } else {
           activeBenchPlayerId = pId;
           card.style.borderColor = "var(--primary)";
-          showToast("Now tap an empty position slot on the pitch to place this player!");
         }
       });
     });
