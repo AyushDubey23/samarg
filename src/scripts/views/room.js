@@ -1832,14 +1832,14 @@ function renderTossPhase(viewport, roomCode, room) {
 
         <!-- Real Metallic 3D Coin Arena -->
         <div style="perspective: 1000px; margin: 3rem auto 2.5rem auto; width: 140px; height: 140px; position: relative;">
-          <div id="toss-coin" style="width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; transition: transform 2.6s cubic-bezier(0.15, 0.85, 0.35, 1.2); transform: ${tossState.flipped ? 'translateY(0) rotateY(1800deg) scale(1)' : 'translateY(0) rotateY(0deg) scale(1)'};">
+          <div id="toss-coin" style="width: 100%; height: 100%; position: absolute; transform-style: preserve-3d; transition: transform 2.6s cubic-bezier(0.15, 0.85, 0.35, 1.2); transform: ${tossState.flipped ? 'translateY(0) rotateY(1800deg) scale(1)' : 'translateY(0) rotateY(0deg) scale(1)'}; border-radius: 50% !important;">
             <!-- Heads Side (Gold) -->
-            <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background: radial-gradient(circle at 35% 35%, #FFF2A1, #D4AF37 60%, #aa820a); border: 5px solid #1E1E1E; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: #111111; box-shadow: inset 0 0 12px rgba(255,255,255,0.7), inset 0 -4px 10px rgba(0,0,0,0.5), 0 6px 15px rgba(0,0,0,0.4); text-shadow: 0 1px 2px rgba(255,255,255,0.8);">
+            <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; background: radial-gradient(circle at 35% 35%, #FFF2A1, #D4AF37 60%, #aa820a); border: 5px solid #1E1E1E; border-radius: 50% !important; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: #111111; box-shadow: inset 0 0 12px rgba(255,255,255,0.7), inset 0 -4px 10px rgba(0,0,0,0.5), 0 6px 15px rgba(0,0,0,0.4); text-shadow: 0 1px 2px rgba(255,255,255,0.8);">
               <span style="font-size: 1.8rem; margin-bottom: -2px;">👑</span>
               <span>HEADS</span>
             </div>
             <!-- Tails Side (Silver) -->
-            <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg); background: radial-gradient(circle at 35% 35%, #FFFFFF, #B0BEC5 60%, #546E7A); border: 5px solid #1E1E1E; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: #111111; box-shadow: inset 0 0 12px rgba(255,255,255,0.8), inset 0 -4px 10px rgba(0,0,0,0.5), 0 6px 15px rgba(0,0,0,0.4); text-shadow: 0 1px 2px rgba(255,255,255,0.8);">
+            <div style="position: absolute; width: 100%; height: 100%; backface-visibility: hidden; transform: rotateY(180deg); background: radial-gradient(circle at 35% 35%, #FFFFFF, #B0BEC5 60%, #546E7A); border: 5px solid #1E1E1E; border-radius: 50% !important; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 900; color: #111111; box-shadow: inset 0 0 12px rgba(255,255,255,0.8), inset 0 -4px 10px rgba(0,0,0,0.5), 0 6px 15px rgba(0,0,0,0.4); text-shadow: 0 1px 2px rgba(255,255,255,0.8);">
               <span style="font-size: 1.8rem; margin-bottom: -2px;">🦅</span>
               <span>TAILS</span>
             </div>
@@ -1946,6 +1946,11 @@ function renderTossPhase(viewport, roomCode, room) {
 
   if (electBatBtn) electBatBtn.addEventListener("click", () => handleDecision("bat"));
   if (electBowlBtn) electBowlBtn.addEventListener("click", () => handleDecision("bowl"));
+
+  // Auto-launch simulation if toss decision is already recorded in RTDB
+  if (tossState.flipped && tossState.winnerUid && tossState.decision && room.status === "toss") {
+    runClientSimulationFallback(roomCode, room, tossState.winnerUid, tossState.decision);
+  }
 }
 
 async function runClientSimulationFallback(roomCode, room, tossWinnerUid = null, tossDecision = "bat") {
@@ -1964,7 +1969,7 @@ async function runClientSimulationFallback(roomCode, room, tossWinnerUid = null,
 
     if (room.mode === "solo") {
       const playerUid = uids[0];
-      const playerXI = squads[playerUid]?.slots || [];
+      const playerXI = getFilledSlotsArray(squads[playerUid]?.slots).filter(p => p !== null && p !== undefined);
       const playerTeam = {
         id: playerUid,
         name: players[playerUid]?.displayName || "Player",
@@ -2010,11 +2015,18 @@ async function runClientSimulationFallback(roomCode, room, tossWinnerUid = null,
         });
       });
 
-    } else if (room.mode === "duel") {
+    } else if (room.mode === "duel" || uids.length >= 2) {
       const p1Uid = uids[0];
       const p2Uid = uids[1] || uids[0];
-      const teamA = { id: p1Uid, name: players[p1Uid]?.displayName || "Player 1", players: squads[p1Uid]?.slots || [] };
-      const teamB = { id: p2Uid, name: players[p2Uid]?.displayName || "Player 2", players: squads[p2Uid]?.slots || [] };
+
+      let slotsA = getFilledSlotsArray(squads[p1Uid]?.slots).filter(p => p !== null && p !== undefined);
+      let slotsB = getFilledSlotsArray(squads[p2Uid]?.slots).filter(p => p !== null && p !== undefined);
+
+      if (slotsA.length === 0) slotsA = AUTHENTIC_FALLBACK_SQUADS[0].players;
+      if (slotsB.length === 0) slotsB = AUTHENTIC_FALLBACK_SQUADS[1].players;
+
+      const teamA = { id: p1Uid, name: players[p1Uid]?.displayName || "Player 1", players: slotsA };
+      const teamB = { id: p2Uid, name: players[p2Uid]?.displayName || "Player 2", players: slotsB };
 
       const forcedToss = { winner: tossWinnerUid || p1Uid, decision: tossDecision };
       const sim = engine.simulateMatch(teamA, teamB, true, forcedToss);
