@@ -65,12 +65,6 @@ export function adjustProbabilities(batter, bowler, matchState) {
   const ratingDiff = (effectiveBat - effectiveBowl) / 100;
   let wicketMult = 1.0;
 
-  if (isPureBowlerInTopOrder) wicketMult *= 1.8;
-  if (isPureBatterInBowlerSlot) {
-    probs.four *= 1.45;
-    probs.six *= 1.35;
-  }
-
   if (ratingDiff > 0) {
     probs.four += ratingDiff * 0.18;
     probs.six += ratingDiff * 0.12;
