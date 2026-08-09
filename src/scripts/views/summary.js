@@ -135,13 +135,6 @@ function renderSummaryLayout(container) {
                 <input type="text" id="leaderboard-name-input" class="name-input mt-1" value="${auth.currentUser.displayName || ""}" placeholder="Enter name for leaderboard..." style="width: 100%; padding: 0.75rem; border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border); background: var(--bg-dark); color: white;">
               </div>
 
-              ${auth.currentUser.isAnonymous ? `
-                <div class="auth-upgrade-callout mt-2">
-                  <strong>Anonymous Guest</strong>
-                  <p>To secure your position and edit your details later, link your Google account in the top header!</p>
-                </div>
-              ` : ""}
-
               <button id="submit-leaderboard-btn" class="btn btn-accent mt-2" style="width: 100%;">
                 Submit Result
               </button>

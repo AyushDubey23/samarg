@@ -52,7 +52,7 @@ function renderProfileLayout(container, displayName, stats, campaigns) {
         <div class="profile-avatar">🏏</div>
         <div class="profile-info">
           <h2>${displayName}</h2>
-          <p>${auth.currentUser.isAnonymous ? "Guest Session (Anonymous)" : "Google Linked Account"}</p>
+          <p>${auth.currentUser.isAnonymous ? "Guest Session" : "Player Account"}</p>
         </div>
       </div>
 

@@ -69,11 +69,8 @@ function updateAuthUI(user) {
 
   if (user.isAnonymous) {
     container.innerHTML = `
-      <button id="upgrade-auth-btn" class="btn btn-secondary btn-sm" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;">
-        Link Google Account
-      </button>
+      <span style="font-size: 0.8rem; font-weight: 800; color: #555;">Guest Session</span>
     `;
-    document.getElementById("upgrade-auth-btn").addEventListener("click", linkGoogle);
   } else {
     container.innerHTML = `
       <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -86,31 +83,6 @@ function updateAuthUI(user) {
       </div>
     `;
     document.getElementById("signout-btn").addEventListener("click", () => signOut(auth));
-  }
-}
-
-// Google Sign-In Linking (to preserve progress)
-async function linkGoogle() {
-  const provider = new GoogleAuthProvider();
-  try {
-    if (auth.currentUser) {
-      await linkWithPopup(auth.currentUser, provider);
-      showToast("Account successfully linked with Google!");
-      window.location.reload();
-    }
-  } catch (err) {
-    if (err.code === "auth/credential-already-in-use") {
-      // Account already exists with Google. Log in directly
-      try {
-        await signInWithPopup(auth, provider);
-        showToast("Logged in with Google account!");
-        window.location.reload();
-      } catch (signInErr) {
-        showToast("Sign in failed: " + signInErr.message, true);
-      }
-    } else {
-      showToast("Linking failed: " + err.message, true);
-    }
   }
 }
 
