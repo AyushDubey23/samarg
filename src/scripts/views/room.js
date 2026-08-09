@@ -2135,17 +2135,17 @@ let simPlaybackStarted = false;
 let simPlaybackRoomCode = null;
 
 function renderSimulatingPhase(viewport, roomCode, room) {
-  if (simPlaybackStarted && simPlaybackRoomCode === roomCode) {
-    // Match simulation is already actively playing for this room — do not re-render DOM or restart playback on RTDB updates
-    return;
-  }
-  simPlaybackStarted = true;
-  simPlaybackRoomCode = roomCode;
-
   const currentUid = auth.currentUser ? auth.currentUser.uid : "";
   const sim = room.simulation || {};
   const startsAt = sim.startsAt || Date.now();
   const standings = sim.standingsTable || [];
+
+  if (document.getElementById("pb-teamA") && simPlaybackStarted && simPlaybackRoomCode === roomCode) {
+    // If playback is already actively ticking in DOM, don't restart
+    return;
+  }
+  simPlaybackStarted = true;
+  simPlaybackRoomCode = roomCode;
 
   viewport.innerHTML = `
     <div class="squad-review-container">
@@ -2241,32 +2241,38 @@ function renderSimulatingPhase(viewport, roomCode, room) {
     </div>
   `;
 
-  // Synchronised trigger countdown
-  clearInterval(playbackTimer);
-  playbackTimer = setInterval(() => {
-    const remainingMs = startsAt - getServerTime();
-    const sec = Math.max(0, Math.ceil(remainingMs / 1000));
-    
-    const countText = document.getElementById("pb-countdown-sec");
-    if (countText) {
-      countText.innerText = `0${sec}s`;
-    }
+  const runHighlightLoop = () => {
+    const countdownScreen = document.getElementById("pb-countdown-screen");
+    const screenContainer = document.getElementById("sim-screen-container");
+    const statusTitle = document.getElementById("sim-status-title");
 
-    if (remainingMs <= 0) {
-      clearInterval(playbackTimer);
-      // Hide countdown, show scoreboard screen and start fast-forward frames
-      const countdownScreen = document.getElementById("pb-countdown-screen");
-      const screenContainer = document.getElementById("sim-screen-container");
-      const statusTitle = document.getElementById("sim-status-title");
+    if (countdownScreen) countdownScreen.style.display = "none";
+    if (screenContainer) screenContainer.style.display = "block";
+    if (statusTitle) statusTitle.innerText = "Match Live in progress";
 
-      if (countdownScreen) countdownScreen.style.display = "none";
-      if (screenContainer) screenContainer.style.display = "block";
-      if (statusTitle) statusTitle.innerText = "Match Live in progress";
+    startCinematicHighlightLoop(sim.matches, standings, currentUid, roomCode);
+  };
 
-      // Execute Cinematic fast-forward scheduler loop
-      startCinematicHighlightLoop(sim.matches, standings, currentUid, roomCode);
-    }
-  }, 250);
+  const remainingMs = startsAt - getServerTime();
+  if (remainingMs <= 500) {
+    runHighlightLoop();
+  } else {
+    clearInterval(playbackTimer);
+    playbackTimer = setInterval(() => {
+      const rem = startsAt - getServerTime();
+      const sec = Math.max(0, Math.ceil(rem / 1000));
+      
+      const countText = document.getElementById("pb-countdown-sec");
+      if (countText) {
+        countText.innerText = `0${sec}s`;
+      }
+
+      if (rem <= 0) {
+        clearInterval(playbackTimer);
+        runHighlightLoop();
+      }
+    }, 250);
+  }
 }
 
 // Fixed 50-second compressed cinematic playback loops
@@ -2281,11 +2287,11 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
   }
 
   const match = matches[0];
-  const i1 = match.inningsData[0];
-  const i2 = match.inningsData[1];
+  const i1 = match.innings1 || (match.inningsData ? match.inningsData[0] : { balls: [], battingTeamName: match.teamAName });
+  const i2 = match.innings2 || (match.inningsData ? match.inningsData[1] : { balls: [], battingTeamName: match.teamBName });
 
-  const team1Name = i1.battingTeamName || match.teamAName;
-  const team2Name = i2.battingTeamName || match.teamBName;
+  const team1Name = i1.battingTeamName || match.teamAName || "TEAM A";
+  const team2Name = i2.battingTeamName || match.teamBName || "TEAM B";
 
   const teamAEl = document.getElementById("pb-teamA");
   const teamBEl = document.getElementById("pb-teamB");
@@ -2306,12 +2312,12 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
   const allDeliveries = [];
   
   // Flatten Innings 1 balls
-  i1.balls.forEach(b => {
+  (i1.balls || []).forEach(b => {
     allDeliveries.push({ innings: 1, ...b });
   });
 
   // Flatten Innings 2 balls
-  i2.balls.forEach(b => {
+  (i2.balls || []).forEach(b => {
     allDeliveries.push({ innings: 2, ...b });
   });
 
