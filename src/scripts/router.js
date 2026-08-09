@@ -164,24 +164,6 @@ onAuthStateChanged(auth, async (user) => {
     }
   } else {
     updateAuthUI(user);
-    // Non-blocking fetch for ticker statistics
-    getDoc(doc(db, "aggregates", "global_ticker"))
-      .then((docSnap) => {
-        const textEl = document.getElementById("ticker-text");
-        if (textEl) {
-          if (docSnap.exists() && docSnap.data().runsCount !== undefined) {
-            textEl.innerText = `${docSnap.data().runsCount.toLocaleString()} matches completed globally today!`;
-          } else {
-            textEl.innerText = "Start scouting and lead your XI to a perfect Samarg Run!";
-          }
-        }
-      })
-      .catch((err) => {
-        console.warn("Could not read ticker stats:", err);
-        const textEl = document.getElementById("ticker-text");
-        if (textEl) textEl.innerText = "Start scouting and lead your XI to a perfect Samarg Run!";
-      });
-
     initApp();
   }
 });

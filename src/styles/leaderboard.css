@@ -150,13 +150,14 @@
 }
 
 .history-item, .roster-item {
-  background: var(--bg-light);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-md);
-  padding: 1rem;
+  background: #FFFFFF;
+  border: 2px solid #1E1E1E;
+  border-radius: 0px !important;
+  padding: 0.85rem 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: 2px 2px 0px #1E1E1E;
 }
 
 .hi-info, .roster-details {
@@ -165,13 +166,15 @@
 }
 
 .hi-info strong, .roster-name {
-  font-size: 1rem;
-  color: var(--chalk-white);
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #111111 !important;
 }
 
 .hi-info span, .roster-sub {
   font-size: 0.8rem;
-  color: var(--chalk-white-dim);
+  font-weight: 800;
+  color: #333333 !important;
 }
 
 .status-badge {

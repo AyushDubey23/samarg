@@ -432,16 +432,18 @@ function renderLobby(viewport, roomCode, room) {
               const isUser = uid === currentUid;
               const connStatus = p.connectionStatus || "offline";
               return `
-                <div class="roster-item" style="border-left: 4px solid ${p.ready ? 'var(--primary)' : 'var(--willow-tan)'};">
+                <div class="roster-item" style="background: #FFFFFF; border: 2px solid #1E1E1E; border-left: 5px solid ${p.ready ? '#E53926' : '#C89B3C'}; padding: 0.75rem 1rem; margin-bottom: 0.5rem; box-shadow: 2px 2px 0px #1E1E1E; border-radius: 0px; display: flex; justify-content: space-between; align-items: center;">
                   <div class="roster-details">
-                    <span class="roster-name">${p.displayName || "Unknown Player"} ${isUser ? '<span class="you-tag">YOU</span>' : ''}</span>
-                    <span class="roster-sub" style="font-size: 0.75rem; display: flex; align-items: center; gap: 0.35rem; margin-top: 0.2rem;">
-                      <span class="tab-dot" style="width: 6px; height: 6px; border-radius: 50%; background-color: ${connStatus === 'online' ? '#39d353' : 'var(--accent-red)'};"></span>
+                    <span class="roster-name" style="color: #111111 !important; font-weight: 900; font-size: 1.05rem;">
+                      ${p.displayName || "Unknown Player"} ${isUser ? '<span class="you-tag" style="background: #C89B3C; color: #111111; padding: 1px 6px; font-size: 0.68rem; font-weight: 900; margin-left: 0.35rem; border: 1px solid #1E1E1E;">YOU</span>' : ''}
+                    </span>
+                    <span class="roster-sub" style="font-size: 0.78rem; font-weight: 800; display: flex; align-items: center; gap: 0.35rem; margin-top: 0.2rem; color: #333333 !important;">
+                      <span class="tab-dot" style="width: 6px; height: 6px; border-radius: 50%; background-color: ${connStatus === 'online' ? '#39d353' : '#E53926'};"></span>
                       ${connStatus.toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <span class="status-badge ${p.ready ? 'complete' : 'pending'}">${p.ready ? 'READY' : 'WAITING'}</span>
+                    <span class="status-badge ${p.ready ? 'complete' : 'pending'}" style="background: ${p.ready ? '#277748' : '#FAF6ED'}; color: ${p.ready ? '#FFFFFF' : '#111111'}; border: 1.5px solid #1E1E1E; padding: 3px 8px; font-weight: 900; font-size: 0.72rem;">${p.ready ? 'READY' : 'WAITING'}</span>
                   </div>
                 </div>
               `;
