@@ -1139,8 +1139,31 @@ function startSlotMachineAnimation() {
   }, speed);
 }
 
-function getPlayerPhoto(name) {
-  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name || 'cricket')}&backgroundColor=0a2e1d,031d10`;
+const FAMOUS_JERSEYS = {
+  "sachin tendulkar": 10, "ms dhoni": 7, "virat kohli": 18, "rohit sharma": 45,
+  "jasprit bumrah": 93, "yuvraj singh": 12, "virender sehwag": 44, "suresh raina": 3,
+  "gautam gambhir": 5, "kapil dev": 17, "sunil gavaskar": 1, "sourav ganguly": 99,
+  "rahul dravid": 19, "shikhar dhawan": 25, "kl rahul": 1, "rishabh pant": 17,
+  "hardik pandya": 33, "ravindra jadeja": 8, "axar patel": 20, "kuldeep yadav": 23,
+  "mohammed shami": 11, "mohammed siraj": 73, "arshdeep singh": 2, "shane warne": 23,
+  "ricky ponting": 14, "glenn mcgrath": 11, "adam gilchrist": 18, "matthew hayden": 28,
+  "brett lee": 58, "david warner": 31, "steve smith": 49, "mitchell starc": 56,
+  "pat cummins": 30, "babar azam": 56, "shaheen afridi": 10, "wasim akram": 3,
+  "imran khan": 80, "shoaib akhtar": 14, "chris gayle": 333, "ab de villiers": 17,
+  "kumar sangakkara": 11, "muttiah muralitharan": 8, "kane williamson": 22,
+  "ben stokes": 55, "jos buttler": 63, "joe root": 66
+};
+
+function getJerseyNumber(player) {
+  if (!player) return 0;
+  if (player.jerseyNumber) return player.jerseyNumber;
+  const lower = (player.name || "").toLowerCase().trim();
+  if (FAMOUS_JERSEYS[lower]) return FAMOUS_JERSEYS[lower];
+  let hash = 0;
+  for (let i = 0; i < lower.length; i++) {
+    hash = (hash * 31 + lower.charCodeAt(i)) % 99;
+  }
+  return hash + 1;
 }
 
 function getRoleShort(role) {
@@ -1291,24 +1314,23 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
 
                       return `
                         <div class="pitch-player-slot ${player ? 'filled' : 'empty'}" data-slot-index="${idx}" style="pointer-events: ${spectatorSquad.ready || !isOwnBoard ? 'none' : 'auto'}; position: relative;">
-                          <div class="player-avatar-circle" style="position: relative; overflow: visible; border-color: ${borderColor};">
+                          <div class="player-avatar-circle" style="position: relative; overflow: visible; border-color: ${borderColor}; width: 44px; height: 44px; border-radius: 50%; background: #111111; color: #FFFFFF; font-family: var(--font-family-mono); font-weight: 900; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
                             ${player ? `
-                              <img src="${getPlayerPhoto(player.name)}" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid ${borderColor};" alt="${player.name}" />
+                              <span>#${getJerseyNumber(player)}</span>
                               
-                              <div style="display: flex; gap: 2px; position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%); white-space: nowrap; z-index: 5;">
-                                <span class="rating-chip bat-chip" style="background: linear-gradient(135deg, #e53935, #c62828); color: white; padding: 1px 4px; border-radius: 4px; font-size: 0.62rem; font-weight: 800; box-shadow: 0 2px 4px rgba(0,0,0,0.6);">BAT ${player.batRating}</span>
-                                ${player.bowlRating > 0 ? `<span class="rating-chip bowl-chip" style="background: linear-gradient(135deg, #1e88e5, #1565c0); color: white; padding: 1px 4px; border-radius: 4px; font-size: 0.62rem; font-weight: 800; box-shadow: 0 2px 4px rgba(0,0,0,0.6);">BOWL ${player.bowlRating}</span>` : ''}
+                              <div style="display: flex; position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%); white-space: nowrap; z-index: 5;">
+                                <span class="rating-chip" style="background: #111111; color: #C89B3C; padding: 1px 5px; border-radius: 0px; font-size: 0.65rem; font-weight: 900; border: 1px solid #1E1E1E;">#${getJerseyNumber(player)}</span>
                               </div>
 
-                              ${player.isCaptain ? '<span class="designation-badge" style="position: absolute; top: -6px; right: -8px; background: #ffb703; color: #000; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 6px; border: 1px solid #fff; z-index: 6;">C (2x)</span>' : ''}
-                              ${player.isViceCaptain ? '<span class="designation-badge" style="position: absolute; top: -6px; right: -8px; background: #e0e0e0; color: #000; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 6px; border: 1px solid #fff; z-index: 6;">VC (1.5x)</span>' : ''}
+                              ${player.isCaptain ? '<span class="designation-badge" style="position: absolute; top: -6px; right: -8px; background: #ffb703; color: #000; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 0px; border: 1px solid #1E1E1E; z-index: 6;">C</span>' : ''}
+                              ${player.isViceCaptain ? '<span class="designation-badge" style="position: absolute; top: -6px; right: -8px; background: #e0e0e0; color: #000; font-weight: 900; font-size: 0.65rem; padding: 1px 5px; border-radius: 0px; border: 1px solid #1E1E1E; z-index: 6;">VC</span>' : ''}
                             ` : `
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 20px; height: 20px;">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                               </svg>
                             `}
                           </div>
-                          <div class="player-name-plate" style="margin-top: 14px; font-weight: 700;">
+                          <div class="player-name-plate" style="margin-top: 14px; font-weight: 800;">
                             ${player ? player.name.split(" ").slice(-1)[0] : 'EMPTY'}
                           </div>
                         </div>
@@ -1343,25 +1365,25 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
             <h4 style="border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem; text-transform: uppercase;">
               ${isOwnBoard ? 'Your Backups Pool' : `${room.players[spectatedUid]?.displayName}'s Backups`}
             </h4>
-            <p style="font-size: 0.8rem; color: var(--chalk-white-dim); margin-top: 0.5rem;">
+            <p style="font-size: 0.8rem; color: #333333; font-weight: 700; margin-top: 0.5rem;">
               ${isOwnBoard ? 'Drag or click a player to place them in an empty role slot.' : 'Viewing reserves list of teammate.'}
             </p>
             
             <div class="roster-list" style="margin-top: 1rem; max-height: 350px; overflow-y: auto;">
               ${bench.length === 0 ? `
-                <div class="text-center" style="padding: 2rem; color: var(--chalk-white-dark); font-size: 0.9rem;">
+                <div class="text-center" style="padding: 2rem; color: #666666; font-size: 0.9rem; font-weight: 800;">
                   No players in reserve.
                 </div>
               ` : bench.map(p => {
                 return `
                   <div class="roster-item bench-card-item" style="padding: 0.65rem 0.85rem; cursor: ${spectatorSquad.ready || !isOwnBoard ? 'default' : 'pointer'};" data-player-id="${p.id}">
                     <div>
-                      <div class="roster-name" style="font-size: 0.9rem;">${p.name}</div>
-                      <div class="roster-sub" style="font-size: 0.75rem;">${p.role.toUpperCase()} • ${p.nationalTeam} (${p.tournamentYear})</div>
+                      <div class="roster-name" style="font-size: 0.9rem; color: #111111 !important; font-weight: 900;">#${getJerseyNumber(p)} ${p.name}</div>
+                      <div class="roster-sub" style="font-size: 0.75rem; color: #444444 !important; font-weight: 700;">${p.role.toUpperCase()} • ${p.nationalTeam} (${p.tournamentYear})</div>
                     </div>
                     <div style="display: flex; gap: 0.35rem;">
-                      <span class="role-badge opener" style="font-size: 0.65rem;">BAT: ${p.batRating}</span>
-                      ${p.bowlRating > 0 ? `<span class="role-badge pacer" style="font-size: 0.65rem;">BOWL: ${p.bowlRating}</span>` : ''}
+                      <span class="role-badge opener" style="font-size: 0.65rem; background: #E53926; color: #FFF; font-weight: 900; border: 1px solid #1E1E1E;">BAT: ${p.batRating}</span>
+                      ${p.bowlRating > 0 ? `<span class="role-badge pacer" style="font-size: 0.65rem; background: #1E88E5; color: #FFF; font-weight: 900; border: 1px solid #1E1E1E;">BOWL: ${p.bowlRating}</span>` : ''}
                     </div>
                   </div>
                 `;
@@ -1370,32 +1392,40 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
           </div>
 
           <!-- Captain/VC designating inputs & Ready Lock button -->
-          ${isOwnBoard && !spectatorSquad.ready ? `
+          ${isOwnBoard ? `
             <div class="career-stats-widget" style="margin-top: 1rem;">
-              <h4 style="margin-bottom: 1rem; text-transform: uppercase; color: var(--willow-tan);">Designations & Lock</h4>
-              <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
-                <label>
-                  <span style="display: block; margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--chalk-white-dark);">Select Captain (C - 2x points):</span>
-                  <select id="captain-select" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); padding: 0.4rem; color: white; font-weight: bold;">
-                    <option value="">-- Choose Captain --</option>
-                    ${slots.filter(s => s !== null).map(p => `<option value="${p.id}" ${p.id === spectatorSquad.captainId ? 'selected' : ''}>${p.name}</option>`).join("")}
-                  </select>
-                </label>
-                <label>
-                  <span style="display: block; margin-bottom: 0.25rem; font-size: 0.8rem; color: var(--chalk-white-dark);">Select Vice-Captain (VC - 1.5x points):</span>
-                  <select id="vice-captain-select" class="btn btn-secondary btn-sm" style="width: 100%; border: 1px solid var(--glass-border); padding: 0.4rem; color: white; font-weight: bold;">
-                    <option value="">-- Choose Vice-Captain --</option>
-                    ${slots.filter(s => s !== null).map(p => `<option value="${p.id}" ${p.id === spectatorSquad.viceCaptainId ? 'selected' : ''}>${p.name}</option>`).join("")}
-                  </select>
-                </label>
+              <h4 style="margin-bottom: 1rem; text-transform: uppercase; color: #C89B3C; font-weight: 900;">Designations & Lock</h4>
+              ${spectatorSquad.ready ? `
+                <div style="padding: 1rem; background: #FFFDE7; border: 2px solid #C89B3C; color: #111111; font-weight: 900; text-align: center; border-radius: 0px; box-shadow: 2px 2px 0px #1E1E1E;">
+                  🔒 YOUR SQUAD IS LOCKED & READY! Waiting for opponent to designate Captain & Vice-Captain...
+                </div>
+              ` : `
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem;">
+                  <label style="position: relative; z-index: 20;">
+                    <span style="display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 900; color: #111111;">Select Captain (C - 2x points):</span>
+                    <select id="captain-select" style="width: 100%; background: #FFFFFF; color: #111111 !important; border: 2px solid #1E1E1E; padding: 0.6rem 0.85rem; font-weight: 800; font-size: 0.95rem; border-radius: 0px; outline: none; cursor: pointer;">
+                      <option value="">-- Choose Captain --</option>
+                      ${slots.filter(s => s !== null && s.id !== spectatorSquad.viceCaptainId).map(p => `<option value="${p.id}" ${p.id === spectatorSquad.captainId ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
+                    </select>
+                  </label>
+                  <label style="position: relative; z-index: 19; margin-top: 0.25rem;">
+                    <span style="display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 900; color: #111111;">Select Vice-Captain (VC - 1.5x points):</span>
+                    <select id="vice-captain-select" style="width: 100%; background: #FFFFFF; color: #111111 !important; border: 2px solid #1E1E1E; padding: 0.6rem 0.85rem; font-weight: 800; font-size: 0.95rem; border-radius: 0px; outline: none; cursor: pointer;">
+                      <option value="">-- Choose Vice-Captain --</option>
+                      ${slots.filter(s => s !== null && s.id !== spectatorSquad.captainId).map(p => `<option value="${p.id}" ${p.id === spectatorSquad.viceCaptainId ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
+                    </select>
+                  </label>
 
-                <button id="lock-squad-btn-bottom" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem; padding: 0.85rem; font-size: 0.95rem; font-weight: 900; background: linear-gradient(135deg, #2e7d32, #1b5e20); letter-spacing: 0.5px;" ${totalPlaced === 11 && spectatorSquad.captainId && spectatorSquad.viceCaptainId && spectatorSquad.captainId !== spectatorSquad.viceCaptainId ? '' : 'disabled'}>
-                  🔒 LOCK SQUAD & START MATCH (${totalPlaced}/11)
-                </button>
-              </div>
+                  <button id="lock-squad-btn-bottom" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem; padding: 0.85rem; font-size: 0.95rem; font-weight: 900; background: var(--primary-coral); border: 2px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E;" ${totalPlaced === 11 && spectatorSquad.captainId && spectatorSquad.viceCaptainId && spectatorSquad.captainId !== spectatorSquad.viceCaptainId ? '' : 'disabled'}>
+                    🔒 LOCK SQUAD & START MATCH (${totalPlaced}/11)
+                  </button>
+                </div>
+              `}
             </div>
           ` : ''}
         </div>
+      </div>
+    </div>
       </div>
     </div>
   `;
@@ -1711,7 +1741,7 @@ async function runClientSimulationFallback(roomCode, room) {
 
     standings.sort((a, b) => b.points - a.points);
 
-    const startsAt = Date.now() + 2000;
+    const startsAt = Date.now() + 4000;
     await update(ref(rtdb, `rooms/${roomCode}`), {
       status: "simulating",
       "simulation/matches": simulatedMatches,
@@ -1959,15 +1989,16 @@ function startCinematicHighlightLoop(matches) {
   // Let's run simulation highlights of the first match (human vs human or user vs AI)
   // For other games, they run in parallel but user spectates match 0
   const match = matches[0];
-  const tA = match.teamAName;
-  const tB = match.teamBName;
-
-  document.getElementById("pb-teamA").innerText = tA;
-  document.getElementById("pb-teamB").innerText = tB;
-
-  const totalDurationMs = 50000; // 50 seconds
   const i1 = match.inningsData[0];
   const i2 = match.inningsData[1];
+
+  const team1Name = i1.battingTeamName || match.teamAName;
+  const team2Name = i2.battingTeamName || match.teamBName;
+
+  const teamAEl = document.getElementById("pb-teamA");
+  const teamBEl = document.getElementById("pb-teamB");
+  if (teamAEl) teamAEl.innerText = team1Name;
+  if (teamBEl) teamBEl.innerText = team2Name;
 
   const allDeliveries = [];
   
