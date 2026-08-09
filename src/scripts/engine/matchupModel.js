@@ -36,6 +36,24 @@ export function adjustProbabilities(batter, bowler, matchState) {
   let effectiveBat = batter.batRating || batter.vsPaceRating || 75;
   let effectiveBowl = bowler.bowlRating || bowler.wicketTakingRating || 70;
 
+  // Bowling Attack Synergy: Teams with both pace and spin variety get a subtle defensive boost
+  const bowlingTeam = matchState.bowlingTeam || [];
+  if (bowlingTeam.length > 0) {
+    const hasSpin = bowlingTeam.some(p => {
+      const r = (p?.role || '').toLowerCase();
+      const bt = (p?.bowlingType || '').toLowerCase();
+      return r.includes('spin') || bt.includes('spin') || bt.includes('orthodox');
+    });
+    const hasPace = bowlingTeam.some(p => {
+      const r = (p?.role || '').toLowerCase();
+      const bt = (p?.bowlingType || '').toLowerCase();
+      return r.includes('pace') || r.includes('fast') || bt.includes('pace') || bt.includes('fast');
+    });
+    if (hasSpin && hasPace) {
+      effectiveBowl *= 1.03; // +3% variety synergy bonus
+    }
+  }
+
   // OOP Checks
   const isPureBowlerInTopOrder = (bRole === 'pacer' || bRole === 'spinner') && (batter.slotIndex !== undefined && batter.slotIndex < 3);
   const isPureBatterInBowlerSlot = (bwRole === 'opener' || bwRole === 'toporder' || bwRole === 'middleorder' || bwRole === 'keeper') && (bowler.slotIndex !== undefined && bowler.slotIndex >= 7);
