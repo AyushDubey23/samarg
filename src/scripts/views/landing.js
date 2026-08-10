@@ -427,14 +427,17 @@ export async function renderLanding(container) {
           return;
         }
 
-        // Rooms with 1 player waiting for Player 2 (and no password)
-        if (pKeys.length === 1 && !r.password) {
+        // Public open rooms (less than max players and no password)
+        const maxP = r.mode === "cup" ? 4 : 2;
+        if (pKeys.length < maxP && !r.password) {
           const hostPlayer = players[pKeys[0]] || {};
           openRooms.push({
             code,
             hostName: hostPlayer.displayName || "Host Player",
             mode: r.mode || "duel",
             timerSec: r.turnTimerSeconds || 20,
+            playerCount: pKeys.length,
+            maxP: maxP,
             createdAt: r.createdAt || Date.now()
           });
         }
@@ -461,7 +464,7 @@ export async function renderLanding(container) {
             ${r.hostName}'s Room
           </div>
           <div style="font-size: 0.78rem; font-weight: 700; color: #555555; margin-bottom: 1rem;">
-            1/2 Players • Waiting for Player 2
+            ${r.playerCount}/${r.maxP} Players • ${r.playerCount < r.maxP ? 'Waiting for players' : 'Full'}
           </div>
         </div>
         <button class="btn btn-primary btn-sm join-public-room-btn" data-code="${r.code}" style="width: 100%; font-weight: 900; background: #E53926; border: 1.5px solid #1E1E1E;">

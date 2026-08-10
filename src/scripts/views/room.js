@@ -454,16 +454,31 @@ function renderLobby(viewport, roomCode, room) {
           const currentPlayersMap = room.players || {};
           let uids = Object.keys(currentPlayersMap);
 
-          // If solo player starting, add AI Opponent CPU to guarantee a 2-team draft!
-          if (uids.length === 1) {
-            const botUid = "cpu_opponent";
-            uids.push(botUid);
-            await set(ref(rtdb, `rooms/${roomCode}/players/${botUid}`), {
-              displayName: "AI Opponent (CPU)",
-              ready: true,
-              connectionStatus: "online",
-              isBot: true
-            });
+          // Support 4-Player Cup mode (4 teams) or 2-Player Duel mode (2 teams)
+          const targetPlayerCount = (room.mode === "cup") ? 4 : 2;
+          const neededBots = Math.max(0, targetPlayerCount - uids.length);
+
+          if (neededBots > 0) {
+            const sampleBotSquads = [
+              { country: "Pakistan", year: "2026" },
+              { country: "India", year: "2024" },
+              { country: "Australia", year: "2021" },
+              { country: "England", year: "2022" }
+            ];
+
+            for (let i = 1; i <= neededBots; i++) {
+              const botUid = neededBots === 1 ? "cpu_opponent" : `cpu_opponent_${i}`;
+              const botSquadInfo = sampleBotSquads[(i - 1) % sampleBotSquads.length];
+              const botName = `AI Opponent ${neededBots > 1 ? i : ''} (${botSquadInfo.country} ${botSquadInfo.year})`;
+              uids.push(botUid);
+
+              await set(ref(rtdb, `rooms/${roomCode}/players/${botUid}`), {
+                displayName: botName.trim(),
+                ready: true,
+                connectionStatus: "online",
+                isBot: true
+              });
+            }
           }
 
           const shuffledUids = [...uids].sort(() => Math.random() - 0.5);
@@ -2111,6 +2126,77 @@ async function runClientSimulationFallback(roomCode, room, tossWinnerUid = null,
         });
       });
 
+    } else if (room.mode === "cup" || uids.length >= 4) {
+      // 4-Player Cup Knockout Tournament: Semi-Finals ➔ Grand Final
+      const getTeamObj = (uid, defaultIdx, defaultName) => {
+        const sq = squads[uid] || {};
+        let slots = getFilledSlotsArray(sq.slots).filter(p => p !== null && p !== undefined);
+        if (slots.length === 0) {
+          slots = AUTHENTIC_FALLBACK_SQUADS[defaultIdx % AUTHENTIC_FALLBACK_SQUADS.length].players;
+        }
+        return {
+          id: uid || `p_${defaultIdx}`,
+          name: players[uid]?.displayName || defaultName,
+          players: slots
+        };
+      };
+
+      const team1 = getTeamObj(uids[0], 0, "Team 1");
+      const team2 = getTeamObj(uids[1], 1, "Team 2");
+      const team3 = getTeamObj(uids[2], 2, "Team 3");
+      const team4 = getTeamObj(uids[3], 3, "Team 4");
+
+      // Semi-Final 1: Team 1 vs Team 4
+      const sf1Sim = engine.simulateMatch(team1, team4, false);
+      const sf1WinnerName = sf1Sim.result.winner;
+      const sf1Winner = sf1WinnerName === team1.name ? team1 : team4;
+      const sf1Loser = sf1WinnerName === team1.name ? team4 : team1;
+
+      // Semi-Final 2: Team 2 vs Team 3
+      const sf2Sim = engine.simulateMatch(team2, team3, false);
+      const sf2WinnerName = sf2Sim.result.winner;
+      const sf2Winner = sf2WinnerName === team2.name ? team2 : team3;
+      const sf2Loser = sf2WinnerName === team2.name ? team3 : team2;
+
+      // Grand Final: SF1 Winner vs SF2 Winner
+      const forcedTossFinal = (sf1Winner.id === tossWinnerUid || sf2Winner.id === tossWinnerUid)
+        ? { winner: tossWinnerUid, decision: tossDecision }
+        : null;
+      const grandFinalSim = engine.simulateMatch(sf1Winner, sf2Winner, true, forcedTossFinal);
+
+      simulatedMatches.push({
+        matchId: `${roomCode}_sf1`,
+        stage: "SEMI FINAL 1",
+        round: 1,
+        teamAId: team1.id,
+        teamAName: team1.name,
+        teamBId: team4.id,
+        teamBName: team4.name,
+        ...sf1Sim
+      });
+
+      simulatedMatches.push({
+        matchId: `${roomCode}_sf2`,
+        stage: "SEMI FINAL 2",
+        round: 1,
+        teamAId: team2.id,
+        teamAName: team2.name,
+        teamBId: team3.id,
+        teamBName: team3.name,
+        ...sf2Sim
+      });
+
+      simulatedMatches.push({
+        matchId: `${roomCode}_final`,
+        stage: "GRAND FINAL",
+        round: 2,
+        teamAId: sf1Winner.id,
+        teamAName: sf1Winner.name,
+        teamBId: sf2Winner.id,
+        teamBName: sf2Winner.name,
+        ...grandFinalSim
+      });
+
     } else if (room.mode === "duel" || uids.length >= 2) {
       const p1Uid = uids[0];
       const p2Uid = uids[1] || uids[0];
@@ -2196,7 +2282,26 @@ async function runClientSimulationFallback(roomCode, room, tossWinnerUid = null,
       }
     });
 
-    standings.sort((a, b) => b.points - a.points);
+    if (room.mode === "cup") {
+      const finalMatch = simulatedMatches.find(m => m.stage === "GRAND FINAL");
+      if (finalMatch && finalMatch.result) {
+        const champName = finalMatch.result.winner;
+        const champId = champName === finalMatch.teamAName ? finalMatch.teamAId : finalMatch.teamBId;
+        const runnerId = champName === finalMatch.teamAName ? finalMatch.teamBId : finalMatch.teamAId;
+
+        standings.sort((a, b) => {
+          if (a.teamId === champId) return -1;
+          if (b.teamId === champId) return 1;
+          if (a.teamId === runnerId) return -1;
+          if (b.teamId === runnerId) return 1;
+          return b.points - a.points;
+        });
+      } else {
+        standings.sort((a, b) => b.points - a.points);
+      }
+    } else {
+      standings.sort((a, b) => b.points - a.points);
+    }
 
     const startsAt = Date.now() + 4000;
     await update(ref(rtdb, `rooms/${roomCode}`), {
@@ -2386,7 +2491,7 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
     matches = [{ matchId: "fallback_m1", round: 1, teamAId: "p1", teamAName: "Team 1", teamBId: "p2", teamBName: "Team 2", ...sim }];
   }
 
-  const match = matches[0];
+  const match = matches[matches.length - 1];
   const i1 = match.innings1 || (match.inningsData ? match.inningsData[0] : { balls: [], battingTeamName: match.teamAName });
   const i2 = match.innings2 || (match.inningsData ? match.inningsData[1] : { balls: [], battingTeamName: match.teamBName });
 
@@ -2521,10 +2626,56 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
 
       const championName = match.result?.winner || standings[0]?.teamName || "CHAMPION";
       const winnerIsTeamA = match.result?.winner === teamAName;
+      const isCupMode = matches.length === 3;
+      const sf1Match = isCupMode ? matches[0] : null;
+      const sf2Match = isCupMode ? matches[1] : null;
 
       const finishedScreen = document.getElementById("pb-finished-screen");
       if (finishedScreen) {
         finishedScreen.innerHTML = `
+          ${isCupMode && sf1Match && sf2Match ? `
+            <!-- 4-PLAYER TOURNAMENT KNOCKOUT BRACKET CARD -->
+            <div style="background: #FFFFFF; border: 3px solid #1E1E1E; padding: 1rem; margin: 0 auto 1.25rem auto; max-width: 580px; width: 100%; box-shadow: 5px 5px 0px #1E1E1E; border-radius: 0px; box-sizing: border-box;">
+              <div style="font-size: 0.85rem; font-weight: 900; color: #C89B3C; text-transform: uppercase; margin-bottom: 0.75rem; border-bottom: 2px solid #1E1E1E; padding-bottom: 0.35rem; letter-spacing: 0.05em; text-align: center;">
+                🏆 4-PLAYER WORLD CUP KNOCKOUT BRACKET
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.75rem; text-align: left;">
+                <!-- SF1 Box -->
+                <div style="background: #FAF6ED; border: 1.5px solid #1E1E1E; padding: 0.65rem; border-radius: 0px;">
+                  <div style="font-weight: 900; color: #E53926; font-size: 0.72rem; letter-spacing: 0.05em;">SEMI-FINAL 1</div>
+                  <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 0.82rem; margin-top: 0.25rem;">
+                    <span>${sf1Match.teamAName}</span>
+                    <span style="font-family: var(--font-family-mono);">${sf1Match.innings1?.totalRuns || 0}/${sf1Match.innings1?.totalWickets || 0}</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 0.82rem;">
+                    <span>${sf1Match.teamBName}</span>
+                    <span style="font-family: var(--font-family-mono);">${sf1Match.innings2?.totalRuns || 0}/${sf1Match.innings2?.totalWickets || 0}</span>
+                  </div>
+                  <div style="font-size: 0.72rem; font-weight: 900; color: #2E7D32; margin-top: 0.3rem;">
+                    ✓ ${sf1Match.result?.winner} Advanced
+                  </div>
+                </div>
+
+                <!-- SF2 Box -->
+                <div style="background: #FAF6ED; border: 1.5px solid #1E1E1E; padding: 0.65rem; border-radius: 0px;">
+                  <div style="font-weight: 900; color: #E53926; font-size: 0.72rem; letter-spacing: 0.05em;">SEMI-FINAL 2</div>
+                  <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 0.82rem; margin-top: 0.25rem;">
+                    <span>${sf2Match.teamAName}</span>
+                    <span style="font-family: var(--font-family-mono);">${sf2Match.innings1?.totalRuns || 0}/${sf2Match.innings1?.totalWickets || 0}</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 0.82rem;">
+                    <span>${sf2Match.teamBName}</span>
+                    <span style="font-family: var(--font-family-mono);">${sf2Match.innings2?.totalRuns || 0}/${sf2Match.innings2?.totalWickets || 0}</span>
+                  </div>
+                  <div style="font-size: 0.72rem; font-weight: 900; color: #2E7D32; margin-top: 0.3rem;">
+                    ✓ ${sf2Match.result?.winner} Advanced
+                  </div>
+                </div>
+              </div>
+            </div>
+          ` : ''}
+
           <!-- VINTAGE FINAL WINNING SCORECARD CARD (Responsive Mobile Fixed) -->
           <div id="final-winning-scorecard-card" style="background: #FAF6ED; border: 3.5px solid #1E1E1E; padding: 1.25rem 0.65rem; max-width: 580px; width: 100%; margin: 0 auto 1.5rem auto; box-shadow: 6px 6px 0px #1E1E1E; font-family: var(--font-family); color: #111111; text-align: center; border-radius: 0px; position: relative; box-sizing: border-box; overflow: hidden;">
             <!-- Header row -->
