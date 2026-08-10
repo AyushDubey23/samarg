@@ -18,24 +18,20 @@ const POSITION_LABELS = [
 const AUTHENTIC_FALLBACK_SQUADS = [
   {
     nationalTeam: "India",
-    tournamentYear: "2023",
-    tournamentEdition: "2023 World Cup",
+    tournamentYear: "2024",
+    tournamentEdition: "2024 T20 World Cup",
     players: [
-      { id: "2023_ind_1", name: "Rohit Sharma", role: "opener", batRating: 95, bowlRating: 15, isWicketkeeper: false, battingAverage: 54.2, strikeRate: 125.9, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_2", name: "Shubman Gill", role: "opener", batRating: 91, bowlRating: 0, isWicketkeeper: false, battingAverage: 44.2, strikeRate: 102.6, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_3", name: "Virat Kohli", role: "topOrder", batRating: 98, bowlRating: 20, isWicketkeeper: false, battingAverage: 95.6, strikeRate: 90.3, economyRate: 4.5, bowlingType: "pace-medium", nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_4", name: "Shreyas Iyer", role: "middleOrder", batRating: 90, bowlRating: 0, isWicketkeeper: false, battingAverage: 66.2, strikeRate: 113.2, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_5", name: "KL Rahul", role: "keeper", batRating: 89, bowlRating: 0, isWicketkeeper: true, battingAverage: 75.3, strikeRate: 90.8, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_6", name: "Suryakumar Yadav", role: "middleOrder", batRating: 84, bowlRating: 0, isWicketkeeper: false, battingAverage: 21.2, strikeRate: 108.5, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_7", name: "Ravindra Jadeja", role: "allRounder", batRating: 84, bowlRating: 88, isWicketkeeper: false, battingAverage: 40.0, strikeRate: 85.0, economyRate: 4.2, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_8", name: "Mohammed Shami", role: "pacer", batRating: 20, bowlRating: 97, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 60.0, economyRate: 5.2, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_9", name: "Jasprit Bumrah", role: "pacer", batRating: 15, bowlRating: 96, isWicketkeeper: false, battingAverage: 6.0, strikeRate: 60.0, economyRate: 4.0, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_10", name: "Kuldeep Yadav", role: "spinner", batRating: 25, bowlRating: 91, isWicketkeeper: false, battingAverage: 10.0, strikeRate: 65.0, economyRate: 4.4, bowlingType: "left-arm-unorthodox", nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_11", name: "Mohammed Siraj", role: "pacer", batRating: 15, bowlRating: 88, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 50.0, economyRate: 5.6, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_12", name: "Shardul Thakur", role: "allRounder", batRating: 72, bowlRating: 78, isWicketkeeper: false, battingAverage: 18.0, strikeRate: 90.0, economyRate: 6.0, bowlingType: "pace-medium", nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_13", name: "Ishan Kishan", role: "keeper", batRating: 82, bowlRating: 0, isWicketkeeper: true, battingAverage: 29.0, strikeRate: 95.0, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_14", name: "Ravichandran Ashwin", role: "spinner", batRating: 40, bowlRating: 84, isWicketkeeper: false, battingAverage: 16.0, strikeRate: 85.0, economyRate: 3.4, bowlingType: "off-spin", nationalTeam: "IND", tournamentYear: 2023 },
-      { id: "2023_ind_15", name: "Hardik Pandya", role: "allRounder", batRating: 88, bowlRating: 85, isWicketkeeper: false, battingAverage: 37.0, strikeRate: 110.0, economyRate: 5.5, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2023 }
+      { id: "2024_ind_1", name: "Rohit Sharma", role: "opener", batRating: 96, bowlRating: 0, isWicketkeeper: false, battingAverage: 36.7, strikeRate: 156.7, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_2", name: "Virat Kohli", role: "opener", batRating: 83, bowlRating: 0, isWicketkeeper: false, battingAverage: 18.8, strikeRate: 112.6, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_3", name: "Rishabh Pant", role: "keeper", batRating: 90, bowlRating: 0, isWicketkeeper: true, battingAverage: 24.4, strikeRate: 127.6, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_4", name: "Suryakumar Yadav", role: "topOrder", batRating: 92, bowlRating: 0, isWicketkeeper: false, battingAverage: 28.4, strikeRate: 135.3, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_5", name: "Shivam Dube", role: "middleOrder", batRating: 84, bowlRating: 60, isWicketkeeper: false, battingAverage: 22.2, strikeRate: 114.2, economyRate: 8.5, bowlingType: "pace-medium", nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_6", name: "Hardik Pandya", role: "allRounder", batRating: 92, bowlRating: 92, isWicketkeeper: false, battingAverage: 48.0, strikeRate: 151.5, economyRate: 7.6, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_7", name: "Ravindra Jadeja", role: "allRounder", batRating: 78, bowlRating: 80, isWicketkeeper: false, battingAverage: 11.6, strikeRate: 91.3, economyRate: 7.5, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_8", name: "Axar Patel", role: "allRounder", batRating: 86, bowlRating: 92, isWicketkeeper: false, battingAverage: 23.0, strikeRate: 139.3, economyRate: 7.8, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_9", name: "Kuldeep Yadav", role: "spinner", batRating: 15, bowlRating: 94, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 50.0, economyRate: 6.95, bowlingType: "left-arm-unorthodox", nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_10", name: "Arshdeep Singh", role: "pacer", batRating: 15, bowlRating: 97, isWicketkeeper: false, battingAverage: 4.0, strikeRate: 40.0, economyRate: 7.16, bowlingType: "left-arm-pace", nationalTeam: "IND", tournamentYear: 2024 },
+      { id: "2024_ind_11", name: "Jasprit Bumrah", role: "pacer", batRating: 15, bowlRating: 99, isWicketkeeper: false, battingAverage: 3.0, strikeRate: 30.0, economyRate: 4.17, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2024 }
     ]
   },
   {
