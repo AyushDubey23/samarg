@@ -2726,7 +2726,7 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
         const shareBtn = document.getElementById("share-scorecard-note-btn");
         if (shareBtn) {
           shareBtn.addEventListener("click", async () => {
-            const noteText = `🏆 SAMARG XI WORLD CUP FINAL 🏆\nRoom Code: ${roomCode}\n★ CHAMPION: ${championName.toUpperCase()}\n\n${team1Name}: ${runs1}/${wickets1}\n${team2Name}: ${runs2}/${wickets2}\n\nTop Performer: ${topBatters1[0]?.name} (${topBatters1[0]?.runs} runs)\n\nPlay SAMARG XI Cricket Draft & Simulator:\nhttps://samarg.vercel.app/`;
+            const noteText = `🏆 SAMARG XI WORLD CUP FINAL 🏆\nRoom Code: ${roomCode}\n★ CHAMPION: ${championName.toUpperCase()}\n\n${teamAName}: ${teamARuns}/${teamAWickets}\n${teamBName}: ${teamBRuns}/${teamBWickets}\n\nTop Performer: ${topBattersA[0]?.name} (${topBattersA[0]?.runs} runs)\n\nPlay SAMARG XI Cricket Draft & Simulator:\nhttps://samarg.vercel.app/`;
 
             if (navigator.share) {
               try {

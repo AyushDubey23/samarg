@@ -80,14 +80,26 @@ function renderResultLayout(container) {
         <div class="rc-summary-panel">
           <div class="scoreboard-summary">
             <h3>Match Summary</h3>
-            <div class="summary-team-row mt-2">
-              <span>${matchData.teamAName}</span>
-              <strong>${i1.totalRuns}/${i1.totalWickets} <span class="ov-text">(${i1.oversBowled} ov)</span></strong>
-            </div>
-            <div class="summary-team-row">
-              <span>${matchData.teamBName}</span>
-              <strong>${i2.totalRuns}/${i2.totalWickets} <span class="ov-text">(${i2.oversBowled} ov)</span></strong>
-            </div>
+            ${(() => {
+              const isAFirst = (i1.battingTeamName === matchData.teamAName) || (matchData.tossDecision === "bat" ? matchData.tossWinner === matchData.teamAName : matchData.tossWinner === matchData.teamBName);
+              const aR = isAFirst ? i1.totalRuns : i2.totalRuns;
+              const aW = isAFirst ? i1.totalWickets : i2.totalWickets;
+              const aO = isAFirst ? i1.oversBowled : i2.oversBowled;
+
+              const bR = isAFirst ? i2.totalRuns : i1.totalRuns;
+              const bW = isAFirst ? i2.totalWickets : i1.totalWickets;
+              const bO = isAFirst ? i2.oversBowled : i1.oversBowled;
+              return `
+                <div class="summary-team-row mt-2">
+                  <span>${matchData.teamAName}</span>
+                  <strong>${aR}/${aW} <span class="ov-text">(${aO} ov)</span></strong>
+                </div>
+                <div class="summary-team-row">
+                  <span>${matchData.teamBName}</span>
+                  <strong>${bR}/${bW} <span class="ov-text">(${bO} ov)</span></strong>
+                </div>
+              `;
+            })()}
             <p class="mvp-banner mt-2">
               🏆 Man of the Match: <strong>${matchData.manOfTheMatch}</strong>
             </p>
@@ -190,6 +202,16 @@ function drawShareCard() {
   ctx.strokeStyle = "rgba(255,255,255,0.1)";
   ctx.strokeRect(40, 200, 520, 100);
 
+  const isAFirst = (i1.battingTeamName === matchData.teamAName) || (matchData.tossDecision === "bat" ? matchData.tossWinner === matchData.teamAName : matchData.tossWinner === matchData.teamBName);
+
+  const teamARuns = isAFirst ? i1.totalRuns : i2.totalRuns;
+  const teamAWickets = isAFirst ? i1.totalWickets : i2.totalWickets;
+  const teamAOvers = isAFirst ? i1.oversBowled : i2.oversBowled;
+
+  const teamBRuns = isAFirst ? i2.totalRuns : i1.totalRuns;
+  const teamBWickets = isAFirst ? i2.totalWickets : i1.totalWickets;
+  const teamBOvers = isAFirst ? i2.oversBowled : i1.oversBowled;
+
   // Scores
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.font = "700 16px 'Inter', sans-serif";
@@ -199,8 +221,8 @@ function drawShareCard() {
   ctx.fillStyle = "white";
   ctx.font = "700 18px 'JetBrains Mono', monospace";
   ctx.textAlign = "right";
-  ctx.fillText(`${i1.totalRuns}/${i1.totalWickets} (${i1.oversBowled} ov)`, 540, 238);
-  ctx.fillText(`${i2.totalRuns}/${i2.totalWickets} (${i2.oversBowled} ov)`, 540, 278);
+  ctx.fillText(`${teamARuns}/${teamAWickets} (${teamAOvers} ov)`, 540, 238);
+  ctx.fillText(`${teamBRuns}/${teamBWickets} (${teamBOvers} ov)`, 540, 278);
 
   // MVP Footer
   ctx.textAlign = "left";
