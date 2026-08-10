@@ -589,12 +589,6 @@ function renderLobby(viewport, roomCode, room) {
   const startBtn = document.getElementById("start-draft-btn");
   if (startBtn) {
     startBtn.addEventListener("click", async () => {
-      const playerUids = Object.keys(room.players || {});
-      if (room.mode === "duel" && playerUids.length < 2) {
-        showToast("Waiting for 2nd player to join room before starting draft!", true);
-        return;
-      }
-
       try {
         startBtn.disabled = true;
         try {
@@ -603,7 +597,20 @@ function renderLobby(viewport, roomCode, room) {
         } catch (fnErr) {
           console.warn("Cloud function startDraft failed, performing RTDB direct start fallback:", fnErr);
           const currentPlayersMap = room.players || {};
-          const uids = Object.keys(currentPlayersMap);
+          let uids = Object.keys(currentPlayersMap);
+
+          // If solo player starting, add AI Opponent CPU to guarantee a 2-team draft!
+          if (uids.length === 1) {
+            const botUid = "cpu_opponent";
+            uids.push(botUid);
+            await set(ref(rtdb, `rooms/${roomCode}/players/${botUid}`), {
+              displayName: "AI Opponent (CPU)",
+              ready: true,
+              connectionStatus: "online",
+              isBot: true
+            });
+          }
+
           const shuffledUids = [...uids].sort(() => Math.random() - 0.5);
           const squads = {};
           shuffledUids.forEach(uid => {
@@ -687,10 +694,93 @@ function renderDraftPhase(viewport, roomCode, room) {
   const userSquadData = (room.squads || {})[currentUid] || {};
   const rerollsLeft = userSquadData.rerollsLeft !== undefined ? userSquadData.rerollsLeft : 1;
 
-  // Clear slot machine animation timer when squad is revealed
-  if (reveal && slotAnimationTimer) {
-    clearInterval(slotAnimationTimer);
-    slotAnimationTimer = null;
+  // Automatic CPU turn handler for solo rooms
+  const activePlayerObj = (room.players || {})[activeUid] || {};
+  if (activePlayerObj.isBot || activeUid === "cpu_opponent") {
+    const isHost = room.hostUid === currentUid || Object.keys(room.players || {})[0] === currentUid;
+    if (isHost && !window.cpuTurnTimeout) {
+      window.cpuTurnTimeout = setTimeout(async () => {
+        window.cpuTurnTimeout = null;
+        try {
+          let currentRevealData = reveal;
+          if (!currentRevealData) {
+            const rolledSquad = await fetchClientRandomSquad(draftState);
+            const squadId = rolledSquad.squadId || `${rolledSquad.nationalTeam}_${rolledSquad.tournamentYear}`;
+            currentRevealData = {
+              squadId,
+              nationalTeam: rolledSquad.nationalTeam,
+              tournamentYear: rolledSquad.tournamentYear,
+              players: rolledSquad.players,
+              rolledAt: Date.now(),
+              rolledBy: activeUid
+            };
+          }
+
+          const claimedIds = draftState.claimedPlayerIds || [];
+          const claimedNames = (draftState.claimedPlayerNames || []).map(n => String(n).toLowerCase().trim());
+          const availablePlayers = ensureArray(currentRevealData.players).filter(p => {
+            const pNameNorm = String(p.name || '').toLowerCase().trim();
+            const isClaimedById = claimedIds.includes(p.id);
+            const isClaimedByName = claimedNames.some(cn => pNameNorm === cn || pNameNorm.includes(cn) || cn.includes(pNameNorm));
+            return !isClaimedById && !isClaimedByName;
+          });
+
+          if (availablePlayers.length > 0) {
+            const randomPick = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+            const botSquad = (room.squads || {})[activeUid] || { slots: Array(11).fill(null), bench: [] };
+            const currentSlots = [...getFilledSlotsArray(botSquad.slots)];
+            const currentBench = [...ensureArray(botSquad.bench)];
+
+            const emptyIndices = [];
+            for (let i = 0; i < 11; i++) {
+              if (currentSlots[i] === null) emptyIndices.push(i);
+            }
+
+            if (emptyIndices.length > 0) {
+              const randSlotIdx = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+              currentSlots[randSlotIdx] = randomPick;
+            } else {
+              currentBench.push(randomPick);
+            }
+
+            const turnOrder = draftState.turnOrder || [];
+            const currentTurnIndex = draftState.turnIndex || 0;
+            const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
+            const nextActiveUid = turnOrder[nextTurnIndex];
+            const targetNameNorm = String(randomPick.name || '').toLowerCase().trim();
+            const updatedClaimedIds = [...ensureArray(claimedIds), randomPick.id];
+            const updatedClaimedNames = [...ensureArray(claimedNames), targetNameNorm];
+
+            const updates = {};
+            updates[`rooms/${roomCode}/squads/${activeUid}/slots`] = currentSlots;
+            updates[`rooms/${roomCode}/squads/${activeUid}/bench`] = currentBench;
+            updates[`rooms/${roomCode}/draftState/claimedPlayerIds`] = updatedClaimedIds;
+            updates[`rooms/${roomCode}/draftState/claimedPlayerNames`] = updatedClaimedNames;
+            updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
+            updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
+            updates[`rooms/${roomCode}/draftState/currentReveal`] = null;
+            updates[`rooms/${roomCode}/draftState/turnDeadline`] = Date.now() + (room.turnTimerSeconds || 20) * 1000;
+
+            let allComplete = true;
+            turnOrder.forEach(uid => {
+              const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
+              const sqSlots = getFilledSlotsArray((uid === activeUid) ? currentSlots : sq.slots);
+              const sqBench = ensureArray((uid === activeUid) ? currentBench : sq.bench);
+              const count = sqBench.length + sqSlots.filter(s => s !== null).length;
+              if (count < 11) allComplete = false;
+            });
+
+            if (allComplete) {
+              updates[`rooms/${roomCode}/status`] = "placing";
+            }
+
+            await update(ref(rtdb), updates);
+          }
+        } catch (botErr) {
+          console.warn("CPU turn execution error:", botErr);
+        }
+      }, 1000);
+    }
   }
 
   // Play short whistle sound when it becomes your turn to roll/pick
