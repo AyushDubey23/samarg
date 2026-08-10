@@ -286,10 +286,16 @@ export function renderRoom(viewport, roomCode) {
     </div>
   `;
 
-  // Attach presence handler
+  // Attach presence handler (only if user is already a registered player in the room)
   if (auth.currentUser) {
-    const presenceRef = ref(rtdb, `rooms/${roomCode}/players/${auth.currentUser.uid}/connectionStatus`);
-    set(presenceRef, "online");
+    onValue(ref(rtdb, `rooms/${roomCode}/players`), (playersSnap) => {
+      if (auth.currentUser) {
+        const pMap = playersSnap.val() || {};
+        if (pMap[auth.currentUser.uid]) {
+          set(ref(rtdb, `rooms/${roomCode}/players/${auth.currentUser.uid}/connectionStatus`), "online");
+        }
+      }
+    }, { onlyOnce: true });
   }
 
   // Setup main listener
@@ -372,6 +378,25 @@ export function renderRoom(viewport, roomCode) {
       } else if (roomData.status === "drafting") {
         renderDraftPhase(viewport, roomCode, roomData);
       } else if (roomData.status === "placing") {
+        const participantUids = (roomData.draftState?.turnOrder && roomData.draftState.turnOrder.length > 0)
+          ? roomData.draftState.turnOrder
+          : Object.keys(roomData.players || {});
+
+        const allReady = participantUids.length > 0 && participantUids.every(uid => roomData.squads?.[uid]?.ready);
+
+        if (allReady) {
+          update(ref(rtdb, `rooms/${roomCode}`), {
+            status: "toss",
+            tossState: {
+              flipped: false,
+              winnerUid: null,
+              decision: null,
+              flippedBy: null
+            }
+          });
+          return;
+        }
+
         const userUid = auth.currentUser ? auth.currentUser.uid : "";
         if (!currentSpectatorUid || currentSpectatorUid !== userUid) {
           currentSpectatorUid = userUid;
@@ -1684,18 +1709,24 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
 
           <!-- Bottom selector tab strip for live spectating -->
           <div class="team-selector-tabs">
-            ${Object.keys(room.players).map(uid => {
-              const p = room.players[uid] || {};
-              const pSquad = room.squads?.[uid];
-              const isLocked = pSquad?.ready;
-              const connStatus = p.connectionStatus || "offline";
-              return `
-                <button class="team-tab-btn spectate-tab-trigger ${uid === spectatedUid ? 'active' : ''} ${connStatus === 'online' ? 'online' : 'offline'}" data-player-uid="${uid}">
-                  <span class="tab-dot"></span>
-                  ${(p.displayName || "Player").split(" ")[0]} ${isLocked ? '🔒' : ''}
-                </button>
-              `;
-            }).join("")}
+            ${(() => {
+              const participantUids = (room.draftState?.turnOrder && room.draftState.turnOrder.length > 0)
+                ? room.draftState.turnOrder
+                : Object.keys(room.players || {});
+
+              return participantUids.map(uid => {
+                const p = room.players[uid] || {};
+                const pSquad = room.squads?.[uid];
+                const isLocked = pSquad?.ready;
+                const connStatus = p.connectionStatus || "offline";
+                return `
+                  <button class="team-tab-btn spectate-tab-trigger ${uid === spectatedUid ? 'active' : ''} ${connStatus === 'online' ? 'online' : 'offline'}" data-player-uid="${uid}">
+                    <span class="tab-dot"></span>
+                    ${(p.displayName || "Player").split(" ")[0]} ${isLocked ? '🔒' : ''}
+                  </button>
+                `;
+              }).join("");
+            })()}
           </div>
         </div>
 
