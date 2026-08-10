@@ -417,6 +417,16 @@ export async function renderLanding(container) {
       if (r && r.status === "lobby") {
         const players = r.players || {};
         const pKeys = Object.keys(players);
+        const createdAt = r.createdAt || Date.now();
+        const elapsed = Date.now() - createdAt;
+        const TWO_MINS_MS = 120000;
+
+        // Auto-delete 1-player rooms older than 2 minutes
+        if (pKeys.length === 1 && elapsed >= TWO_MINS_MS) {
+          try { remove(ref(rtdb, `rooms/${code}`)); } catch (e) {}
+          return;
+        }
+
         // Rooms with 1 player waiting for Player 2 (and no password)
         if (pKeys.length === 1 && !r.password) {
           const hostPlayer = players[pKeys[0]] || {};
