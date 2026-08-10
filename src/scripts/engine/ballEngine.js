@@ -454,12 +454,7 @@ export class BallEngine {
       }
     }
 
-    let rainInfo = null;
-    if (this.random() < 0.05) {
-      const triggerBall = Math.floor(this.random() * 30) + 30;
-      const newMaxOvers = 10;
-      rainInfo = { triggerBall, newMaxOvers };
-    }
+    const rainInfo = null;
 
     const innings1 = this.simulateInnings(battingFirst.players, bowlingFirst.players, 1, null, 20, rainInfo);
     innings1.battingTeamName = battingFirst.name;
@@ -469,21 +464,7 @@ export class BallEngine {
 
     let targetRuns = innings1.totalRuns + 1;
     let innings2MaxOvers = 20;
-
-    const resourcesUsed1 = rainInfo && innings1.rainInterrupted
-      ? 100 - getResourcePercentage(20 - Math.floor(rainInfo.triggerBall / 6), innings1.totalWickets)
-      : 100;
-
-    let resourcesAvailable2 = 100;
     let rainInfo2 = null;
-
-    if (!rainInfo && this.random() < 0.05) {
-      const triggerBall2 = Math.floor(this.random() * 30) + 30;
-      innings2MaxOvers = 12;
-      resourcesAvailable2 = 100 - getResourcePercentage(20 - 12, 0);
-      targetRuns = calculateDLSTarget(innings1.totalRuns, resourcesUsed1, resourcesAvailable2);
-      rainInfo2 = { triggerBall: triggerBall2, newMaxOvers: innings2MaxOvers };
-    }
 
     const innings2 = this.simulateInnings(
       bowlingFirst.players,
@@ -501,40 +482,18 @@ export class BallEngine {
     let winningTeam = null;
     let resultMargin = '';
 
-    if (rainInfo2 && innings2.rainInterrupted) {
-      const ballsBowled2 = Math.floor(innings2.oversBowled) * 6 + Math.round((innings2.oversBowled % 1) * 10);
-      if (ballsBowled2 >= 30) {
-        const oversRemaining = innings2MaxOvers - innings2.oversBowled;
-        const resLeft = getResourcePercentage(oversRemaining, innings2.totalWickets);
-        const resUsed2 = resourcesAvailable2 - resLeft;
-        const parScore = Math.floor(innings1.totalRuns * (resUsed2 / resourcesUsed1));
-        const finalTarget = parScore + 1;
-
-        if (innings2.totalRuns >= finalTarget) {
-          winningTeam = bowlingFirst.name;
-          resultMargin = `won by ${innings2.totalRuns - parScore} runs (DLS Method)`;
-        } else {
-          winningTeam = battingFirst.name;
-          resultMargin = `won by ${parScore - innings2.totalRuns} runs (DLS Method)`;
-        }
-      } else {
-        winningTeam = 'no_result';
-        resultMargin = 'Abandoned due to rain (No Result)';
-      }
+    if (innings2.totalRuns >= targetRuns) {
+      winningTeam = bowlingFirst.name;
+      const wicketsLeft = 10 - innings2.totalWickets;
+      resultMargin = `won by ${wicketsLeft} wickets`;
     } else {
-      if (innings2.totalRuns >= targetRuns) {
-        winningTeam = bowlingFirst.name;
-        const wicketsLeft = 10 - innings2.totalWickets;
-        resultMargin = `won by ${wicketsLeft} wickets`;
+      if (innings2.totalRuns === targetRuns - 1) {
+        winningTeam = 'tie';
+        resultMargin = 'Match tied';
       } else {
-        if (innings2.totalRuns === targetRuns - 1) {
-          winningTeam = 'tie';
-          resultMargin = 'Match tied';
-        } else {
-          winningTeam = battingFirst.name;
-          const runMargin = (targetRuns - 1) - innings2.totalRuns;
-          resultMargin = `won by ${runMargin} runs`;
-        }
+        winningTeam = battingFirst.name;
+        const runMargin = (targetRuns - 1) - innings2.totalRuns;
+        resultMargin = `won by ${runMargin} runs`;
       }
     }
 
