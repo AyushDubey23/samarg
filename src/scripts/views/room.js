@@ -473,7 +473,8 @@ function renderLobby(viewport, roomCode, room) {
               ready: false,
               slots: Array(11).fill(null),
               bench: [],
-              rerollsLeft: 1
+              rerollsLeft: 2,
+              yearRerollsLeft: 1
             };
           });
           const turnTimerSec = room.turnTimerSeconds || 20;
@@ -586,7 +587,8 @@ function renderDraftPhase(viewport, roomCode, room) {
   const isActiveTurn = activeUid === currentUid;
   const reveal = draftState.currentReveal;
   const userSquadData = (room.squads || {})[currentUid] || {};
-  const rerollsLeft = userSquadData.rerollsLeft !== undefined ? userSquadData.rerollsLeft : 1;
+  const rerollsLeft = userSquadData.rerollsLeft !== undefined ? userSquadData.rerollsLeft : 2;
+  const yearRerollsLeft = userSquadData.yearRerollsLeft !== undefined ? userSquadData.yearRerollsLeft : 1;
 
   // Automatic CPU turn handler for solo rooms
   const activePlayerObj = (room.players || {})[activeUid] || {};
@@ -800,9 +802,14 @@ function renderDraftPhase(viewport, roomCode, room) {
                     PICK A PLAYER
                   </div>
                   ${isActiveTurn ? `
-                    <button id="reroll-squad-btn" class="btn btn-secondary btn-sm" style="font-weight: 900; font-size: 0.75rem; padding: 3px 8px;" ${rerollsLeft > 0 ? '' : 'disabled'}>
-                      🎲 REROLL SQUAD (${rerollsLeft} Left)
-                    </button>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                      <button id="reroll-squad-btn" class="btn btn-secondary btn-sm" style="font-weight: 900; font-size: 0.75rem; padding: 4px 10px;" ${rerollsLeft > 0 ? '' : 'disabled'}>
+                        🎲 Roll Another Squad (${rerollsLeft} Left)
+                      </button>
+                      <button id="reroll-year-btn" class="btn btn-accent btn-sm" style="font-weight: 900; font-size: 0.75rem; padding: 4px 10px; background: #C89B3C; color: #111; border: 1.5px solid #1E1E1E;" ${yearRerollsLeft > 0 ? '' : 'disabled'}>
+                        📅 Same Team Diff Year (${yearRerollsLeft} Left)
+                      </button>
+                    </div>
                   ` : ''}
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 0.35rem; max-height: 380px; overflow-y: auto;" id="rolled-players-grid">
@@ -965,12 +972,12 @@ function renderDraftPhase(viewport, roomCode, room) {
     });
   }
 
-  // Attach Reroll Squad button handler
+  // Attach Reroll Squad button handler (2 chances for another random squad)
   const rerollBtn = document.getElementById("reroll-squad-btn");
   if (rerollBtn && isActiveTurn) {
     rerollBtn.addEventListener("click", async () => {
       if (rerollsLeft <= 0) {
-        showToast("You have already used your 1 squad reroll!", true);
+        showToast("You have already used your 2 squad rerolls!", true);
         return;
       }
       try {
@@ -1007,6 +1014,74 @@ function renderDraftPhase(viewport, roomCode, room) {
         }, 900);
       } catch (err) {
         if (rerollBtn) rerollBtn.disabled = false;
+        showToast(err.message, true);
+      }
+    });
+  }
+
+  // Attach Reroll Same Team Different Year button handler (1 chance)
+  const rerollYearBtn = document.getElementById("reroll-year-btn");
+  if (rerollYearBtn && isActiveTurn) {
+    rerollYearBtn.addEventListener("click", async () => {
+      if (yearRerollsLeft <= 0) {
+        showToast("You have already used your 1 same-team year reroll!", true);
+        return;
+      }
+      if (!reveal || !reveal.nationalTeam) {
+        showToast("No active squad reveal to reroll year for!", true);
+        return;
+      }
+
+      try {
+        rerollYearBtn.disabled = true;
+        const sameTeamName = reveal.nationalTeam;
+        const currentYear = reveal.tournamentYear;
+
+        // Find all squads for the same national team in HISTORICAL_SQUAD_POOL with different year
+        const sameTeamSquads = HISTORICAL_SQUAD_POOL.filter(s => 
+          s.nationalTeam.toLowerCase().trim() === sameTeamName.toLowerCase().trim() &&
+          String(s.tournamentYear) !== String(currentYear)
+        );
+
+        if (sameTeamSquads.length === 0) {
+          showToast(`No other tournament editions found for ${sameTeamName}!`, true);
+          rerollYearBtn.disabled = false;
+          return;
+        }
+
+        // Pick a random squad from different years
+        const rolledSquad = sameTeamSquads[Math.floor(Math.random() * sameTeamSquads.length)];
+        const targetTeamLabel = `${rolledSquad.nationalTeam} (${rolledSquad.tournamentYear})`;
+        startSlotMachineAnimation(targetTeamLabel);
+
+        const turnTimerSec = room.turnTimerSeconds || 20;
+        const squadId = rolledSquad.squadId || `${rolledSquad.nationalTeam}_${rolledSquad.tournamentYear}`;
+        const currentRolledIds = Array.isArray(draftState.rolledSquadIds) ? draftState.rolledSquadIds : [];
+        const updatedRolledIds = [...currentRolledIds, squadId];
+
+        setTimeout(async () => {
+          try {
+            const updates = {};
+            updates[`rooms/${roomCode}/draftState/turnDeadline`] = Date.now() + turnTimerSec * 1000;
+            updates[`rooms/${roomCode}/draftState/rolledSquadIds`] = updatedRolledIds;
+            updates[`rooms/${roomCode}/draftState/currentReveal`] = {
+              squadId,
+              nationalTeam: rolledSquad.nationalTeam,
+              tournamentYear: rolledSquad.tournamentYear,
+              players: rolledSquad.players,
+              rolledAt: Date.now(),
+              rolledBy: currentUid
+            };
+            updates[`rooms/${roomCode}/squads/${currentUid}/yearRerollsLeft`] = yearRerollsLeft - 1;
+
+            await update(ref(rtdb), updates);
+            showToast(`📅 Rerolled ${sameTeamName} to ${rolledSquad.tournamentYear}! Select your player.`);
+          } catch (updateErr) {
+            showToast(updateErr.message, true);
+          }
+        }, 900);
+      } catch (err) {
+        if (rerollYearBtn) rerollYearBtn.disabled = false;
         showToast(err.message, true);
       }
     });
@@ -2378,9 +2453,40 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
 
   function tickPlayback() {
     if (ballIndex >= totalBalls) {
-      // Playback complete, reveal standings & winner victory card dynamically
+      // Playback complete
       const statusTitle = document.getElementById("sim-status-title");
-      if (statusTitle) statusTitle.innerText = "Match Complete! Standings settled.";
+      if (statusTitle) statusTitle.innerText = "Match Simulation Complete!";
+
+      // Reveal Next Button container right under simulation screen
+      let nextContainer = document.getElementById("pb-next-btn-container");
+      if (!nextContainer) {
+        const tvBoard = document.querySelector(".tv-scoreboard");
+        if (tvBoard && tvBoard.parentNode) {
+          nextContainer = document.createElement("div");
+          nextContainer.id = "pb-next-btn-container";
+          nextContainer.style.cssText = "margin: 1.5rem 0; text-align: center;";
+          tvBoard.parentNode.insertBefore(nextContainer, tvBoard.nextSibling);
+        }
+      }
+
+      if (nextContainer) {
+        nextContainer.innerHTML = `
+          <button id="pb-show-final-scorecard-btn" class="btn btn-primary btn-lg" style="font-weight: 900; background: var(--primary-coral); border: 3px solid #1E1E1E; box-shadow: 5px 5px 0px #1E1E1E; font-size: 1.25rem; padding: 0.85rem 2.2rem; cursor: pointer;">
+            Next ➔ View Final Scorecard
+          </button>
+        `;
+        const nextBtn = document.getElementById("pb-show-final-scorecard-btn");
+        if (nextBtn) {
+          nextBtn.addEventListener("click", () => {
+            const finishedScreen = document.getElementById("pb-finished-screen");
+            if (finishedScreen) {
+              finishedScreen.style.display = "block";
+              finishedScreen.scrollIntoView({ behavior: "smooth" });
+            }
+            nextContainer.style.display = "none";
+          });
+        }
+      }
 
       // Correct Team A vs Team B mapping so Team A is ALWAYS on the left
       const teamABatCard = teamABattedFirst ? (i1.battingCard || []) : (i2.battingCard || []);
@@ -2533,13 +2639,10 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
             </div>
           </div>
 
-          <!-- Scorecard Image Download & Share Action Bar -->
+          <!-- Scorecard Image Share Action Bar (No Download Button) -->
           <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap;">
-            <button id="download-scorecard-img-btn" class="btn btn-primary btn-lg" style="font-weight: 900; background: var(--primary-coral); border: 2px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E;">
-              📸 Download Scorecard Graphic
-            </button>
-            <button id="share-scorecard-note-btn" class="btn btn-accent btn-lg" style="font-weight: 900; background: #C89B3C; color: #111111; border: 2px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E;">
-              🔗 Share Victory Note & Link
+            <button id="share-scorecard-img-btn" class="btn btn-accent btn-lg" style="font-weight: 900; background: #C89B3C; color: #111111; border: 2.5px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E; padding: 0.75rem 1.75rem; font-size: 1.05rem;">
+              📸 Share Scorecard Image & Link
             </button>
           </div>
 
@@ -2593,56 +2696,72 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
           </div>
         `;
 
-        // Download PNG Scorecard Image click handler
-        const downloadBtn = document.getElementById("download-scorecard-img-btn");
-        if (downloadBtn) {
-          downloadBtn.addEventListener("click", async () => {
+        // Share Scorecard Image & Website Link click handler
+        const shareImgBtn = document.getElementById("share-scorecard-img-btn");
+        if (shareImgBtn) {
+          shareImgBtn.addEventListener("click", async () => {
             try {
-              downloadBtn.disabled = true;
-              downloadBtn.innerText = "⏳ Generating Image...";
-              const el = document.getElementById("final-winning-scorecard-card");
-              if (el) {
-                const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#FAF6ED" });
-                const link = document.createElement("a");
-                link.download = `SAMARG_XI_Scorecard_${roomCode}.png`;
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-                showToast("📸 Final Scorecard PNG downloaded successfully!");
+              shareImgBtn.disabled = true;
+              shareImgBtn.innerText = "⏳ Preparing Scorecard Image...";
+              const cardEl = document.getElementById("final-winning-scorecard-card");
+              const shareUrl = "https://samarg.vercel.app/";
+              const shareNote = `🏆 SAMARG T20 WORLD CUP FINAL SCORECARD 🏆\n★ CHAMPION: ${championName.toUpperCase()}\nRoom Code: ${roomCode}\n\n${teamAName}: ${teamARuns}/${teamAWickets}\n${teamBName}: ${teamBRuns}/${teamBWickets}\n\nBuild your squad & play live:\n${shareUrl}`;
+
+              if (!cardEl) {
+                showToast("Scorecard element not found", true);
+                return;
               }
+
+              const canvas = await html2canvas(cardEl, { scale: 2, useCORS: true, backgroundColor: "#FAF6ED" });
+              
+              canvas.toBlob(async (blob) => {
+                if (!blob) {
+                  showToast("Could not generate image", true);
+                  return;
+                }
+
+                const file = new File([blob], `samarg_scorecard_${roomCode}.png`, { type: "image/png" });
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                  try {
+                    await navigator.share({
+                      title: "SAMARG T20 World Cup Scorecard",
+                      text: shareNote,
+                      files: [file]
+                    });
+                    showToast("Scorecard image shared successfully!");
+                    return;
+                  } catch (e) {
+                    if (e.name === "AbortError") return;
+                  }
+                }
+
+                if (navigator.share) {
+                  try {
+                    await navigator.share({
+                      title: "SAMARG T20 World Cup Scorecard",
+                      text: shareNote,
+                      url: shareUrl
+                    });
+                    showToast("Scorecard link shared!");
+                    return;
+                  } catch (e) {
+                    if (e.name === "AbortError") return;
+                  }
+                }
+
+                try {
+                  await navigator.clipboard.writeText(shareNote);
+                  showToast("📋 Scorecard note & website link copied to clipboard!");
+                } catch (e) {
+                  prompt("Copy your scorecard note & website link:", shareNote);
+                }
+              }, "image/png");
             } catch (err) {
               showToast(err.message, true);
             } finally {
-              downloadBtn.disabled = false;
-              downloadBtn.innerText = "📸 Download Scorecard Graphic";
-            }
-          });
-        }
-
-        // Share Victory Note & Website Link click handler
-        const shareBtn = document.getElementById("share-scorecard-note-btn");
-        if (shareBtn) {
-          shareBtn.addEventListener("click", async () => {
-            const noteText = `🏆 SAMARG XI WORLD CUP FINAL 🏆\nRoom Code: ${roomCode}\n★ CHAMPION: ${championName.toUpperCase()}\n\n${teamAName}: ${teamARuns}/${teamAWickets}\n${teamBName}: ${teamBRuns}/${teamBWickets}\n\nTop Performer: ${topBattersA[0]?.name} (${topBattersA[0]?.runs} runs)\n\nPlay SAMARG XI Cricket Draft & Simulator:\nhttps://samarg.vercel.app/`;
-
-            if (navigator.share) {
-              try {
-                await navigator.share({
-                  title: `SAMARG XI - ${championName} Won!`,
-                  text: noteText,
-                  url: "https://samarg.vercel.app/"
-                });
-                showToast("Scorecard shared successfully!");
-                return;
-              } catch (e) {
-                if (e.name === "AbortError") return;
-              }
-            }
-
-            try {
-              await navigator.clipboard.writeText(noteText);
-              showToast("📋 Victory note & website link copied to clipboard!");
-            } catch (e) {
-              prompt("Copy your victory note & website link:", noteText);
+              shareImgBtn.disabled = false;
+              shareImgBtn.innerText = "📸 Share Scorecard Image & Link";
             }
           });
         }
