@@ -312,6 +312,30 @@ export function renderRoom(viewport, roomCode) {
         currentSpectatorUid = auth.currentUser ? auth.currentUser.uid : null;
       }
 
+      const currentUid = auth.currentUser ? auth.currentUser.uid : "";
+      const playersMap = roomData.players || {};
+      const playerUids = Object.keys(playersMap);
+      const isMember = currentUid && playerUids.includes(currentUid);
+
+      // Check if room is full for a non-member trying to join
+      if (!isMember && (playerUids.length >= 2 || roomData.status !== "lobby")) {
+        clearInterval(timerInterval);
+        viewport.innerHTML = `
+          <div style="min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FAF6ED; padding: 2rem 1rem; font-family: var(--font-family);">
+            <div style="background: #FAF6ED; border: 3px solid #E53926; border-radius: 0px; padding: 2.5rem 2rem; max-width: 520px; width: 100%; text-align: center; box-shadow: inset 0 0 0 4px #FAF6ED, inset 0 0 0 6px #E53926; transform: rotate(-0.5deg); margin-bottom: 2rem;">
+              <h1 style="color: #E53926; font-size: 1.6rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; margin: 0; line-height: 1.4;">
+                THE ROOM IS FULL.
+              </h1>
+            </div>
+
+            <a href="#/" class="btn btn-secondary" style="background: #FFFFFF; color: #111111; border: 2.5px solid #111111; font-weight: 900; font-size: 1rem; padding: 0.6rem 1.75rem; box-shadow: 3px 3px 0px #111111; border-radius: 0px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+              <span style="font-size: 1.2rem;">⤺</span> BACK
+            </a>
+          </div>
+        `;
+        return;
+      }
+
       // Direct routing based on room status
       if (roomData.status === "lobby") {
         renderLobby(viewport, roomCode, roomData);

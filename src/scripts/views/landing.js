@@ -2,7 +2,7 @@ import { auth, db, functions, rtdb } from "../firebaseInit.js";
 import { doc, getDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { signInAnonymously } from "firebase/auth";
-import { ref, set, get, serverTimestamp } from "firebase/database";
+import { ref, set, get, serverTimestamp, onValue } from "firebase/database";
 
 function generateClientRoomCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -157,6 +157,23 @@ export async function renderLanding(container) {
         </div>
       </div>
     </div>
+
+    <!-- Live Public Rooms Waiting For Player 2 Section -->
+    <section class="landing-steps mt-4" style="margin-top: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 2.5px solid #1E1E1E; padding-bottom: 0.5rem;">
+        <div>
+          <span class="role-badge all-rounder" style="background: #E53926; color: #FFFFFF; font-weight: 900; font-size: 0.72rem; padding: 2px 8px; border: 1px solid #1E1E1E;">LIVE LOBBIES</span>
+          <h2 style="font-size: 1.5rem; margin: 0.3rem 0 0 0; font-weight: 900; color: #111111;">PUBLIC ROOMS WAITING FOR PLAYER 2</h2>
+        </div>
+        <span style="font-size: 0.78rem; font-weight: 800; color: #666666;">Real-time Updates</span>
+      </div>
+
+      <div id="public-rooms-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; min-height: 90px;">
+        <div style="padding: 1.5rem; background: #FFFFFF; border: 2px solid #1E1E1E; text-align: center; color: #666666; font-weight: 800; box-shadow: 3px 3px 0px #1E1E1E; grid-column: 1 / -1;">
+          Scanning for live waiting rooms...
+        </div>
+      </div>
+    </section>
 
     <section class="landing-steps mt-4">
       <h2>Multiplayer Drafting</h2>
@@ -385,4 +402,70 @@ export async function renderLanding(container) {
       }
     });
   }
+
+  // Real-time listener for public rooms waiting for Player 2
+  const roomsRef = ref(rtdb, 'rooms');
+  onValue(roomsRef, (snap) => {
+    const publicContainer = container.querySelector("#public-rooms-container");
+    if (!publicContainer) return;
+
+    const allRooms = snap.val() || {};
+    const openRooms = [];
+
+    Object.keys(allRooms).forEach(code => {
+      const r = allRooms[code];
+      if (r && r.status === "lobby") {
+        const players = r.players || {};
+        const pKeys = Object.keys(players);
+        // Rooms with 1 player waiting for Player 2 (and no password)
+        if (pKeys.length === 1 && !r.password) {
+          const hostPlayer = players[pKeys[0]] || {};
+          openRooms.push({
+            code,
+            hostName: hostPlayer.displayName || "Host Player",
+            mode: r.mode || "duel",
+            timerSec: r.turnTimerSeconds || 20,
+            createdAt: r.createdAt || Date.now()
+          });
+        }
+      }
+    });
+
+    if (openRooms.length === 0) {
+      publicContainer.innerHTML = `
+        <div style="padding: 1.5rem; background: #FFFFFF; border: 2px solid #1E1E1E; text-align: center; color: #666666; font-weight: 800; box-shadow: 3px 3px 0px #1E1E1E; grid-column: 1 / -1;">
+          No open public rooms waiting right now. Click <strong>Create Room</strong> above to host one!
+        </div>
+      `;
+      return;
+    }
+
+    publicContainer.innerHTML = openRooms.map(r => `
+      <div style="background: #FFFFFF; border: 2.5px solid #1E1E1E; padding: 1.1rem; box-shadow: 4px 4px 0px #1E1E1E; border-radius: 0px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span class="role-badge all-rounder" style="background: #C89B3C; color: #111; font-weight: 900; font-size: 0.68rem; padding: 2px 6px;">${r.mode.toUpperCase()}</span>
+            <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.9rem; color: #E53926;">#${r.code}</span>
+          </div>
+          <div style="font-weight: 900; font-size: 1.1rem; color: #111111; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            ${r.hostName}'s Room
+          </div>
+          <div style="font-size: 0.78rem; font-weight: 700; color: #555555; margin-bottom: 1rem;">
+            1/2 Players • Waiting for Player 2
+          </div>
+        </div>
+        <button class="btn btn-primary btn-sm join-public-room-btn" data-code="${r.code}" style="width: 100%; font-weight: 900; background: #E53926; border: 1.5px solid #1E1E1E;">
+          ⚡ Join Match
+        </button>
+      </div>
+    `).join("");
+
+    const joinBtns = publicContainer.querySelectorAll(".join-public-room-btn");
+    joinBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const code = btn.getAttribute("data-code");
+        window.location.hash = `#/room/${code}`;
+      });
+    });
+  });
 }

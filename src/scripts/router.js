@@ -30,19 +30,10 @@ const routes = [
   { pattern: /^\/profile$/, handler: renderProfile }
 ];
 
-let isAuthInitialized = false;
+let isAuthInitialized = true;
 
 // Handles hash routing
 function resolveRoute() {
-  if (!isAuthInitialized) {
-    viewport.innerHTML = `
-      <div class="text-center" style="margin-top: 10vh;">
-        <h2 style="font-size: 2rem;">Loading SAMARG...</h2>
-        <p style="color: var(--chalk-white-dim); margin-top: 1rem;">Setting up simulation parameters</p>
-      </div>
-    `;
-    return;
-  }
 
   const hash = window.location.hash || "#/";
   const path = hash.slice(1); // Strip the leading '#'
