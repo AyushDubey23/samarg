@@ -925,13 +925,18 @@ function renderDraftPhase(viewport, roomCode, room) {
 
   // Player 1 (User) and Player 2 (Opponent) identification
   const playersMap = room.players || {};
-  const playerUids = Object.keys(playersMap);
-  const p1Uid = currentUid;
-  const p2Uid = playerUids.find(id => id !== currentUid) || playerUids[0];
+  const participantUids = (draftState.turnOrder && draftState.turnOrder.length > 0)
+    ? draftState.turnOrder
+    : Object.keys(playersMap);
 
-  const p1Name = (playersMap[currentUid]?.displayName || auth.currentUser?.displayName || "YOU").toUpperCase();
+  const p1Uid = currentUid;
+  const p2Uid = participantUids.find(id => id !== currentUid) || (participantUids.length > 1 ? participantUids[1] : participantUids[0]);
+
+  const p1Obj = playersMap[p1Uid] || {};
   const p2Obj = playersMap[p2Uid] || {};
-  const p2Name = (p2Obj.displayName && p2Obj.displayName !== "PLAYER 2" ? p2Obj.displayName : "OPPONENT").toUpperCase();
+
+  const p1Name = (p1Obj.displayName || auth.currentUser?.displayName || "YOU").toUpperCase();
+  const p2Name = (p2Obj.displayName || "OPPONENT").toUpperCase();
 
   const p1Squad = room.squads?.[p1Uid] || { slots: Array(11).fill(null), bench: [] };
   const p2Squad = room.squads?.[p2Uid] || { slots: Array(11).fill(null), bench: [] };
@@ -1032,30 +1037,44 @@ function renderDraftPhase(viewport, roomCode, room) {
                   ` : ''}
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 0.35rem; max-height: 380px; overflow-y: auto;" id="rolled-players-grid">
-                  ${reveal.players.map((p, idx) => {
-                    const claimedIds = draftState.claimedPlayerIds || [];
-                    const claimedNames = (draftState.claimedPlayerNames || []).map(n => String(n).toLowerCase().trim());
-                    const pNameNorm = String(p.name || '').toLowerCase().trim();
-                    const isClaimedById = claimedIds.includes(p.id);
-                    const isClaimedByName = claimedNames.some(cn => pNameNorm === cn || pNameNorm.includes(cn) || cn.includes(pNameNorm));
-                    const isClaimed = isClaimedById || isClaimedByName;
-                    const isSelected = selectedDraftPlayerId === p.id;
-                    return `
-                      <div class="draft-card-item ${isClaimed ? 'claimed-dim' : ''} ${isSelected ? 'selected-coral' : ''}" 
-                           data-player-id="${p.id}" 
-                           style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: ${isSelected ? 'var(--primary-coral)' : (isClaimed ? '#E5E0D5' : '#FFFFFF')}; color: ${isSelected ? '#FFFFFF' : '#111111'}; border: ${isSelected ? '2px solid #1E1E1E' : '1.5px solid #D8D0C0'}; border-radius: 0px; cursor: ${isClaimed || !isActiveTurn ? 'not-allowed' : 'pointer'}; opacity: ${isClaimed ? 0.6 : 1.0};">
-                        <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
-                          <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.82rem; min-width: 24px;">#${idx + 1}</span>
-                          <div style="font-weight: 800; font-size: 0.85rem;">${p.name}</div>
+                  ${(() => {
+                    const allClaimedIds = new Set(ensureArray(draftState.claimedPlayerIds));
+                    const allClaimedNames = new Set((draftState.claimedPlayerNames || []).map(n => String(n).toLowerCase().trim()));
+
+                    Object.values(room.squads || {}).forEach(sq => {
+                      const slots = getFilledSlotsArray(sq.slots || []);
+                      const bench = ensureArray(sq.bench || []);
+                      [...slots, ...bench].forEach(p => {
+                        if (p) {
+                          if (p.id) allClaimedIds.add(p.id);
+                          if (p.name) allClaimedNames.add(String(p.name).toLowerCase().trim());
+                        }
+                      });
+                    });
+
+                    return reveal.players.map((p, idx) => {
+                      const pNameNorm = String(p.name || '').toLowerCase().trim();
+                      const isClaimedById = allClaimedIds.has(p.id);
+                      const isClaimedByName = allClaimedNames.has(pNameNorm) || [...allClaimedNames].some(cn => cn === pNameNorm || (cn.length > 4 && (pNameNorm.includes(cn) || cn.includes(pNameNorm))));
+                      const isClaimed = isClaimedById || isClaimedByName;
+                      const isSelected = selectedDraftPlayerId === p.id;
+                      return `
+                        <div class="draft-card-item ${isClaimed ? 'claimed-dim' : ''} ${isSelected ? 'selected-coral' : ''}" 
+                             data-player-id="${p.id}" 
+                             style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: ${isSelected ? 'var(--primary-coral)' : (isClaimed ? '#E5E0D5' : '#FFFFFF')}; color: ${isSelected ? '#FFFFFF' : '#111111'}; border: ${isSelected ? '2px solid #1E1E1E' : '1.5px solid #D8D0C0'}; border-radius: 0px; cursor: ${isClaimed || !isActiveTurn ? 'not-allowed' : 'pointer'}; opacity: ${isClaimed ? 0.6 : 1.0};">
+                          <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
+                            <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.82rem; min-width: 24px;">#${idx + 1}</span>
+                            <div style="font-weight: 800; font-size: 0.85rem;">${p.name}</div>
+                          </div>
+                          <div style="display: flex; gap: 0.35rem; align-items: center;">
+                            <span style="font-size: 0.72rem; background: ${isSelected ? '#FFFFFF' : '#E53926'}; color: ${isSelected ? '#E53926' : '#FFFFFF'}; font-weight: 900; padding: 2px 5px; border: 1px solid #1E1E1E;">BAT ${p.batRating || 75}</span>
+                            <span style="font-size: 0.72rem; background: ${isSelected ? '#FFFFFF' : '#1E88E5'}; color: ${isSelected ? '#1E88E5' : '#FFFFFF'}; font-weight: 900; padding: 2px 5px; border: 1px solid #1E1E1E;">BOWL ${p.bowlRating || 0}</span>
+                          </div>
+                          ${isClaimed ? `<div style="font-size: 0.62rem; font-weight: 900; margin-left: 0.35rem; color: #D32F2F;">TAKEN</div>` : ''}
                         </div>
-                        <div style="display: flex; gap: 0.35rem; align-items: center;">
-                          <span style="font-size: 0.72rem; background: ${isSelected ? '#FFFFFF' : '#E53926'}; color: ${isSelected ? '#E53926' : '#FFFFFF'}; font-weight: 900; padding: 2px 5px; border: 1px solid #1E1E1E;">BAT ${p.batRating || 75}</span>
-                          <span style="font-size: 0.72rem; background: ${isSelected ? '#FFFFFF' : '#1E88E5'}; color: ${isSelected ? '#1E88E5' : '#FFFFFF'}; font-weight: 900; padding: 2px 5px; border: 1px solid #1E1E1E;">BOWL ${p.bowlRating || 0}</span>
-                        </div>
-                        ${isClaimed ? `<div style="font-size: 0.62rem; font-weight: 900; margin-left: 0.35rem; color: #D32F2F;">TAKEN</div>` : ''}
-                      </div>
-                    `;
-                  }).join("")}
+                      `;
+                    }).join("");
+                  })()}
                 </div>
               </div>
             </div>
@@ -2523,13 +2542,13 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
   const i1 = match.innings1 || (match.inningsData ? match.inningsData[0] : { balls: [], battingTeamName: match.teamAName });
   const i2 = match.innings2 || (match.inningsData ? match.inningsData[1] : { balls: [], battingTeamName: match.teamBName });
 
-  const team1Name = i1.battingTeamName || match.teamAName || "TEAM A";
-  const team2Name = i2.battingTeamName || match.teamBName || "TEAM B";
+  const teamAName = match.teamAName || "TEAM A";
+  const teamBName = match.teamBName || "TEAM B";
 
   const teamAEl = document.getElementById("pb-teamA");
   const teamBEl = document.getElementById("pb-teamB");
-  if (teamAEl) teamAEl.innerText = team1Name;
-  if (teamBEl) teamBEl.innerText = team2Name;
+  if (teamAEl) teamAEl.innerText = teamAName.toUpperCase();
+  if (teamBEl) teamBEl.innerText = teamBName.toUpperCase();
 
   // Build ID lookup maps for player names
   const bMap1 = {};
@@ -2922,12 +2941,14 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
     }
 
     // Process team runs and wickets counters
-    if (ball.innings === 1) {
+    const isTeamABat = (ball.innings === 1 && teamABattedFirst) || (ball.innings === 2 && !teamABattedFirst);
+
+    if (isTeamABat) {
       if (ball.isWicket) wickets1++;
       if (!ball.isExtra || ball.extraType === "bye") {
         runs1 += ball.runs;
       } else if (ball.extraType === "wide" || ball.extraType === "noball") {
-        runs1 += 1; // wides/noballs add 1 penalty
+        runs1 += 1;
       }
       
       const rA = document.getElementById("pb-runsA");
@@ -2935,11 +2956,12 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
       if (rA) rA.innerText = `${runs1}/${wickets1}`;
       if (oA) oA.innerText = formatOvers(ball.over, ball.ballInOver);
     } else {
-      // Innings 2 chase
-      const tT = document.getElementById("pb-target-ticker");
-      const tR = document.getElementById("pb-target-runs");
-      if (tT) tT.style.display = "block";
-      if (tR) tR.innerText = `${i1.totalRuns + 1} runs`;
+      if (ball.innings === 2) {
+        const tT = document.getElementById("pb-target-ticker");
+        const tR = document.getElementById("pb-target-runs");
+        if (tT) tT.style.display = "block";
+        if (tR) tR.innerText = `${i1.totalRuns + 1} runs`;
+      }
 
       if (ball.isWicket) wickets2++;
       if (!ball.isExtra || ball.extraType === "bye") {
