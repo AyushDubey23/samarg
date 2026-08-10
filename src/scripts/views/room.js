@@ -2481,133 +2481,158 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
       const statusTitle = document.getElementById("sim-status-title");
       if (statusTitle) statusTitle.innerText = "Match Complete! Standings settled.";
 
-      // Compute Top 3 Batters & Top 2 Active Bowlers for both teams
-      const topBatters1 = [...(i1.battingCard || [])].sort((a,b) => (b.runs || 0) - (a.runs || 0)).slice(0, 3);
-      while (topBatters1.length < 3) topBatters1.push({ name: "-", runs: 0, balls: 0 });
+      // Correct Team A vs Team B mapping so Team A is ALWAYS on the left
+      const teamAName = match.teamAName || "TEAM A";
+      const teamBName = match.teamBName || "TEAM B";
 
-      const topBowlers1 = [...(i1.bowlingCard || [])]
+      const teamABattedFirst = (i1.battingTeamName === teamAName) || (i1.battingTeamId === match.teamAId);
+
+      const teamABatCard = teamABattedFirst ? (i1.battingCard || []) : (i2.battingCard || []);
+      const teamABowlCard = teamABattedFirst ? (i2.bowlingCard || []) : (i1.bowlingCard || []);
+      const teamARuns = teamABattedFirst ? runs1 : runs2;
+      const teamAWickets = teamABattedFirst ? wickets1 : wickets2;
+
+      const teamBBatCard = teamABattedFirst ? (i2.battingCard || []) : (i1.battingCard || []);
+      const teamBBowlCard = teamABattedFirst ? (i1.bowlingCard || []) : (i2.bowlingCard || []);
+      const teamBRuns = teamABattedFirst ? runs2 : runs1;
+      const teamBWickets = teamABattedFirst ? wickets2 : wickets1;
+
+      // Compute Top 3 Batters & Top 2 Active Bowlers for Team A
+      const topBattersA = [...teamABatCard].sort((a,b) => (b.runs || 0) - (a.runs || 0)).slice(0, 3);
+      while (topBattersA.length < 3) topBattersA.push({ name: "-", runs: 0, balls: 0 });
+
+      const topBowlersA = [...teamABowlCard]
         .filter(bw => (bw.overs || 0) > 0 || (bw.balls || 0) > 0)
         .sort((a,b) => (b.wickets || 0) - (a.wickets || 0) || (a.runsConceded || 0) - (b.runsConceded || 0))
         .slice(0, 2);
-      while (topBowlers1.length < 2) topBowlers1.push({ name: "-", wickets: 0, runsConceded: 0, overs: 0 });
+      while (topBowlersA.length < 2) topBowlersA.push({ name: "-", wickets: 0, runsConceded: 0, overs: 0 });
 
-      const topBatters2 = [...(i2.battingCard || [])].sort((a,b) => (b.runs || 0) - (a.runs || 0)).slice(0, 3);
-      while (topBatters2.length < 3) topBatters2.push({ name: "-", runs: 0, balls: 0 });
+      // Compute Top 3 Batters & Top 2 Active Bowlers for Team B
+      const topBattersB = [...teamBBatCard].sort((a,b) => (b.runs || 0) - (a.runs || 0)).slice(0, 3);
+      while (topBattersB.length < 3) topBattersB.push({ name: "-", runs: 0, balls: 0 });
 
-      const topBowlers2 = [...(i2.bowlingCard || [])]
+      const topBowlersB = [...teamBBowlCard]
         .filter(bw => (bw.overs || 0) > 0 || (bw.balls || 0) > 0)
         .sort((a,b) => (b.wickets || 0) - (a.wickets || 0) || (a.runsConceded || 0) - (b.runsConceded || 0))
         .slice(0, 2);
-      while (topBowlers2.length < 2) topBowlers2.push({ name: "-", wickets: 0, runsConceded: 0, overs: 0 });
+      while (topBowlersB.length < 2) topBowlersB.push({ name: "-", wickets: 0, runsConceded: 0, overs: 0 });
 
-      const championName = match.result?.winner === match.teamAName ? match.teamAName : (match.result?.winner === match.teamBName ? match.teamBName : (standings[0]?.teamName || "CHAMPION"));
-      const winnerIsTeamA = match.result?.winner === match.teamAName;
+      const championName = match.result?.winner || standings[0]?.teamName || "CHAMPION";
+      const winnerIsTeamA = match.result?.winner === teamAName;
 
       const finishedScreen = document.getElementById("pb-finished-screen");
       if (finishedScreen) {
         finishedScreen.innerHTML = `
-          <!-- VINTAGE FINAL WINNING SCORECARD CARD (Sample Styled) -->
-          <div id="final-winning-scorecard-card" style="background: #FAF6ED; border: 4px solid #1E1E1E; padding: 2rem 1.5rem; max-width: 580px; margin: 0 auto 1.5rem auto; box-shadow: 8px 8px 0px #1E1E1E; font-family: var(--font-family); color: #111111; text-align: center; border-radius: 0px; position: relative;">
+          <!-- VINTAGE FINAL WINNING SCORECARD CARD (Responsive Mobile Fixed) -->
+          <div id="final-winning-scorecard-card" style="background: #FAF6ED; border: 4px solid #1E1E1E; padding: 1.5rem 0.75rem; max-width: 580px; width: 100%; margin: 0 auto 1.5rem auto; box-shadow: 8px 8px 0px #1E1E1E; font-family: var(--font-family); color: #111111; text-align: center; border-radius: 0px; position: relative; box-sizing: border-box; overflow: hidden;">
             <!-- Header row -->
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1E1E1E; padding-bottom: 0.65rem; margin-bottom: 1.25rem;">
-              <span style="font-weight: 900; font-size: 1.3rem; letter-spacing: 0.05em; font-family: var(--font-family-mono); color: #111111;">SAMARG XI</span>
-              <span style="font-size: 0.8rem; font-weight: 900; text-transform: uppercase; color: #444444; letter-spacing: 0.08em;">WORLD CUP FINAL • ROOM ${roomCode}</span>
+              <span style="font-weight: 900; font-size: 1.2rem; letter-spacing: 0.05em; font-family: var(--font-family-mono); color: #111111;">SAMARG XI</span>
+              <span style="font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: #444444; letter-spacing: 0.05em;">WORLD CUP FINAL • ROOM ${roomCode}</span>
             </div>
 
             <!-- Big Team vs Team Scores -->
             <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 0.5rem;">
-              <div style="flex: 1; text-align: center;">
-                <div style="font-weight: 900; font-size: 1.35rem; color: #111111; border-bottom: ${winnerIsTeamA ? '3px solid #E53926' : 'none'}; display: inline-block; padding-bottom: 2px;">
-                  ${team1Name.toUpperCase()}
+              <div style="flex: 1; text-align: center; min-width: 0;">
+                <div style="font-weight: 900; font-size: 1.25rem; color: #111111; border-bottom: ${winnerIsTeamA ? '3px solid #E53926' : 'none'}; display: inline-block; padding-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
+                  ${teamAName.toUpperCase()}
                 </div>
-                <div style="font-size: 1.8rem; font-weight: 900; color: #E53926; font-family: var(--font-family-mono); margin-top: 0.2rem;">
-                  ${runs1}/${wickets1}
+                <div style="font-size: 1.7rem; font-weight: 900; color: #E53926; font-family: var(--font-family-mono); margin-top: 0.2rem;">
+                  ${teamARuns}/${teamAWickets}
                 </div>
               </div>
 
-              <div style="padding: 0 0.85rem;">
-                <span style="font-size: 1.5rem; font-weight: 900; color: #C89B3C;">VS</span>
-                <div style="font-size: 0.72rem; font-weight: 900; color: #666666; text-transform: uppercase;">FINAL</div>
+              <div style="padding: 0 0.5rem; flex-shrink: 0;">
+                <span style="font-size: 1.4rem; font-weight: 900; color: #C89B3C;">VS</span>
+                <div style="font-size: 0.68rem; font-weight: 900; color: #666666; text-transform: uppercase;">FINAL</div>
               </div>
 
-              <div style="flex: 1; text-align: center;">
-                <div style="font-weight: 900; font-size: 1.35rem; color: #111111; border-bottom: ${!winnerIsTeamA ? '3px solid #1E88E5' : 'none'}; display: inline-block; padding-bottom: 2px;">
-                  ${team2Name.toUpperCase()}
+              <div style="flex: 1; text-align: center; min-width: 0;">
+                <div style="font-weight: 900; font-size: 1.25rem; color: #111111; border-bottom: ${!winnerIsTeamA ? '3px solid #1E88E5' : 'none'}; display: inline-block; padding-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
+                  ${teamBName.toUpperCase()}
                 </div>
-                <div style="font-size: 1.8rem; font-weight: 900; color: #1E88E5; font-family: var(--font-family-mono); margin-top: 0.2rem;">
-                  ${runs2}/${wickets2}
+                <div style="font-size: 1.7rem; font-weight: 900; color: #1E88E5; font-family: var(--font-family-mono); margin-top: 0.2rem;">
+                  ${teamBRuns}/${teamBWickets}
                 </div>
               </div>
             </div>
 
             <!-- Gold Champion Banner -->
-            <div style="background: linear-gradient(135deg, #FFF2A1, #D4AF37 60%, #aa820a); border: 2.5px solid #1E1E1E; padding: 0.75rem 1rem; margin: 1.25rem 0 1.5rem 0; font-weight: 900; font-size: 1.25rem; color: #111111; box-shadow: 3px 3px 0px #1E1E1E; text-transform: uppercase; letter-spacing: 0.05em;">
+            <div style="background: linear-gradient(135deg, #FFF2A1, #D4AF37 60%, #aa820a); border: 2.5px solid #1E1E1E; padding: 0.65rem 0.5rem; margin: 1.15rem 0 1.35rem 0; font-weight: 900; font-size: 1.15rem; color: #111111; box-shadow: 3px 3px 0px #1E1E1E; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
               ★ CHAMPION - ${championName.toUpperCase()}
             </div>
 
-            <!-- Side-by-side Top 3 Batters & Top 3 Bowlers Grid -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left;">
+            <!-- Side-by-side Top 3 Batters & Top 2 Bowlers Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; text-align: left;">
               <!-- Team A Top Performers Column -->
-              <div style="display: flex; flex-direction: column; gap: 0.45rem;">
-                <div style="font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: #E53926; border-bottom: 1.5px solid #1E1E1E; padding-bottom: 0.25rem; margin-bottom: 0.25rem;">
-                  ${team1Name} TOP PERFORMERS
+              <div style="display: flex; flex-direction: column; gap: 0.4rem; min-width: 0;">
+                <div style="font-size: 0.72rem; font-weight: 900; text-transform: uppercase; color: #E53926; border-bottom: 1.5px solid #1E1E1E; padding-bottom: 0.2rem; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  ${teamAName} TOP PERFORMERS
                 </div>
 
                 <!-- Top 3 Batters -->
-                ${topBatters1.map((b, idx) => `
-                  <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: ${idx === 0 ? '2px solid #C89B3C' : '1.5px solid #1E1E1E'}; padding: 0.4rem 0.65rem; box-shadow: ${idx === 0 ? '2px 2px 0px #C89B3C' : '1.5px 1.5px 0px #1E1E1E'};">
-                    <div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden; white-space: nowrap;">
-                      <span style="font-size: 0.65rem; font-weight: 900; background: #E53926; color: #FFF; padding: 1px 4px; border: 1px solid #1E1E1E;">BAT</span>
-                      <span style="font-weight: 800; font-size: 0.82rem; text-overflow: ellipsis; overflow: hidden; color: #111111;">${b.name}</span>
+                ${topBattersA.map((b, idx) => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: ${idx === 0 ? '2px solid #C89B3C' : '1.5px solid #1E1E1E'}; padding: 0.35rem 0.5rem; box-shadow: ${idx === 0 ? '2px 2px 0px #C89B3C' : '1.5px 1.5px 0px #1E1E1E'}; gap: 0.25rem; overflow: hidden;">
+                    <div style="display: flex; align-items: center; gap: 0.35rem; min-width: 0; flex: 1;">
+                      <span style="font-size: 0.6rem; font-weight: 900; background: #E53926; color: #FFF; padding: 1px 4px; border: 1px solid #1E1E1E; flex-shrink: 0;">BAT</span>
+                      <span style="font-weight: 800; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #111111;">${b.name}</span>
                     </div>
-                    <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.85rem; color: #111111;">${b.runs}<span style="font-size: 0.72rem; font-weight: 700; color: #555555;">(${b.balls})</span></span>
+                    <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.8rem; color: #111111; flex-shrink: 0; white-space: nowrap; margin-left: 0.25rem;">
+                      ${b.runs}<span style="font-size: 0.68rem; font-weight: 700; color: #555555;">(${b.balls})</span>
+                    </span>
                   </div>
                 `).join("")}
 
-                <!-- Top 3 Bowlers -->
-                ${topBowlers1.map((bw, idx) => `
-                  <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: ${idx === 0 ? '2px solid #C89B3C' : '1.5px solid #1E1E1E'}; padding: 0.4rem 0.65rem; box-shadow: ${idx === 0 ? '2px 2px 0px #C89B3C' : '1.5px 1.5px 0px #1E1E1E'}; margin-top: 0.1rem;">
-                    <div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden; white-space: nowrap;">
-                      <span style="font-size: 0.65rem; font-weight: 900; background: #1E88E5; color: #FFF; padding: 1px 4px; border: 1px solid #1E1E1E;">BOWL</span>
-                      <span style="font-weight: 800; font-size: 0.82rem; text-overflow: ellipsis; overflow: hidden; color: #111111;">${bw.name}</span>
+                <!-- Top 2 Bowlers -->
+                ${topBowlersA.map((bw, idx) => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: ${idx === 0 ? '2px solid #C89B3C' : '1.5px solid #1E1E1E'}; padding: 0.35rem 0.5rem; box-shadow: ${idx === 0 ? '2px 2px 0px #C89B3C' : '1.5px 1.5px 0px #1E1E1E'}; margin-top: 0.1rem; gap: 0.25rem; overflow: hidden;">
+                    <div style="display: flex; align-items: center; gap: 0.35rem; min-width: 0; flex: 1;">
+                      <span style="font-size: 0.6rem; font-weight: 900; background: #1E88E5; color: #FFF; padding: 1px 4px; border: 1px solid #1E1E1E; flex-shrink: 0;">BOWL</span>
+                      <span style="font-weight: 800; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #111111;">${bw.name}</span>
                     </div>
-                    <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.85rem; color: #111111;">${bw.wickets}-${bw.runsConceded}</span>
+                    <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.8rem; color: #111111; flex-shrink: 0; white-space: nowrap; margin-left: 0.25rem;">
+                      ${bw.wickets}-${bw.runsConceded}
+                    </span>
                   </div>
                 `).join("")}
               </div>
 
               <!-- Team B Top Performers Column -->
-              <div style="display: flex; flex-direction: column; gap: 0.45rem;">
-                <div style="font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: #1E88E5; border-bottom: 1.5px solid #1E1E1E; padding-bottom: 0.25rem; margin-bottom: 0.25rem;">
-                  ${team2Name} TOP PERFORMERS
+              <div style="display: flex; flex-direction: column; gap: 0.4rem; min-width: 0;">
+                <div style="font-size: 0.72rem; font-weight: 900; text-transform: uppercase; color: #1E88E5; border-bottom: 1.5px solid #1E1E1E; padding-bottom: 0.2rem; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  ${teamBName} TOP PERFORMERS
                 </div>
 
                 <!-- Top 3 Batters -->
-                ${topBatters2.map((b, idx) => `
-                  <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: ${idx === 0 ? '2px solid #C89B3C' : '1.5px solid #1E1E1E'}; padding: 0.4rem 0.65rem; box-shadow: ${idx === 0 ? '2px 2px 0px #C89B3C' : '1.5px 1.5px 0px #1E1E1E'};">
-                    <div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden; white-space: nowrap;">
-                      <span style="font-size: 0.65rem; font-weight: 900; background: #E53926; color: #FFF; padding: 1px 4px; border: 1px solid #1E1E1E;">BAT</span>
-                      <span style="font-weight: 800; font-size: 0.82rem; text-overflow: ellipsis; overflow: hidden; color: #111111;">${b.name}</span>
+                ${topBattersB.map((b, idx) => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: ${idx === 0 ? '2px solid #C89B3C' : '1.5px solid #1E1E1E'}; padding: 0.35rem 0.5rem; box-shadow: ${idx === 0 ? '2px 2px 0px #C89B3C' : '1.5px 1.5px 0px #1E1E1E'}; gap: 0.25rem; overflow: hidden;">
+                    <div style="display: flex; align-items: center; gap: 0.35rem; min-width: 0; flex: 1;">
+                      <span style="font-size: 0.6rem; font-weight: 900; background: #E53926; color: #FFF; padding: 1px 4px; border: 1px solid #1E1E1E; flex-shrink: 0;">BAT</span>
+                      <span style="font-weight: 800; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #111111;">${b.name}</span>
                     </div>
-                    <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.85rem; color: #111111;">${b.runs}<span style="font-size: 0.72rem; font-weight: 700; color: #555555;">(${b.balls})</span></span>
+                    <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.8rem; color: #111111; flex-shrink: 0; white-space: nowrap; margin-left: 0.25rem;">
+                      ${b.runs}<span style="font-size: 0.68rem; font-weight: 700; color: #555555;">(${b.balls})</span>
+                    </span>
                   </div>
                 `).join("")}
 
-                <!-- Top 3 Bowlers -->
-                ${topBowlers2.map((bw, idx) => `
-                  <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: ${idx === 0 ? '2px solid #C89B3C' : '1.5px solid #1E1E1E'}; padding: 0.4rem 0.65rem; box-shadow: ${idx === 0 ? '2px 2px 0px #C89B3C' : '1.5px 1.5px 0px #1E1E1E'}; margin-top: 0.1rem;">
-                    <div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden; white-space: nowrap;">
-                      <span style="font-size: 0.65rem; font-weight: 900; background: #1E88E5; color: #FFF; padding: 1px 4px; border: 1px solid #1E1E1E;">BOWL</span>
-                      <span style="font-weight: 800; font-size: 0.82rem; text-overflow: ellipsis; overflow: hidden; color: #111111;">${bw.name}</span>
+                <!-- Top 2 Bowlers -->
+                ${topBowlersB.map((bw, idx) => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: ${idx === 0 ? '2px solid #C89B3C' : '1.5px solid #1E1E1E'}; padding: 0.35rem 0.5rem; box-shadow: ${idx === 0 ? '2px 2px 0px #C89B3C' : '1.5px 1.5px 0px #1E1E1E'}; margin-top: 0.1rem; gap: 0.25rem; overflow: hidden;">
+                    <div style="display: flex; align-items: center; gap: 0.35rem; min-width: 0; flex: 1;">
+                      <span style="font-size: 0.6rem; font-weight: 900; background: #1E88E5; color: #FFF; padding: 1px 4px; border: 1px solid #1E1E1E; flex-shrink: 0;">BOWL</span>
+                      <span style="font-weight: 800; font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #111111;">${bw.name}</span>
                     </div>
-                    <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.85rem; color: #111111;">${bw.wickets}-${bw.runsConceded}</span>
+                    <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.8rem; color: #111111; flex-shrink: 0; white-space: nowrap; margin-left: 0.25rem;">
+                      ${bw.wickets}-${bw.runsConceded}
+                    </span>
                   </div>
                 `).join("")}
               </div>
             </div>
 
             <!-- Card Footer -->
-            <div style="border-top: 2px solid #1E1E1E; margin-top: 1.5rem; padding-top: 0.75rem; font-size: 0.82rem; font-weight: 900; color: #444444; letter-spacing: 0.05em;">
+            <div style="border-top: 2px solid #1E1E1E; margin-top: 1.35rem; padding-top: 0.65rem; font-size: 0.78rem; font-weight: 900; color: #444444; letter-spacing: 0.05em;">
               samarg.vercel.app • build your squad
             </div>
           </div>
