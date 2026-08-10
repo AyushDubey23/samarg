@@ -715,7 +715,8 @@ function renderDraftPhase(viewport, roomCode, room) {
   const p2Uid = playerUids.find(id => id !== currentUid) || playerUids[0];
 
   const p1Name = (playersMap[currentUid]?.displayName || auth.currentUser?.displayName || "YOU").toUpperCase();
-  const p2Name = (p2.displayName && p2.displayName !== "PLAYER 2" ? p2.displayName : "OPPONENT").toUpperCase();
+  const p2Obj = playersMap[p2Uid] || {};
+  const p2Name = (p2Obj.displayName && p2Obj.displayName !== "PLAYER 2" ? p2Obj.displayName : "OPPONENT").toUpperCase();
 
   const p1Squad = room.squads?.[p1Uid] || { slots: Array(11).fill(null), bench: [] };
   const p2Squad = room.squads?.[p2Uid] || { slots: Array(11).fill(null), bench: [] };
