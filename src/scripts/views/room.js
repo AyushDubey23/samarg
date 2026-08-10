@@ -2249,9 +2249,9 @@ function renderSimulatingPhase(viewport, roomCode, room) {
 
   viewport.innerHTML = `
     <div class="squad-review-container">
-      <div class="text-center" style="margin-bottom: 2rem;">
+      <div class="text-center" style="margin-bottom: 2rem; padding: 0 0.5rem; box-sizing: border-box;">
         <span class="role-badge all-rounder" style="font-size: 0.85rem;">Phase: Synced Match Simulation</span>
-        <h1 style="font-size: 2.4rem; margin-top: 0.4rem; font-weight: 900; color: #111111;">World Cup Match Highlights</h1>
+        <h1 style="font-size: clamp(1.4rem, 6vw, 2.4rem); margin-top: 0.4rem; font-weight: 900; color: #111111;">World Cup Match Highlights</h1>
         <p style="color: #333333; font-weight: 800; margin-top: 0.2rem;" id="sim-status-title">Aligning broadcast timers...</p>
       </div>
 
@@ -2464,14 +2464,14 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
         if (tvBoard && tvBoard.parentNode) {
           nextContainer = document.createElement("div");
           nextContainer.id = "pb-next-btn-container";
-          nextContainer.style.cssText = "margin: 1.5rem 0; text-align: center;";
+          nextContainer.style.cssText = "margin: 1.5rem auto; text-align: center; width: 100%; max-width: 480px; padding: 0 1rem; box-sizing: border-box;";
           tvBoard.parentNode.insertBefore(nextContainer, tvBoard.nextSibling);
         }
       }
 
       if (nextContainer) {
         nextContainer.innerHTML = `
-          <button id="pb-show-final-scorecard-btn" class="btn btn-primary btn-lg" style="font-weight: 900; background: var(--primary-coral); border: 3px solid #1E1E1E; box-shadow: 5px 5px 0px #1E1E1E; font-size: 1.25rem; padding: 0.85rem 2.2rem; cursor: pointer;">
+          <button id="pb-show-final-scorecard-btn" class="btn btn-primary btn-lg" style="font-weight: 900; background: var(--primary-coral); border: 3px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E; font-size: clamp(1rem, 4.5vw, 1.25rem); padding: 0.85rem 1.25rem; cursor: pointer; width: 100%; max-width: 100%; box-sizing: border-box; text-align: center; display: inline-flex; align-items: center; justify-content: center; word-break: break-word;">
             Next ➔ View Final Scorecard
           </button>
         `;
@@ -2526,46 +2526,46 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
       if (finishedScreen) {
         finishedScreen.innerHTML = `
           <!-- VINTAGE FINAL WINNING SCORECARD CARD (Responsive Mobile Fixed) -->
-          <div id="final-winning-scorecard-card" style="background: #FAF6ED; border: 4px solid #1E1E1E; padding: 1.5rem 0.75rem; max-width: 580px; width: 100%; margin: 0 auto 1.5rem auto; box-shadow: 8px 8px 0px #1E1E1E; font-family: var(--font-family); color: #111111; text-align: center; border-radius: 0px; position: relative; box-sizing: border-box; overflow: hidden;">
+          <div id="final-winning-scorecard-card" style="background: #FAF6ED; border: 3.5px solid #1E1E1E; padding: 1.25rem 0.65rem; max-width: 580px; width: 100%; margin: 0 auto 1.5rem auto; box-shadow: 6px 6px 0px #1E1E1E; font-family: var(--font-family); color: #111111; text-align: center; border-radius: 0px; position: relative; box-sizing: border-box; overflow: hidden;">
             <!-- Header row -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1E1E1E; padding-bottom: 0.65rem; margin-bottom: 1.25rem;">
-              <span style="font-weight: 900; font-size: 1.2rem; letter-spacing: 0.05em; font-family: var(--font-family-mono); color: #111111;">SAMARG XI</span>
-              <span style="font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: #444444; letter-spacing: 0.05em;">WORLD CUP FINAL • ROOM ${roomCode}</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1E1E1E; padding-bottom: 0.65rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <span style="font-weight: 900; font-size: clamp(1rem, 4vw, 1.2rem); letter-spacing: 0.05em; font-family: var(--font-family-mono); color: #111111;">SAMARG XI</span>
+              <span style="font-size: clamp(0.65rem, 2.5vw, 0.75rem); font-weight: 900; text-transform: uppercase; color: #444444; letter-spacing: 0.05em;">WORLD CUP FINAL • ROOM ${roomCode}</span>
             </div>
 
             <!-- Big Team vs Team Scores -->
-            <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 0.5rem;">
-              <div style="flex: 1; text-align: center; min-width: 0;">
-                <div style="font-weight: 900; font-size: 1.25rem; color: #111111; border-bottom: ${winnerIsTeamA ? '3px solid #E53926' : 'none'}; display: inline-block; padding-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
+            <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="flex: 1 1 110px; text-align: center; min-width: 0;">
+                <div style="font-weight: 900; font-size: clamp(0.95rem, 4vw, 1.25rem); color: #111111; border-bottom: ${winnerIsTeamA ? '3px solid #E53926' : 'none'}; display: inline-block; padding-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
                   ${teamAName.toUpperCase()}
                 </div>
-                <div style="font-size: 1.7rem; font-weight: 900; color: #E53926; font-family: var(--font-family-mono); margin-top: 0.2rem;">
+                <div style="font-size: clamp(1.3rem, 5.5vw, 1.7rem); font-weight: 900; color: #E53926; font-family: var(--font-family-mono); margin-top: 0.2rem;">
                   ${teamARuns}/${teamAWickets}
                 </div>
               </div>
 
-              <div style="padding: 0 0.5rem; flex-shrink: 0;">
-                <span style="font-size: 1.4rem; font-weight: 900; color: #C89B3C;">VS</span>
-                <div style="font-size: 0.68rem; font-weight: 900; color: #666666; text-transform: uppercase;">FINAL</div>
+              <div style="padding: 0 0.25rem; flex-shrink: 0;">
+                <span style="font-size: clamp(1.1rem, 4vw, 1.4rem); font-weight: 900; color: #C89B3C;">VS</span>
+                <div style="font-size: 0.65rem; font-weight: 900; color: #666666; text-transform: uppercase;">FINAL</div>
               </div>
 
-              <div style="flex: 1; text-align: center; min-width: 0;">
-                <div style="font-weight: 900; font-size: 1.25rem; color: #111111; border-bottom: ${!winnerIsTeamA ? '3px solid #1E88E5' : 'none'}; display: inline-block; padding-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
+              <div style="flex: 1 1 110px; text-align: center; min-width: 0;">
+                <div style="font-weight: 900; font-size: clamp(0.95rem, 4vw, 1.25rem); color: #111111; border-bottom: ${!winnerIsTeamA ? '3px solid #1E88E5' : 'none'}; display: inline-block; padding-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%;">
                   ${teamBName.toUpperCase()}
                 </div>
-                <div style="font-size: 1.7rem; font-weight: 900; color: #1E88E5; font-family: var(--font-family-mono); margin-top: 0.2rem;">
+                <div style="font-size: clamp(1.3rem, 5.5vw, 1.7rem); font-weight: 900; color: #1E88E5; font-family: var(--font-family-mono); margin-top: 0.2rem;">
                   ${teamBRuns}/${teamBWickets}
                 </div>
               </div>
             </div>
 
             <!-- Gold Champion Banner -->
-            <div style="background: linear-gradient(135deg, #FFF2A1, #D4AF37 60%, #aa820a); border: 2.5px solid #1E1E1E; padding: 0.65rem 0.5rem; margin: 1.15rem 0 1.35rem 0; font-weight: 900; font-size: 1.15rem; color: #111111; box-shadow: 3px 3px 0px #1E1E1E; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <div style="background: linear-gradient(135deg, #FFF2A1, #D4AF37 60%, #aa820a); border: 2px solid #1E1E1E; padding: 0.6rem 0.5rem; margin: 1rem 0 1.25rem 0; font-weight: 900; font-size: clamp(0.95rem, 4vw, 1.15rem); color: #111111; box-shadow: 3px 3px 0px #1E1E1E; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
               ★ CHAMPION - ${championName.toUpperCase()}
             </div>
 
-            <!-- Side-by-side Top 3 Batters & Top 2 Bowlers Grid -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; text-align: left;">
+            <!-- Side-by-side Top 3 Batters & Top 2 Bowlers Grid (Responsive) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.6rem; text-align: left;">
               <!-- Team A Top Performers Column -->
               <div style="display: flex; flex-direction: column; gap: 0.4rem; min-width: 0;">
                 <div style="font-size: 0.72rem; font-weight: 900; text-transform: uppercase; color: #E53926; border-bottom: 1.5px solid #1E1E1E; padding-bottom: 0.2rem; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
@@ -2634,54 +2634,56 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
             </div>
 
             <!-- Card Footer -->
-            <div style="border-top: 2px solid #1E1E1E; margin-top: 1.35rem; padding-top: 0.65rem; font-size: 0.78rem; font-weight: 900; color: #444444; letter-spacing: 0.05em;">
+            <div style="border-top: 2px solid #1E1E1E; margin-top: 1.25rem; padding-top: 0.6rem; font-size: 0.75rem; font-weight: 900; color: #444444; letter-spacing: 0.05em;">
               samarg.vercel.app • build your squad
             </div>
           </div>
 
-          <!-- Scorecard Image Share Action Bar (No Download Button) -->
-          <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap;">
-            <button id="share-scorecard-img-btn" class="btn btn-accent btn-lg" style="font-weight: 900; background: #C89B3C; color: #111111; border: 2.5px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E; padding: 0.75rem 1.75rem; font-size: 1.05rem;">
+          <!-- Scorecard Image Share Action Bar (Responsive Mobile Button) -->
+          <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; width: 100%; padding: 0 0.5rem; box-sizing: border-box;">
+            <button id="share-scorecard-img-btn" class="btn btn-accent btn-lg" style="font-weight: 900; background: #C89B3C; color: #111111; border: 2.5px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E; padding: 0.75rem 1.25rem; font-size: clamp(0.95rem, 4vw, 1.05rem); width: 100%; max-width: 420px; box-sizing: border-box; text-align: center;">
               📸 Share Scorecard Image & Link
             </button>
           </div>
 
-          <h2 style="font-size: 1.5rem; color: #C89B3C; border-bottom: 2px solid #1E1E1E; padding-bottom: 0.5rem; text-transform: uppercase; font-weight: 900;">
+          <h2 style="font-size: clamp(1.2rem, 5vw, 1.5rem); color: #C89B3C; border-bottom: 2px solid #1E1E1E; padding-bottom: 0.5rem; text-transform: uppercase; font-weight: 900;">
             Final Tournament Standings
           </h2>
-          <table class="standings-table">
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Team</th>
-                <th>Pld</th>
-                <th>Won</th>
-                <th>Lost</th>
-                <th>Tied</th>
-                <th>Points</th>
-                <th>Net Run Rate</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${standings.map((s, index) => {
-                const isUser = s.teamId === currentUid;
-                return `
-                  <tr class="${isUser ? 'player-row-highlight' : ''}">
-                    <td>#${index + 1}</td>
-                    <td>${s.teamName} ${isUser ? '<span class="you-tag">YOU</span>' : ''}</td>
-                    <td>${s.wins + s.losses + s.ties}</td>
-                    <td>${s.wins}</td>
-                    <td>${s.losses}</td>
-                    <td>${s.ties}</td>
-                    <td><strong>${s.points}</strong></td>
-                    <td style="font-family: var(--font-family-mono);">${s.nrr > 0 ? '+' : ''}${s.nrr}</td>
-                  </tr>
-                `;
-              }).join("")}
-            </tbody>
-          </table>
+          <div style="width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 1rem; border: 2px solid #1E1E1E; background: #FFFFFF; box-sizing: border-box;">
+            <table class="standings-table" style="min-width: 480px; width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="background: #FAF6ED; border-bottom: 2px solid #1E1E1E;">
+                  <th style="padding: 0.65rem 0.5rem; font-size: 0.75rem; border-right: 1px solid #E0E0E0;">Rank</th>
+                  <th style="padding: 0.65rem 0.5rem; font-size: 0.75rem; border-right: 1px solid #E0E0E0;">Team</th>
+                  <th style="padding: 0.65rem 0.5rem; font-size: 0.75rem; border-right: 1px solid #E0E0E0;">Pld</th>
+                  <th style="padding: 0.65rem 0.5rem; font-size: 0.75rem; border-right: 1px solid #E0E0E0;">Won</th>
+                  <th style="padding: 0.65rem 0.5rem; font-size: 0.75rem; border-right: 1px solid #E0E0E0;">Lost</th>
+                  <th style="padding: 0.65rem 0.5rem; font-size: 0.75rem; border-right: 1px solid #E0E0E0;">Tied</th>
+                  <th style="padding: 0.65rem 0.5rem; font-size: 0.75rem; border-right: 1px solid #E0E0E0;">Points</th>
+                  <th style="padding: 0.65rem 0.5rem; font-size: 0.75rem;">Net Run Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${standings.map((s, index) => {
+                  const isUser = s.teamId === currentUid;
+                  return `
+                    <tr class="${isUser ? 'player-row-highlight' : ''}" style="border-bottom: 1px solid #E0E0E0;">
+                      <td style="padding: 0.65rem 0.5rem;">#${index + 1}</td>
+                      <td style="padding: 0.65rem 0.5rem;">${s.teamName} ${isUser ? '<span class="you-tag">YOU</span>' : ''}</td>
+                      <td style="padding: 0.65rem 0.5rem;">${s.wins + s.losses + s.ties}</td>
+                      <td style="padding: 0.65rem 0.5rem;">${s.wins}</td>
+                      <td style="padding: 0.65rem 0.5rem;">${s.losses}</td>
+                      <td style="padding: 0.65rem 0.5rem;">${s.ties}</td>
+                      <td style="padding: 0.65rem 0.5rem;"><strong>${s.points}</strong></td>
+                      <td style="padding: 0.65rem 0.5rem; font-family: var(--font-family-mono);">${s.nrr > 0 ? '+' : ''}${s.nrr}</td>
+                    </tr>
+                  `;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
 
-          <div class="user-stats-card" style="margin-top: 2rem;">
+          <div class="user-stats-card" style="margin-top: 2rem; padding: 1rem; box-sizing: border-box;">
             <h3 style="color: #C89B3C; text-transform: uppercase; font-size: 1.1rem; margin-bottom: 1rem; font-weight: 900;">Chemistry & Partnership Report</h3>
             <div style="font-size: 0.95rem; color: #333333; font-weight: 700; line-height: 1.6; display: flex; flex-direction: column; gap: 0.6rem;">
               <div>✓ <strong>teammate chemistry links</strong> were active for players who played in the same national squads historically.</div>
@@ -2690,9 +2692,9 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
             </div>
           </div>
 
-          <div class="flex justify-between" style="margin-top: 2rem;">
-            <button id="post-submit-leaderboard-btn" class="btn btn-accent">Submit to Leaderboard</button>
-            <a href="#/" class="btn btn-secondary">Return to Lobby</a>
+          <div style="display: flex; gap: 1rem; justify-content: space-between; align-items: center; margin-top: 2rem; flex-wrap: wrap; width: 100%; box-sizing: border-box;">
+            <button id="post-submit-leaderboard-btn" class="btn btn-accent" style="flex: 1 1 200px; text-align: center; max-width: 100%; box-sizing: border-box;">Submit to Leaderboard</button>
+            <a href="#/" class="btn btn-secondary" style="flex: 1 1 160px; text-align: center; text-decoration: none; max-width: 100%; box-sizing: border-box;">Return to Lobby</a>
           </div>
         `;
 
