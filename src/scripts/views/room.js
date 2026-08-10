@@ -2457,18 +2457,24 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
       const statusTitle = document.getElementById("sim-status-title");
       if (statusTitle) statusTitle.innerText = "Match Complete! Standings settled.";
 
-      // Compute Top 3 Batters & Top 3 Bowlers for both teams
+      // Compute Top 3 Batters & Top 2 Active Bowlers for both teams
       const topBatters1 = [...(i1.battingCard || [])].sort((a,b) => (b.runs || 0) - (a.runs || 0)).slice(0, 3);
       while (topBatters1.length < 3) topBatters1.push({ name: "-", runs: 0, balls: 0 });
 
-      const topBowlers1 = [...(i1.bowlingCard || [])].sort((a,b) => (b.wickets || 0) - (a.wickets || 0) || (a.runsConceded || 0) - (b.runsConceded || 0)).slice(0, 3);
-      while (topBowlers1.length < 3) topBowlers1.push({ name: "-", wickets: 0, runsConceded: 0, overs: 0 });
+      const topBowlers1 = [...(i1.bowlingCard || [])]
+        .filter(bw => (bw.overs || 0) > 0 || (bw.balls || 0) > 0)
+        .sort((a,b) => (b.wickets || 0) - (a.wickets || 0) || (a.runsConceded || 0) - (b.runsConceded || 0))
+        .slice(0, 2);
+      while (topBowlers1.length < 2) topBowlers1.push({ name: "-", wickets: 0, runsConceded: 0, overs: 0 });
 
       const topBatters2 = [...(i2.battingCard || [])].sort((a,b) => (b.runs || 0) - (a.runs || 0)).slice(0, 3);
       while (topBatters2.length < 3) topBatters2.push({ name: "-", runs: 0, balls: 0 });
 
-      const topBowlers2 = [...(i2.bowlingCard || [])].sort((a,b) => (b.wickets || 0) - (a.wickets || 0) || (a.runsConceded || 0) - (b.runsConceded || 0)).slice(0, 3);
-      while (topBowlers2.length < 3) topBowlers2.push({ name: "-", wickets: 0, runsConceded: 0, overs: 0 });
+      const topBowlers2 = [...(i2.bowlingCard || [])]
+        .filter(bw => (bw.overs || 0) > 0 || (bw.balls || 0) > 0)
+        .sort((a,b) => (b.wickets || 0) - (a.wickets || 0) || (a.runsConceded || 0) - (b.runsConceded || 0))
+        .slice(0, 2);
+      while (topBowlers2.length < 2) topBowlers2.push({ name: "-", wickets: 0, runsConceded: 0, overs: 0 });
 
       const championName = match.result?.winner === match.teamAName ? match.teamAName : (match.result?.winner === match.teamBName ? match.teamBName : (standings[0]?.teamName || "CHAMPION"));
       const winnerIsTeamA = match.result?.winner === match.teamAName;
@@ -2480,7 +2486,7 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
           <div id="final-winning-scorecard-card" style="background: #FAF6ED; border: 4px solid #1E1E1E; padding: 2rem 1.5rem; max-width: 580px; margin: 0 auto 1.5rem auto; box-shadow: 8px 8px 0px #1E1E1E; font-family: var(--font-family); color: #111111; text-align: center; border-radius: 0px; position: relative;">
             <!-- Header row -->
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1E1E1E; padding-bottom: 0.65rem; margin-bottom: 1.25rem;">
-              <span style="font-weight: 900; font-size: 1.3rem; letter-spacing: 0.05em; font-family: var(--font-family-mono); color: #111111;">7—0</span>
+              <span style="font-weight: 900; font-size: 1.3rem; letter-spacing: 0.05em; font-family: var(--font-family-mono); color: #111111;">SAMARG XI</span>
               <span style="font-size: 0.8rem; font-weight: 900; text-transform: uppercase; color: #444444; letter-spacing: 0.08em;">WORLD CUP FINAL • ROOM ${roomCode}</span>
             </div>
 

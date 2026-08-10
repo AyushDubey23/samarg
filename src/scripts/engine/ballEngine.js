@@ -20,16 +20,20 @@ export class BallEngine {
   }
 
   selectBowler(team, lastBowlerId, overNumber, oversBowledMap, maxOversPerBowler) {
-    // Strictly filter candidates to All-Rounders & Bowlers who are NOT designated Wicketkeepers
+    // Strictly filter candidates to designated 2 All-Rounders & 3 Bowlers (slots 6, 7, 8, 9, 10) who are NOT designated Wicketkeepers
     const eligibleBowlers = team.filter((p, idx) => {
+      if (!p) return false;
       const role = (p.role || '').toLowerCase();
       const isWK = p.isWicketkeeper || p.isWK || p.isKeeper || role.includes('keep');
       if (isWK) return false;
 
       const pos = p.slotIndex !== undefined ? p.slotIndex : idx;
-      // Positions 6-10 are All-Rounders & Bowlers, or role includes allRounder/pacer/spinner or bowlRating > 45
-      const isBowlerRole = role.includes('all') || role.includes('pace') || role.includes('fast') || role.includes('spin') || (p.bowlRating || 0) >= 45 || pos >= 6;
-      return isBowlerRole;
+      // Strictly restrict to slots 6-10 (2 All-Rounders + 3 Bowlers)
+      if (pos >= 6 && pos <= 10) return true;
+
+      // Or if slotIndex is not explicitly set, check if role is pure bowler/allrounder AND index >= 6
+      const isBowlerRole = role.includes('all') || role.includes('pace') || role.includes('fast') || role.includes('spin') || role.includes('pacer') || role.includes('spinner') || role.includes('bowler');
+      return isBowlerRole && idx >= 6;
     });
 
     // Filter available options from eligible bowlers (max 4 overs per bowler)
