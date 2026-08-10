@@ -864,7 +864,7 @@ function renderDraftPhase(viewport, roomCode, room) {
       <!-- View Switcher Tabs -->
       <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; justify-content: flex-start;">
         <button id="view-tab-opponent" class="btn btn-sm ${isViewingOpponent ? 'btn-accent' : 'btn-secondary'}" style="font-weight: 800;">
-          Watch ${(p2.displayName || "Player 2").split(" ")[0]}
+          Watch ${p2Name.split(" ")[0]}
         </button>
         <button id="view-tab-self" class="btn btn-sm ${!isViewingOpponent ? 'btn-accent' : 'btn-secondary'}" style="font-weight: 800;">
           My team ${p1Count}/11
@@ -940,7 +940,7 @@ function renderDraftPhase(viewport, roomCode, room) {
         <!-- Room activity log & Side-by-side Field Setup canvas -->
         <div class="controls-card" style="background: #FFFFFF; border: 2px solid #1E1E1E; border-radius: 12px; padding: 1rem; box-shadow: 3px 3px 0px #1E1E1E;">
           <div class="flex justify-between align-center" style="border-bottom: 2px solid #1E1E1E; padding-bottom: 0.5rem; margin-bottom: 0.75rem;">
-            <h4 style="text-transform: uppercase; font-size: 0.95rem; margin: 0; color: #111; font-weight: 900;">FIELD SETUP (${isViewingOpponent ? (p2.displayName || 'OPPONENT') : 'MY TEAM'})</h4>
+            <h4 style="text-transform: uppercase; font-size: 0.95rem; margin: 0; color: #111; font-weight: 900;">FIELD SETUP (${isViewingOpponent ? p2Name : 'MY TEAM'})</h4>
             <span class="role-badge all-rounder" style="font-size: 0.75rem; background: #C89B3C; color: #111; font-weight: 900; border: 1px solid #1E1E1E;">${spectatedSlots.filter(s => s !== null).length}/11 PLACED</span>
           </div>
 
@@ -1922,12 +1922,12 @@ function renderTossPhase(viewport, roomCode, room) {
         <!-- Cap vs Cap Header -->
         <div style="display: flex; justify-content: space-around; align-items: center; margin: 1.5rem 0; background: #FAF6ED; border: 2px solid #1E1E1E; padding: 0.85rem;">
           <div>
-            <div style="font-weight: 900; font-size: 1.05rem; color: #111111;">${(p1.displayName || "YOU").toUpperCase()}</div>
+            <div style="font-weight: 900; font-size: 1.05rem; color: #111111;">${(players[currentUid]?.displayName || auth.currentUser?.displayName || "YOU").toUpperCase()}</div>
             <div style="font-size: 0.78rem; font-weight: 800; color: #E53926;">CAPTAIN DESIGNATED</div>
           </div>
           <div style="font-size: 1.5rem; font-weight: 900; color: #C89B3C;">VS</div>
           <div>
-            <div style="font-weight: 900; font-size: 1.05rem; color: #111111;">${(p2.displayName || "OPPONENT").toUpperCase()}</div>
+            <div style="font-weight: 900; font-size: 1.05rem; color: #111111;">${(players[playerUids.find(id => id !== currentUid)]?.displayName || "OPPONENT").toUpperCase()}</div>
             <div style="font-size: 0.78rem; font-weight: 800; color: #1E88E5;">CAPTAIN DESIGNATED</div>
           </div>
         </div>
