@@ -123,7 +123,8 @@ export function renderRoom(viewport, roomCode) {
       }
 
       // Check if room is full for a non-member trying to join
-      if (!isMember && (playerUids.length >= 2 || roomData.status !== "lobby")) {
+      const maxAllowedPlayers = roomData.mode === "cup" ? 4 : (roomData.mode === "duel" ? 2 : 1);
+      if (!isMember && (playerUids.length >= maxAllowedPlayers || roomData.status !== "lobby")) {
         clearInterval(timerInterval);
         viewport.innerHTML = `
           <div style="min-height: 70vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #FAF6ED; padding: 2rem 1rem; font-family: var(--font-family);">
@@ -469,7 +470,7 @@ function renderLobby(viewport, roomCode, room) {
             for (let i = 1; i <= neededBots; i++) {
               const botUid = neededBots === 1 ? "cpu_opponent" : `cpu_opponent_${i}`;
               const botSquadInfo = sampleBotSquads[(i - 1) % sampleBotSquads.length];
-              const botName = `AI Opponent ${neededBots > 1 ? i : ''} (${botSquadInfo.country} ${botSquadInfo.year})`;
+              const botName = `CPU Opponent ${neededBots > 1 ? i : ''} (${botSquadInfo.country} ${botSquadInfo.year})`;
               uids.push(botUid);
 
               await set(ref(rtdb, `rooms/${roomCode}/players/${botUid}`), {
@@ -2087,7 +2088,7 @@ async function runClientSimulationFallback(roomCode, room, tossWinnerUid = null,
         players: playerXI
       };
 
-      const defaultAITeams = [
+      const defaultCPUTeams = [
         { name: "Australia (2015)", country: "AUS" },
         { name: "England (2019)", country: "ENG" },
         { name: "Pakistan (1992)", country: "PAK" },
@@ -2097,7 +2098,7 @@ async function runClientSimulationFallback(roomCode, room, tossWinnerUid = null,
         { name: "New Zealand (2019)", country: "NZ" }
       ];
 
-      defaultAITeams.forEach((tm, idx) => {
+      defaultCPUTeams.forEach((tm, idx) => {
         const aiPlayers = [
           { id: `ai_${idx}_1`, name: "Opener A", role: "opener", batRating: 85, bowlRating: 0, isWicketkeeper: false },
           { id: `ai_${idx}_2`, name: "Opener B", role: "opener", batRating: 82, bowlRating: 0, isWicketkeeper: false },
@@ -2261,7 +2262,7 @@ async function runClientSimulationFallback(roomCode, room, tossWinnerUid = null,
       for (let i = 1; i <= 7; i++) {
         standings.push({
           teamId: `ai_team_${i}`,
-          teamName: simulatedMatches[i - 1]?.teamBName || `AI Team ${i}`,
+          teamName: simulatedMatches[i - 1]?.teamBName || `CPU Team ${i}`,
           wins: 0, losses: 0, ties: 0, points: 0, nrr: 0.0,
           runsScored: 0, ballsFaced: 0, runsConceded: 0, ballsBowled: 0
         });

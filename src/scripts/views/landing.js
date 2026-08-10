@@ -163,7 +163,7 @@ export async function renderLanding(container) {
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 2.5px solid #1E1E1E; padding-bottom: 0.5rem;">
         <div>
           <span class="role-badge all-rounder" style="background: #E53926; color: #FFFFFF; font-weight: 900; font-size: 0.72rem; padding: 2px 8px; border: 1px solid #1E1E1E;">LIVE LOBBIES</span>
-          <h2 style="font-size: 1.5rem; margin: 0.3rem 0 0 0; font-weight: 900; color: #111111;">PUBLIC ROOMS WAITING FOR PLAYER 2</h2>
+          <h2 style="font-size: 1.5rem; margin: 0.3rem 0 0 0; font-weight: 900; color: #111111;">PUBLIC ROOMS WAITING FOR PLAYERS</h2>
         </div>
         <span style="font-size: 0.78rem; font-weight: 800; color: #666666;">Real-time Updates</span>
       </div>
