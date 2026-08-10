@@ -5,7 +5,7 @@ import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { validateDraftXI } from "../utils/draftRules.js";
 import { signInAnonymously } from "firebase/auth";
 import { BallEngine } from "../engine/ballEngine.js";
-import { getRandomPoolSquad } from "../utils/squadPool.js";
+import { getRandomPoolSquad, HISTORICAL_SQUAD_POOL } from "../utils/squadPool.js";
 import html2canvas from "html2canvas";
 
 const POSITION_LABELS = [
@@ -15,98 +15,7 @@ const POSITION_LABELS = [
   "BOWLER 1", "BOWLER 2", "BOWLER 3"
 ];
 
-const AUTHENTIC_FALLBACK_SQUADS = [
-  {
-    nationalTeam: "India",
-    tournamentYear: "2024",
-    tournamentEdition: "2024 T20 World Cup",
-    players: [
-      { id: "2024_ind_1", name: "Rohit Sharma", role: "opener", batRating: 96, bowlRating: 0, isWicketkeeper: false, battingAverage: 36.7, strikeRate: 156.7, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_2", name: "Virat Kohli", role: "opener", batRating: 83, bowlRating: 0, isWicketkeeper: false, battingAverage: 18.8, strikeRate: 112.6, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_3", name: "Rishabh Pant", role: "keeper", batRating: 90, bowlRating: 0, isWicketkeeper: true, battingAverage: 24.4, strikeRate: 127.6, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_4", name: "Suryakumar Yadav", role: "topOrder", batRating: 92, bowlRating: 0, isWicketkeeper: false, battingAverage: 28.4, strikeRate: 135.3, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_5", name: "Shivam Dube", role: "middleOrder", batRating: 84, bowlRating: 60, isWicketkeeper: false, battingAverage: 22.2, strikeRate: 114.2, economyRate: 8.5, bowlingType: "pace-medium", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_6", name: "Hardik Pandya", role: "allRounder", batRating: 92, bowlRating: 92, isWicketkeeper: false, battingAverage: 48.0, strikeRate: 151.5, economyRate: 7.6, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_7", name: "Ravindra Jadeja", role: "allRounder", batRating: 78, bowlRating: 80, isWicketkeeper: false, battingAverage: 11.6, strikeRate: 91.3, economyRate: 7.5, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_8", name: "Axar Patel", role: "allRounder", batRating: 86, bowlRating: 92, isWicketkeeper: false, battingAverage: 23.0, strikeRate: 139.3, economyRate: 7.8, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_9", name: "Kuldeep Yadav", role: "spinner", batRating: 15, bowlRating: 94, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 50.0, economyRate: 6.95, bowlingType: "left-arm-unorthodox", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_10", name: "Arshdeep Singh", role: "pacer", batRating: 15, bowlRating: 97, isWicketkeeper: false, battingAverage: 4.0, strikeRate: 40.0, economyRate: 7.16, bowlingType: "left-arm-pace", nationalTeam: "IND", tournamentYear: 2024 },
-      { id: "2024_ind_11", name: "Jasprit Bumrah", role: "pacer", batRating: 15, bowlRating: 99, isWicketkeeper: false, battingAverage: 3.0, strikeRate: 30.0, economyRate: 4.17, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2024 }
-    ]
-  },
-  {
-    nationalTeam: "Pakistan",
-    tournamentYear: "2024",
-    tournamentEdition: "2024 T20 World Cup",
-    players: [
-      { id: "2024_pak_1", name: "Babar Azam", role: "opener", batRating: 84, bowlRating: 0, isWicketkeeper: false, battingAverage: 24.5, strikeRate: 101.6, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2024 },
-      { id: "2024_pak_2", name: "Mohammad Rizwan", role: "keeper", batRating: 84, bowlRating: 0, isWicketkeeper: true, battingAverage: 36.6, strikeRate: 90.9, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2024 },
-      { id: "2024_pak_3", name: "Usman Khan", role: "topOrder", batRating: 78, bowlRating: 0, isWicketkeeper: false, battingAverage: 15.0, strikeRate: 110.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2024 },
-      { id: "2024_pak_4", name: "Fakhar Zaman", role: "middleOrder", batRating: 80, bowlRating: 0, isWicketkeeper: false, battingAverage: 16.5, strikeRate: 113.7, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2024 },
-      { id: "2024_pak_5", name: "Iftikhar Ahmed", role: "middleOrder", batRating: 78, bowlRating: 75, isWicketkeeper: false, battingAverage: 15.0, strikeRate: 105.0, economyRate: 7.5, bowlingType: "off-spin", nationalTeam: "PAK", tournamentYear: 2024 },
-      { id: "2024_pak_6", name: "Shadab Khan", role: "spinner", batRating: 75, bowlRating: 78, isWicketkeeper: false, battingAverage: 11.0, strikeRate: 100.0, economyRate: 8.5, bowlingType: "leg-spin", nationalTeam: "PAK", tournamentYear: 2024 },
-      { id: "2024_pak_7", name: "Imad Wasim", role: "spinner", batRating: 74, bowlRating: 85, isWicketkeeper: false, battingAverage: 12.0, strikeRate: 85.0, economyRate: 5.2, bowlingType: "left-arm-orthodox", nationalTeam: "PAK", tournamentYear: 2024 },
-      { id: "2024_pak_8", name: "Shaheen Afridi", role: "pacer", batRating: 15, bowlRating: 88, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 100.0, economyRate: 6.8, bowlingType: "left-arm-pace", nationalTeam: "PAK", tournamentYear: 2024 },
-      { id: "2024_pak_9", name: "Haris Rauf", role: "pacer", batRating: 15, bowlRating: 90, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 50.0, economyRate: 6.7, bowlingType: "pace-fast", nationalTeam: "PAK", tournamentYear: 2024 },
-      { id: "2024_pak_10", name: "Mohammad Amir", role: "pacer", batRating: 15, bowlRating: 90, isWicketkeeper: false, battingAverage: 4.0, strikeRate: 40.0, economyRate: 5.1, bowlingType: "left-arm-pace", nationalTeam: "PAK", tournamentYear: 2024 },
-      { id: "2024_pak_11", name: "Naseem Shah", role: "pacer", batRating: 15, bowlRating: 88, isWicketkeeper: false, battingAverage: 9.0, strikeRate: 90.0, economyRate: 5.8, bowlingType: "pace-fast", nationalTeam: "PAK", tournamentYear: 2024 }
-    ]
-  },
-  {
-    nationalTeam: "Pakistan",
-    tournamentYear: "2022",
-    tournamentEdition: "2022 T20 World Cup",
-    players: [
-      { id: "2022_pak_1", name: "Mohammad Rizwan", role: "keeper", batRating: 88, bowlRating: 0, isWicketkeeper: true, battingAverage: 25.0, strikeRate: 109.5, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2022 },
-      { id: "2022_pak_2", name: "Babar Azam", role: "opener", batRating: 86, bowlRating: 0, isWicketkeeper: false, battingAverage: 17.7, strikeRate: 93.2, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2022 },
-      { id: "2022_pak_3", name: "Mohammad Haris", role: "topOrder", batRating: 85, bowlRating: 0, isWicketkeeper: false, battingAverage: 24.2, strikeRate: 144.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2022 },
-      { id: "2022_pak_4", name: "Shan Masood", role: "middleOrder", batRating: 88, bowlRating: 0, isWicketkeeper: false, battingAverage: 35.0, strikeRate: 125.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2022 },
-      { id: "2022_pak_5", name: "Iftikhar Ahmed", role: "middleOrder", batRating: 88, bowlRating: 76, isWicketkeeper: false, battingAverage: 24.0, strikeRate: 122.8, economyRate: 7.2, bowlingType: "off-spin", nationalTeam: "PAK", tournamentYear: 2022 },
-      { id: "2022_pak_6", name: "Shadab Khan", role: "spinner", batRating: 85, bowlRating: 94, isWicketkeeper: false, battingAverage: 24.0, strikeRate: 177.0, economyRate: 6.34, bowlingType: "leg-spin", nationalTeam: "PAK", tournamentYear: 2022 },
-      { id: "2022_pak_7", name: "Mohammad Nawaz", role: "allRounder", batRating: 78, bowlRating: 82, isWicketkeeper: false, battingAverage: 14.0, strikeRate: 110.0, economyRate: 7.5, bowlingType: "left-arm-orthodox", nationalTeam: "PAK", tournamentYear: 2022 },
-      { id: "2022_pak_8", name: "Mohammad Wasim Jr", role: "pacer", batRating: 20, bowlRating: 88, isWicketkeeper: false, battingAverage: 10.0, strikeRate: 90.0, economyRate: 7.0, bowlingType: "pace-fast", nationalTeam: "PAK", tournamentYear: 2022 },
-      { id: "2022_pak_9", name: "Shaheen Afridi", role: "pacer", batRating: 15, bowlRating: 94, isWicketkeeper: false, battingAverage: 6.0, strikeRate: 60.0, economyRate: 6.15, bowlingType: "left-arm-pace", nationalTeam: "PAK", tournamentYear: 2022 },
-      { id: "2022_pak_10", name: "Haris Rauf", role: "pacer", batRating: 15, bowlRating: 92, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 50.0, economyRate: 6.84, bowlingType: "pace-fast", nationalTeam: "PAK", tournamentYear: 2022 },
-      { id: "2022_pak_11", name: "Naseem Shah", role: "pacer", batRating: 15, bowlRating: 90, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 50.0, economyRate: 6.0, bowlingType: "pace-fast", nationalTeam: "PAK", tournamentYear: 2022 }
-    ]
-  },
-  {
-    nationalTeam: "Pakistan",
-    tournamentYear: "2026",
-    tournamentEdition: "2026 T20 World Cup",
-    players: [
-      { id: "2026_pak_1", name: "Saim Ayub", role: "opener", batRating: 84, bowlRating: 0, isWicketkeeper: false, battingAverage: 24.0, strikeRate: 135.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2026 },
-      { id: "2026_pak_2", name: "Mohammad Rizwan", role: "keeper", batRating: 86, bowlRating: 0, isWicketkeeper: true, battingAverage: 35.0, strikeRate: 125.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2026 },
-      { id: "2026_pak_3", name: "Babar Azam", role: "topOrder", batRating: 86, bowlRating: 0, isWicketkeeper: false, battingAverage: 38.0, strikeRate: 128.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2026 },
-      { id: "2026_pak_4", name: "Fakhar Zaman", role: "middleOrder", batRating: 84, bowlRating: 0, isWicketkeeper: false, battingAverage: 28.0, strikeRate: 140.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2026 },
-      { id: "2026_pak_5", name: "Usman Khan", role: "middleOrder", batRating: 80, bowlRating: 0, isWicketkeeper: false, battingAverage: 22.0, strikeRate: 130.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2026 },
-      { id: "2026_pak_6", name: "Azam Khan", role: "middleOrder", batRating: 78, bowlRating: 0, isWicketkeeper: false, battingAverage: 20.0, strikeRate: 145.0, economyRate: null, bowlingType: null, nationalTeam: "PAK", tournamentYear: 2026 },
-      { id: "2026_pak_7", name: "Shadab Khan", role: "spinner", batRating: 80, bowlRating: 84, isWicketkeeper: false, battingAverage: 22.0, strikeRate: 138.0, economyRate: 7.2, bowlingType: "leg-spin", nationalTeam: "PAK", tournamentYear: 2026 },
-      { id: "2026_pak_8", name: "Abrar Ahmed", role: "spinner", batRating: 15, bowlRating: 86, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 50.0, economyRate: 6.8, bowlingType: "leg-spin", nationalTeam: "PAK", tournamentYear: 2026 },
-      { id: "2026_pak_9", name: "Shaheen Afridi", role: "pacer", batRating: 15, bowlRating: 92, isWicketkeeper: false, battingAverage: 10.0, strikeRate: 100.0, economyRate: 7.0, bowlingType: "left-arm-pace", nationalTeam: "PAK", tournamentYear: 2026 },
-      { id: "2026_pak_10", name: "Haris Rauf", role: "pacer", batRating: 15, bowlRating: 90, isWicketkeeper: false, battingAverage: 6.0, strikeRate: 60.0, economyRate: 7.5, bowlingType: "pace-fast", nationalTeam: "PAK", tournamentYear: 2026 },
-      { id: "2026_pak_11", name: "Naseem Shah", role: "pacer", batRating: 15, bowlRating: 90, isWicketkeeper: false, battingAverage: 8.0, strikeRate: 80.0, economyRate: 6.8, bowlingType: "pace-fast", nationalTeam: "PAK", tournamentYear: 2026 }
-    ]
-  },
-  {
-    nationalTeam: "India",
-    tournamentYear: "2026",
-    tournamentEdition: "2026 T20 World Cup",
-    players: [
-      { id: "2026_ind_1", name: "Yashasvi Jaiswal", role: "opener", batRating: 92, bowlRating: 0, isWicketkeeper: false, battingAverage: 35.0, strikeRate: 160.0, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2026 },
-      { id: "2026_ind_2", name: "Abhishek Sharma", role: "opener", batRating: 90, bowlRating: 70, isWicketkeeper: false, battingAverage: 30.0, strikeRate: 175.0, economyRate: 8.0, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2026 },
-      { id: "2026_ind_3", name: "Suryakumar Yadav", role: "topOrder", batRating: 95, bowlRating: 0, isWicketkeeper: false, battingAverage: 42.0, strikeRate: 168.0, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2026 },
-      { id: "2026_ind_4", name: "Tilak Varma", role: "middleOrder", batRating: 88, bowlRating: 0, isWicketkeeper: false, battingAverage: 38.0, strikeRate: 145.0, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2026 },
-      { id: "2026_ind_5", name: "Rinku Singh", role: "middleOrder", batRating: 90, bowlRating: 0, isWicketkeeper: false, battingAverage: 45.0, strikeRate: 170.0, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2026 },
-      { id: "2026_ind_6", name: "Sanju Samson", role: "keeper", batRating: 88, bowlRating: 0, isWicketkeeper: true, battingAverage: 32.0, strikeRate: 152.0, economyRate: null, bowlingType: null, nationalTeam: "IND", tournamentYear: 2026 },
-      { id: "2026_ind_7", name: "Hardik Pandya", role: "allRounder", batRating: 94, bowlRating: 92, isWicketkeeper: false, battingAverage: 36.0, strikeRate: 150.0, economyRate: 7.8, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2026 },
-      { id: "2026_ind_8", name: "Axar Patel", role: "allRounder", batRating: 84, bowlRating: 88, isWicketkeeper: false, battingAverage: 22.0, strikeRate: 135.0, economyRate: 7.2, bowlingType: "left-arm-orthodox", nationalTeam: "IND", tournamentYear: 2026 },
-      { id: "2026_ind_9", name: "Kuldeep Yadav", role: "spinner", batRating: 15, bowlRating: 95, isWicketkeeper: false, battingAverage: 5.0, strikeRate: 50.0, economyRate: 6.5, bowlingType: "left-arm-unorthodox", nationalTeam: "IND", tournamentYear: 2026 },
-      { id: "2026_ind_10", name: "Jasprit Bumrah", role: "pacer", batRating: 15, bowlRating: 98, isWicketkeeper: false, battingAverage: 4.0, strikeRate: 40.0, economyRate: 5.5, bowlingType: "pace-fast", nationalTeam: "IND", tournamentYear: 2026 },
-      { id: "2026_ind_11", name: "Arshdeep Singh", role: "pacer", batRating: 15, bowlRating: 94, isWicketkeeper: false, battingAverage: 4.0, strikeRate: 40.0, economyRate: 7.5, bowlingType: "left-arm-pace", nationalTeam: "IND", tournamentYear: 2026 }
-    ]
-  }
-];
+const AUTHENTIC_FALLBACK_SQUADS = HISTORICAL_SQUAD_POOL;
 
 export async function fetchClientRandomSquad(roomDraftState = {}) {
   const rolledSquadIds = roomDraftState.rolledSquadIds || [];
