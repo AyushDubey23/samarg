@@ -462,6 +462,10 @@ export class BallEngine {
     }
 
     const innings1 = this.simulateInnings(battingFirst.players, bowlingFirst.players, 1, null, 20, rainInfo);
+    innings1.battingTeamName = battingFirst.name;
+    innings1.battingTeamId = battingFirst.id;
+    innings1.bowlingTeamName = bowlingFirst.name;
+    innings1.bowlingTeamId = bowlingFirst.id;
 
     let targetRuns = innings1.totalRuns + 1;
     let innings2MaxOvers = 20;
@@ -489,6 +493,10 @@ export class BallEngine {
       innings2MaxOvers,
       rainInfo2
     );
+    innings2.battingTeamName = bowlingFirst.name;
+    innings2.battingTeamId = bowlingFirst.id;
+    innings2.bowlingTeamName = battingFirst.name;
+    innings2.bowlingTeamId = battingFirst.id;
 
     let winningTeam = null;
     let resultMargin = '';
@@ -589,6 +597,8 @@ export class BallEngine {
     return {
       tossWinner: tossWinner === 'teamA' ? teamA.name : teamB.name,
       tossDecision,
+      innings1,
+      innings2,
       inningsData: [innings1, innings2],
       result: {
         winner: winningTeam,

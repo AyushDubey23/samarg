@@ -2392,6 +2392,10 @@ function renderSimulatingPhase(viewport, roomCode, room) {
   const startsAt = sim.startsAt || Date.now();
   const standings = sim.standingsTable || [];
 
+  if (!document.getElementById("sim-screen-container") || simPlaybackRoomCode !== roomCode) {
+    simPlaybackStarted = false;
+  }
+
   if (document.getElementById("pb-teamA") && simPlaybackStarted && simPlaybackRoomCode === roomCode) {
     // If playback is already actively ticking in DOM, don't restart
     return;

@@ -133,16 +133,16 @@ export function adjustProbabilities(batter, bowler, matchState) {
     const runsRemaining = matchState.target - matchState.runs;
     const ballsRemaining = totalOvers * 6 - currentBall;
     
-    if (ballsRemaining > 0) {
+    if (ballsRemaining > 0 && currentOver >= 6) {
       const rrr = (runsRemaining / (ballsRemaining / 6));
-      const crr = currentBall > 0 ? (matchState.runs / (currentBall / 6)) : 0;
+      const crr = currentBall > 0 ? (matchState.runs / (currentBall / 6)) : 6.0;
       
-      if (rrr > 8.0 || rrr > crr + 1.0) {
-        const pressure = Math.min(2.0, rrr / 6.0);
-        probs.six *= (1.0 + (pressure - 1.0) * 0.5);
-        probs.four *= (1.0 + (pressure - 1.0) * 0.2);
-        wicketMult *= Math.pow(pressure, 1.5);
-        probs.dot *= (0.9 + (pressure - 1.0) * 0.1);
+      // High required run rate pressure after powerplay
+      if (rrr > 11.0 && rrr > crr + 2.5) {
+        const pressureFactor = Math.min(1.4, rrr / 9.5);
+        probs.six *= 1.20;
+        probs.four *= 1.10;
+        wicketMult *= Math.min(1.25, 1.0 + (pressureFactor - 1.0) * 0.4);
       }
     }
   }
