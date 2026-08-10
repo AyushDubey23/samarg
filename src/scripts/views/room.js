@@ -6,6 +6,7 @@ import { validateDraftXI } from "../utils/draftRules.js";
 import { signInAnonymously } from "firebase/auth";
 import { BallEngine } from "../engine/ballEngine.js";
 import { getRandomPoolSquad } from "../utils/squadPool.js";
+import html2canvas from "html2canvas";
 
 const POSITION_LABELS = [
   "TOP ORDER 1", "TOP ORDER 2", "TOP ORDER 3",
@@ -2365,20 +2366,139 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
       const statusTitle = document.getElementById("sim-status-title");
       if (statusTitle) statusTitle.innerText = "Match Complete! Standings settled.";
 
+      // Compute Top 3 Batters & Top 3 Bowlers for both teams
+      const topBatters1 = [...(i1.battingCard || [])].sort((a,b) => (b.runs || 0) - (a.runs || 0)).slice(0, 3);
+      while (topBatters1.length < 3) topBatters1.push({ name: "-", runs: 0, balls: 0 });
+
+      const topBowlers1 = [...(i1.bowlingCard || [])].sort((a,b) => (b.wickets || 0) - (a.wickets || 0) || (a.runsConceded || 0) - (b.runsConceded || 0)).slice(0, 3);
+      while (topBowlers1.length < 3) topBowlers1.push({ name: "-", wickets: 0, runsConceded: 0, overs: 0 });
+
+      const topBatters2 = [...(i2.battingCard || [])].sort((a,b) => (b.runs || 0) - (a.runs || 0)).slice(0, 3);
+      while (topBatters2.length < 3) topBatters2.push({ name: "-", runs: 0, balls: 0 });
+
+      const topBowlers2 = [...(i2.bowlingCard || [])].sort((a,b) => (b.wickets || 0) - (a.wickets || 0) || (a.runsConceded || 0) - (b.runsConceded || 0)).slice(0, 3);
+      while (topBowlers2.length < 3) topBowlers2.push({ name: "-", wickets: 0, runsConceded: 0, overs: 0 });
+
+      const championName = match.result?.winner === match.teamAName ? match.teamAName : (match.result?.winner === match.teamBName ? match.teamBName : (standings[0]?.teamName || "CHAMPION"));
+      const winnerIsTeamA = match.result?.winner === match.teamAName;
+
       const finishedScreen = document.getElementById("pb-finished-screen");
       if (finishedScreen) {
         finishedScreen.innerHTML = `
-          <div id="champions-victory-card" style="text-align: center; background: radial-gradient(circle at center, #2e1a05 0%, #0d0903 100%); border: 3px solid #ffd700; border-radius: 0px; padding: 2rem 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(255,215,0,0.3);">
-            <div style="font-size: 3rem; margin-bottom: 0.4rem;">🏆 👑 🏆</div>
-            <span class="role-badge all-rounder" style="background: linear-gradient(135deg, #ffd700, #ff8c00); color: black; font-weight: 900; font-size: 0.85rem; padding: 4px 12px; text-transform: uppercase;">
-              WORLD CUP CHAMPION
-            </span>
-            <h1 id="champion-team-title" style="font-size: 2.5rem; margin-top: 0.6rem; background: linear-gradient(135deg, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 900;">
-              ${standings[0]?.teamName || "Champion Team"}
-            </h1>
-            <p id="champion-sub-title" style="font-size: 1.05rem; color: #ffe0b2; margin-top: 0.2rem;">
-              Final Points: <strong>${standings[0]?.points || 0} PTS</strong> • NRR: <strong>${standings[0]?.nrr > 0 ? '+' : ''}${standings[0]?.nrr || '0.00'}</strong>
-            </p>
+          <!-- VINTAGE FINAL WINNING SCORECARD CARD (Sample Styled) -->
+          <div id="final-winning-scorecard-card" style="background: #FAF6ED; border: 4px solid #1E1E1E; padding: 2rem 1.5rem; max-width: 580px; margin: 0 auto 1.5rem auto; box-shadow: 8px 8px 0px #1E1E1E; font-family: var(--font-family); color: #111111; text-align: center; border-radius: 0px; position: relative;">
+            <!-- Header row -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1E1E1E; padding-bottom: 0.65rem; margin-bottom: 1.25rem;">
+              <span style="font-weight: 900; font-size: 1.3rem; letter-spacing: 0.05em; font-family: var(--font-family-mono); color: #111111;">7—0</span>
+              <span style="font-size: 0.8rem; font-weight: 900; text-transform: uppercase; color: #444444; letter-spacing: 0.08em;">WORLD CUP FINAL • ROOM ${roomCode}</span>
+            </div>
+
+            <!-- Big Team vs Team Scores -->
+            <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 0.5rem;">
+              <div style="flex: 1; text-align: center;">
+                <div style="font-weight: 900; font-size: 1.35rem; color: #111111; border-bottom: ${winnerIsTeamA ? '3px solid #E53926' : 'none'}; display: inline-block; padding-bottom: 2px;">
+                  ${team1Name.toUpperCase()}
+                </div>
+                <div style="font-size: 1.8rem; font-weight: 900; color: #E53926; font-family: var(--font-family-mono); margin-top: 0.2rem;">
+                  ${runs1}/${wickets1}
+                </div>
+              </div>
+
+              <div style="padding: 0 0.85rem;">
+                <span style="font-size: 1.5rem; font-weight: 900; color: #C89B3C;">VS</span>
+                <div style="font-size: 0.72rem; font-weight: 900; color: #666666; text-transform: uppercase;">FINAL</div>
+              </div>
+
+              <div style="flex: 1; text-align: center;">
+                <div style="font-weight: 900; font-size: 1.35rem; color: #111111; border-bottom: ${!winnerIsTeamA ? '3px solid #1E88E5' : 'none'}; display: inline-block; padding-bottom: 2px;">
+                  ${team2Name.toUpperCase()}
+                </div>
+                <div style="font-size: 1.8rem; font-weight: 900; color: #1E88E5; font-family: var(--font-family-mono); margin-top: 0.2rem;">
+                  ${runs2}/${wickets2}
+                </div>
+              </div>
+            </div>
+
+            <!-- Gold Champion Banner -->
+            <div style="background: linear-gradient(135deg, #FFF2A1, #D4AF37 60%, #aa820a); border: 2.5px solid #1E1E1E; padding: 0.75rem 1rem; margin: 1.25rem 0 1.5rem 0; font-weight: 900; font-size: 1.25rem; color: #111111; box-shadow: 3px 3px 0px #1E1E1E; text-transform: uppercase; letter-spacing: 0.05em;">
+              ★ CHAMPION - ${championName.toUpperCase()}
+            </div>
+
+            <!-- Side-by-side Top 3 Batters & Top 3 Bowlers Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: left;">
+              <!-- Team A Top Performers Column -->
+              <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+                <div style="font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: #E53926; border-bottom: 1.5px solid #1E1E1E; padding-bottom: 0.25rem; margin-bottom: 0.25rem;">
+                  ${team1Name} TOP PERFORMERS
+                </div>
+
+                <!-- Top 3 Batters -->
+                ${topBatters1.map((b, idx) => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: ${idx === 0 ? '2px solid #C89B3C' : '1.5px solid #1E1E1E'}; padding: 0.4rem 0.65rem; box-shadow: ${idx === 0 ? '2px 2px 0px #C89B3C' : '1.5px 1.5px 0px #1E1E1E'};">
+                    <div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden; white-space: nowrap;">
+                      <span style="font-size: 0.65rem; font-weight: 900; background: #E53926; color: #FFF; padding: 1px 4px; border: 1px solid #1E1E1E;">BAT</span>
+                      <span style="font-weight: 800; font-size: 0.82rem; text-overflow: ellipsis; overflow: hidden; color: #111111;">${b.name}</span>
+                    </div>
+                    <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.85rem; color: #111111;">${b.runs}<span style="font-size: 0.72rem; font-weight: 700; color: #555555;">(${b.balls})</span></span>
+                  </div>
+                `).join("")}
+
+                <!-- Top 3 Bowlers -->
+                ${topBowlers1.map((bw, idx) => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: ${idx === 0 ? '2px solid #C89B3C' : '1.5px solid #1E1E1E'}; padding: 0.4rem 0.65rem; box-shadow: ${idx === 0 ? '2px 2px 0px #C89B3C' : '1.5px 1.5px 0px #1E1E1E'}; margin-top: 0.1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden; white-space: nowrap;">
+                      <span style="font-size: 0.65rem; font-weight: 900; background: #1E88E5; color: #FFF; padding: 1px 4px; border: 1px solid #1E1E1E;">BOWL</span>
+                      <span style="font-weight: 800; font-size: 0.82rem; text-overflow: ellipsis; overflow: hidden; color: #111111;">${bw.name}</span>
+                    </div>
+                    <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.85rem; color: #111111;">${bw.wickets}-${bw.runsConceded}</span>
+                  </div>
+                `).join("")}
+              </div>
+
+              <!-- Team B Top Performers Column -->
+              <div style="display: flex; flex-direction: column; gap: 0.45rem;">
+                <div style="font-size: 0.75rem; font-weight: 900; text-transform: uppercase; color: #1E88E5; border-bottom: 1.5px solid #1E1E1E; padding-bottom: 0.25rem; margin-bottom: 0.25rem;">
+                  ${team2Name} TOP PERFORMERS
+                </div>
+
+                <!-- Top 3 Batters -->
+                ${topBatters2.map((b, idx) => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: ${idx === 0 ? '2px solid #C89B3C' : '1.5px solid #1E1E1E'}; padding: 0.4rem 0.65rem; box-shadow: ${idx === 0 ? '2px 2px 0px #C89B3C' : '1.5px 1.5px 0px #1E1E1E'};">
+                    <div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden; white-space: nowrap;">
+                      <span style="font-size: 0.65rem; font-weight: 900; background: #E53926; color: #FFF; padding: 1px 4px; border: 1px solid #1E1E1E;">BAT</span>
+                      <span style="font-weight: 800; font-size: 0.82rem; text-overflow: ellipsis; overflow: hidden; color: #111111;">${b.name}</span>
+                    </div>
+                    <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.85rem; color: #111111;">${b.runs}<span style="font-size: 0.72rem; font-weight: 700; color: #555555;">(${b.balls})</span></span>
+                  </div>
+                `).join("")}
+
+                <!-- Top 3 Bowlers -->
+                ${topBowlers2.map((bw, idx) => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; background: #FFFFFF; border: ${idx === 0 ? '2px solid #C89B3C' : '1.5px solid #1E1E1E'}; padding: 0.4rem 0.65rem; box-shadow: ${idx === 0 ? '2px 2px 0px #C89B3C' : '1.5px 1.5px 0px #1E1E1E'}; margin-top: 0.1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.4rem; overflow: hidden; white-space: nowrap;">
+                      <span style="font-size: 0.65rem; font-weight: 900; background: #1E88E5; color: #FFF; padding: 1px 4px; border: 1px solid #1E1E1E;">BOWL</span>
+                      <span style="font-weight: 800; font-size: 0.82rem; text-overflow: ellipsis; overflow: hidden; color: #111111;">${bw.name}</span>
+                    </div>
+                    <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.85rem; color: #111111;">${bw.wickets}-${bw.runsConceded}</span>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+
+            <!-- Card Footer -->
+            <div style="border-top: 2px solid #1E1E1E; margin-top: 1.5rem; padding-top: 0.75rem; font-size: 0.82rem; font-weight: 900; color: #444444; letter-spacing: 0.05em;">
+              samarg.vercel.app • build your squad
+            </div>
+          </div>
+
+          <!-- Scorecard Image Download & Share Action Bar -->
+          <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; flex-wrap: wrap;">
+            <button id="download-scorecard-img-btn" class="btn btn-primary btn-lg" style="font-weight: 900; background: var(--primary-coral); border: 2px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E;">
+              📸 Download Scorecard Graphic
+            </button>
+            <button id="share-scorecard-note-btn" class="btn btn-accent btn-lg" style="font-weight: 900; background: #C89B3C; color: #111111; border: 2px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E;">
+              🔗 Share Victory Note & Link
+            </button>
           </div>
 
           <h2 style="font-size: 1.5rem; color: #C89B3C; border-bottom: 2px solid #1E1E1E; padding-bottom: 0.5rem; text-transform: uppercase; font-weight: 900;">
@@ -2430,6 +2550,60 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
             <a href="#/" class="btn btn-secondary">Return to Lobby</a>
           </div>
         `;
+
+        // Download PNG Scorecard Image click handler
+        const downloadBtn = document.getElementById("download-scorecard-img-btn");
+        if (downloadBtn) {
+          downloadBtn.addEventListener("click", async () => {
+            try {
+              downloadBtn.disabled = true;
+              downloadBtn.innerText = "⏳ Generating Image...";
+              const el = document.getElementById("final-winning-scorecard-card");
+              if (el) {
+                const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#FAF6ED" });
+                const link = document.createElement("a");
+                link.download = `SAMARG_XI_Scorecard_${roomCode}.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+                showToast("📸 Final Scorecard PNG downloaded successfully!");
+              }
+            } catch (err) {
+              showToast(err.message, true);
+            } finally {
+              downloadBtn.disabled = false;
+              downloadBtn.innerText = "📸 Download Scorecard Graphic";
+            }
+          });
+        }
+
+        // Share Victory Note & Website Link click handler
+        const shareBtn = document.getElementById("share-scorecard-note-btn");
+        if (shareBtn) {
+          shareBtn.addEventListener("click", async () => {
+            const noteText = `🏆 SAMARG XI WORLD CUP FINAL 🏆\nRoom Code: ${roomCode}\n★ CHAMPION: ${championName.toUpperCase()}\n\n${team1Name}: ${runs1}/${wickets1}\n${team2Name}: ${runs2}/${wickets2}\n\nTop Performer: ${topBatters1[0]?.name} (${topBatters1[0]?.runs} runs)\n\nPlay SAMARG XI Cricket Draft & Simulator:\nhttps://samarg.vercel.app/`;
+
+            if (navigator.share) {
+              try {
+                await navigator.share({
+                  title: `SAMARG XI - ${championName} Won!`,
+                  text: noteText,
+                  url: "https://samarg.vercel.app/"
+                });
+                showToast("Scorecard shared successfully!");
+                return;
+              } catch (e) {
+                if (e.name === "AbortError") return;
+              }
+            }
+
+            try {
+              await navigator.clipboard.writeText(noteText);
+              showToast("📋 Victory note & website link copied to clipboard!");
+            } catch (e) {
+              prompt("Copy your victory note & website link:", noteText);
+            }
+          });
+        }
 
         const submitBtn = document.getElementById("post-submit-leaderboard-btn");
         if (submitBtn) {
