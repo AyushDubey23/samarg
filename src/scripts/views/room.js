@@ -2545,6 +2545,8 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
   const teamAName = match.teamAName || "TEAM A";
   const teamBName = match.teamBName || "TEAM B";
 
+  const teamABattedFirst = (i1.battingTeamName === teamAName) || (i1.battingTeamId === match.teamAId);
+
   const teamAEl = document.getElementById("pb-teamA");
   const teamBEl = document.getElementById("pb-teamB");
   if (teamAEl) teamAEl.innerText = teamAName.toUpperCase();
@@ -2608,11 +2610,6 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
       if (statusTitle) statusTitle.innerText = "Match Complete! Standings settled.";
 
       // Correct Team A vs Team B mapping so Team A is ALWAYS on the left
-      const teamAName = match.teamAName || "TEAM A";
-      const teamBName = match.teamBName || "TEAM B";
-
-      const teamABattedFirst = (i1.battingTeamName === teamAName) || (i1.battingTeamId === match.teamAId);
-
       const teamABatCard = teamABattedFirst ? (i1.battingCard || []) : (i2.battingCard || []);
       const teamABowlCard = teamABattedFirst ? (i2.bowlingCard || []) : (i1.bowlingCard || []);
       const teamARuns = teamABattedFirst ? runs1 : runs2;
