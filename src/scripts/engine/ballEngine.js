@@ -313,6 +313,9 @@ export class BallEngine {
             extraType: 'wide',
             commentary: comm
           });
+          if (targetInfo && runs >= targetInfo.targetRuns) {
+            break;
+          }
           continue;
         } else if (extraRoll < 0.80) {
           ballRuns = 1;
@@ -334,6 +337,9 @@ export class BallEngine {
             extraType: 'noball',
             commentary: comm
           });
+          if (targetInfo && runs >= targetInfo.targetRuns) {
+            break;
+          }
           continue;
         } else {
           isFreeHit = false;
@@ -346,7 +352,6 @@ export class BallEngine {
           else byeRuns = 0;
 
           ballRuns = byeRuns;
-          runs += byeRuns;
           comm = `${currentBowler.name} to ${striker.name}, ${byeRuns} bye(s). Sneaks past the keeper!`;
         }
       }

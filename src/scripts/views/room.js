@@ -2381,8 +2381,8 @@ function renderSimulatingPhase(viewport, roomCode, room) {
               <span class="score-overs" id="pb-oversB">0.0 ov</span>
             </div>
             
-            <div class="chase-row" id="pb-target-ticker" style="display: none;">
-              Target: <span id="pb-target-runs">100 runs</span>
+            <div class="chase-row" id="pb-target-ticker" style="display: none; background: #FAF6ED; border: 2px solid #E53926; padding: 0.5rem 0.85rem; margin-top: 0.75rem; font-weight: 900; font-size: 0.92rem; color: #111111; box-shadow: 2px 2px 0px #1E1E1E;">
+              Target: <span id="pb-target-runs" style="color: #E53926; font-family: var(--font-family-mono); font-weight: 900;">100 runs</span> <span id="pb-chase-eq-sep" style="margin: 0 0.4rem; color: #888;">|</span> <span id="pb-chase-equation" style="color: #1E88E5; font-family: var(--font-family-mono); font-weight: 900;">Need X runs off Y balls</span>
             </div>
           </div>
 
@@ -2999,13 +2999,6 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
       if (rA) rA.innerText = `${runs1}/${wickets1}`;
       if (oA) oA.innerText = formatOvers(ball.over, ball.ballInOver);
     } else {
-      if (ball.innings === 2) {
-        const tT = document.getElementById("pb-target-ticker");
-        const tR = document.getElementById("pb-target-runs");
-        if (tT) tT.style.display = "block";
-        if (tR) tR.innerText = `${i1.totalRuns + 1} runs`;
-      }
-
       if (ball.isWicket) wickets2++;
       if (!ball.isExtra || ball.extraType === "bye") {
         runs2 += ball.runs;
@@ -3017,6 +3010,36 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
       const oB = document.getElementById("pb-oversB");
       if (rB) rB.innerText = `${runs2}/${wickets2}`;
       if (oB) oB.innerText = formatOvers(ball.over, ball.ballInOver);
+
+      if (ball.innings === 2) {
+        const targetRuns = i1.totalRuns + 1;
+        const runsNeeded = Math.max(0, targetRuns - runs2);
+        
+        let legalBallsBowled = ball.over * 6 + (ball.ballInOver > 6 ? 6 : ball.ballInOver);
+        if (ball.isExtra && (ball.extraType === "wide" || ball.extraType === "noball")) {
+          legalBallsBowled = Math.max(0, legalBallsBowled - 1);
+        }
+        const ballsRemaining = Math.max(0, 120 - legalBallsBowled);
+
+        const tT = document.getElementById("pb-target-ticker");
+        const tR = document.getElementById("pb-target-runs");
+        const tEq = document.getElementById("pb-chase-equation");
+        if (tT) tT.style.display = "block";
+        if (tR) tR.innerText = `${targetRuns} runs`;
+        if (tEq) {
+          if (runs2 >= targetRuns) {
+            tEq.innerText = "Target Achieved!";
+            tEq.style.color = "#2E7D32";
+          } else {
+            tEq.innerText = `Need ${runsNeeded} run${runsNeeded === 1 ? '' : 's'} off ${ballsRemaining} ball${ballsRemaining === 1 ? '' : 's'}`;
+            tEq.style.color = "#1E88E5";
+          }
+        }
+
+        if (runs2 >= targetRuns) {
+          ballIndex = totalBalls;
+        }
+      }
     }
 
     // Update live side-by-side batter & bowler scorecard widgets
