@@ -2510,7 +2510,10 @@ function renderSimulatingPhase(viewport, roomCode, room) {
 }
 
 // Fixed 50-second compressed cinematic playback loops
-function startCinematicHighlightLoop(matches, standings = [], currentUid = "", roomCode = "") {
+function startCinematicHighlightLoop(rawMatches, rawStandings = [], currentUid = "", roomCode = "") {
+  let matches = ensureArray(rawMatches);
+  let standings = ensureArray(rawStandings);
+
   if (!matches || matches.length === 0) {
     console.warn("No simulation matches found in room state, generating client fallback match...");
     const engine = new BallEngine(12345);
@@ -3098,8 +3101,9 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
     if (crrEl) crrEl.innerText = `CRR: ${crr}`;
 
     if (ball.innings === 2) {
+      const chasingTeamRuns = activeTeamRuns;
       const targetRuns = i1.totalRuns + 1;
-      const runsNeeded = Math.max(0, targetRuns - runs2);
+      const runsNeeded = Math.max(0, targetRuns - chasingTeamRuns);
       const ballsRemaining = Math.max(0, 120 - inn2LegalBalls);
       const rrr = ballsRemaining > 0 ? ((runsNeeded / ballsRemaining) * 6).toFixed(2) : (runsNeeded > 0 ? "99.99" : "0.00");
 
@@ -3114,7 +3118,7 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
       if (tT) tT.style.display = "block";
       if (tR) tR.innerText = `${targetRuns} runs`;
       if (tEq) {
-        if (runs2 >= targetRuns) {
+        if (chasingTeamRuns >= targetRuns) {
           tEq.innerText = "Target Achieved!";
           tEq.style.color = "#2E7D32";
         } else {
@@ -3123,7 +3127,7 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
         }
       }
 
-      if (runs2 >= targetRuns) {
+      if (chasingTeamRuns >= targetRuns) {
         ballIndex = totalBalls;
       }
     }
