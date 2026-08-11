@@ -859,6 +859,44 @@ function renderDraftPhase(viewport, roomCode, room) {
   const p1Count = getFilledSlotsArray(p1Squad.slots).filter(s => s !== null).length + (p1Squad.bench ? p1Squad.bench.length : 0);
   const p2Count = getFilledSlotsArray(p2Squad.slots).filter(s => s !== null).length + (p2Squad.bench ? p2Squad.bench.length : 0);
 
+  // Calculate Forming Squad Power Ratings for User (p1)
+  const p1Players = [
+    ...getFilledSlotsArray(p1Squad.slots).filter(p => p !== null && p !== undefined),
+    ...(p1Squad.bench || []).filter(p => p !== null && p !== undefined)
+  ];
+
+  const isBattingRole = (p) => {
+    if (!p) return false;
+    const role = String(p.role || '').toLowerCase().trim();
+    return role.includes('batter') || role.includes('keeper') || role.includes('all');
+  };
+
+  const isBowlingRole = (p) => {
+    if (!p) return false;
+    const role = String(p.role || '').toLowerCase().trim();
+    return role.includes('bowl') || role.includes('pacer') || role.includes('spin') || role.includes('all');
+  };
+
+  const p1BatEligible = p1Players.filter(p => isBattingRole(p) && typeof p.batRating === 'number' && p.batRating > 0);
+  const p1BowlEligible = p1Players.filter(p => isBowlingRole(p) && typeof p.bowlRating === 'number' && p.bowlRating > 0);
+
+  const p1AvgBat = p1BatEligible.length > 0
+    ? (p1BatEligible.reduce((sum, p) => sum + p.batRating, 0) / p1BatEligible.length).toFixed(1)
+    : '-';
+
+  const p1AvgBowl = p1BowlEligible.length > 0
+    ? (p1BowlEligible.reduce((sum, p) => sum + p.bowlRating, 0) / p1BowlEligible.length).toFixed(1)
+    : '-';
+
+  let p1AvgOverall = '-';
+  if (p1AvgBat !== '-' && p1AvgBowl !== '-') {
+    p1AvgOverall = ((parseFloat(p1AvgBat) + parseFloat(p1AvgBowl)) / 2).toFixed(1);
+  } else if (p1AvgBat !== '-') {
+    p1AvgOverall = p1AvgBat;
+  } else if (p1AvgBowl !== '-') {
+    p1AvgOverall = p1AvgBowl;
+  }
+
   // Spectated player squad
   const isViewingOpponent = draftSpectatedUid !== currentUid;
   const spectatedSquad = room.squads?.[draftSpectatedUid] || { slots: Array(11).fill(null), bench: [] };
@@ -878,7 +916,7 @@ function renderDraftPhase(viewport, roomCode, room) {
           LIVE LINEUPS
         </div>
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-          <!-- Player 1 Box -->
+          <!-- Player 1 Box (YOUR TEAM FORMING RATINGS) -->
           <div style="flex: 1; min-width: 200px; padding: 0.75rem 1rem; background: ${activeUid === p1Uid ? '#e8f5e9' : '#fff'}; border: 2px solid ${activeUid === p1Uid ? '#2e7d32' : '#ccc'}; border-radius: 0px; position: relative;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
               <div style="display: flex; align-items: center; gap: 0.5rem;">
@@ -886,6 +924,22 @@ function renderDraftPhase(viewport, roomCode, room) {
                 <span style="font-weight: 900; font-size: 1.05rem; color: #111;">${p1Name} (YOU)</span>
               </div>
               <span style="font-family: var(--font-family-mono); font-weight: 800; font-size: 1.1rem; color: #111;">${p1Count}/11</span>
+            </div>
+
+            <!-- LIVE FORMING SQUAD RATINGS (PRIVATE TO YOU) -->
+            <div style="margin-top: 0.55rem; padding-top: 0.45rem; border-top: 1px dashed rgba(0,0,0,0.18); display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.3rem; text-align: center;">
+              <div style="background: #FAF6ED; border: 1px solid #1E1E1E; padding: 0.25rem 0.15rem;">
+                <div style="font-size: 0.56rem; font-weight: 900; color: #E53926; text-transform: uppercase;">BAT (${p1BatEligible.length})</div>
+                <div style="font-size: clamp(0.8rem, 2.8vw, 0.95rem); font-weight: 900; font-family: var(--font-family-mono); color: #111111; margin-top: 0.1rem;">${p1AvgBat}</div>
+              </div>
+              <div style="background: #FAF6ED; border: 1px solid #1E1E1E; padding: 0.25rem 0.15rem;">
+                <div style="font-size: 0.56rem; font-weight: 900; color: #1E88E5; text-transform: uppercase;">BOWL (${p1BowlEligible.length})</div>
+                <div style="font-size: clamp(0.8rem, 2.8vw, 0.95rem); font-weight: 900; font-family: var(--font-family-mono); color: #111111; margin-top: 0.1rem;">${p1AvgBowl}</div>
+              </div>
+              <div style="background: #FAF6ED; border: 1px solid #C89B3C; padding: 0.25rem 0.15rem; box-shadow: 1px 1px 0px #C89B3C;">
+                <div style="font-size: 0.56rem; font-weight: 900; color: #C89B3C; text-transform: uppercase;">OVERALL</div>
+                <div style="font-size: clamp(0.8rem, 2.8vw, 0.95rem); font-weight: 900; font-family: var(--font-family-mono); color: #111111; margin-top: 0.1rem;">${p1AvgOverall}</div>
+              </div>
             </div>
           </div>
 
@@ -938,44 +992,6 @@ function renderDraftPhase(viewport, roomCode, room) {
                 <div style="font-size: 1.15rem; font-weight: 800; color: #d32f2f; font-family: var(--font-family-mono);">
                   Tournament ${reveal.tournamentYear}
                 </div>
-
-                ${isActiveTurn ? (() => {
-                  const rPlayers = ensureArray(reveal.players);
-                  const validBatPlayers = rPlayers.filter(p => p && typeof p.batRating === 'number' && p.batRating > 0);
-                  const avgBat = validBatPlayers.length > 0 ? (validBatPlayers.reduce((sum, p) => sum + (p.batRating || 0), 0) / validBatPlayers.length).toFixed(1) : '75.0';
-
-                  const validBowlPlayers = rPlayers.filter(p => p && typeof p.bowlRating === 'number' && p.bowlRating > 0);
-                  const avgBowl = validBowlPlayers.length > 0 ? (validBowlPlayers.reduce((sum, p) => sum + (p.bowlRating || 0), 0) / validBowlPlayers.length).toFixed(1) : '75.0';
-
-                  const avgOverall = ((parseFloat(avgBat) + parseFloat(avgBowl)) / 2).toFixed(1);
-
-                  return `
-                    <!-- Team Ratings Summary Widget (VISIBLE ONLY TO ACTIVE SELECTING PLAYER) -->
-                    <div style="margin-top: 0.85rem; background: #FAF6ED; border: 2px solid #1E1E1E; padding: 0.65rem 0.75rem; box-shadow: 2px 2px 0px #1E1E1E;">
-                      <div style="font-size: 0.68rem; font-weight: 900; text-transform: uppercase; color: #555555; letter-spacing: 0.05em; margin-bottom: 0.4rem; display: flex; align-items: center; justify-content: space-between;">
-                        <span>🔒 SQUAD POWER RATING</span>
-                        <span style="background: #111111; color: #FFFFFF; font-size: 0.58rem; padding: 1px 5px; font-weight: 900; border: 1px solid #1E1E1E;">YOUR VIEW ONLY</span>
-                      </div>
-                      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; text-align: center;">
-                        <!-- Avg Batting -->
-                        <div style="background: #FFFFFF; border: 1.5px solid #1E1E1E; padding: 0.35rem 0.2rem;">
-                          <div style="font-size: 0.62rem; font-weight: 900; color: #E53926; text-transform: uppercase;">AVG BAT</div>
-                          <div style="font-size: clamp(0.9rem, 3.5vw, 1.1rem); font-weight: 900; font-family: var(--font-family-mono); color: #111111; margin-top: 0.1rem;">${avgBat}</div>
-                        </div>
-                        <!-- Avg Bowling -->
-                        <div style="background: #FFFFFF; border: 1.5px solid #1E1E1E; padding: 0.35rem 0.2rem;">
-                          <div style="font-size: 0.62rem; font-weight: 900; color: #1E88E5; text-transform: uppercase;">AVG BOWL</div>
-                          <div style="font-size: clamp(0.9rem, 3.5vw, 1.1rem); font-weight: 900; font-family: var(--font-family-mono); color: #111111; margin-top: 0.1rem;">${avgBowl}</div>
-                        </div>
-                        <!-- Overall Rating -->
-                        <div style="background: #FFFFFF; border: 1.5px solid #C89B3C; padding: 0.35rem 0.2rem; box-shadow: 1.5px 1.5px 0px #C89B3C;">
-                          <div style="font-size: 0.62rem; font-weight: 900; color: #C89B3C; text-transform: uppercase;">OVERALL</div>
-                          <div style="font-size: clamp(0.9rem, 3.5vw, 1.1rem); font-weight: 900; font-family: var(--font-family-mono); color: #111111; margin-top: 0.1rem;">${avgOverall}</div>
-                        </div>
-                      </div>
-                    </div>
-                  `;
-                })() : ''}
               </div>
 
               <div style="margin-top: 1rem; background: #fdfbf7; border: 2px solid #e0d8c8; border-radius: 0px; padding: 0.75rem;">
@@ -2514,6 +2530,7 @@ function renderSimulatingPhase(viewport, roomCode, room) {
 
   if (document.getElementById("pb-teamA") && simPlaybackStarted && simPlaybackRoomCode === roomCode) {
     // If playback is already actively ticking in DOM, don't restart
+    checkAndRenderRematchModal(roomCode, room);
     return;
   }
   simPlaybackStarted = true;
