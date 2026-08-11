@@ -2631,13 +2631,13 @@ function startCinematicHighlightLoop(rawMatches, rawStandings = [], currentUid =
       // Correct Team A vs Team B mapping so Team A is ALWAYS on the left
       const teamABatCard = teamABattedFirst ? (i1.battingCard || []) : (i2.battingCard || []);
       const teamABowlCard = teamABattedFirst ? (i2.bowlingCard || []) : (i1.bowlingCard || []);
-      const teamARuns = teamABattedFirst ? runs1 : runs2;
-      const teamAWickets = teamABattedFirst ? wickets1 : wickets2;
+      const teamARuns = runs1;
+      const teamAWickets = wickets1;
 
       const teamBBatCard = teamABattedFirst ? (i2.battingCard || []) : (i1.battingCard || []);
       const teamBBowlCard = teamABattedFirst ? (i1.bowlingCard || []) : (i2.bowlingCard || []);
-      const teamBRuns = teamABattedFirst ? runs2 : runs1;
-      const teamBWickets = teamABattedFirst ? wickets2 : wickets1;
+      const teamBRuns = runs2;
+      const teamBWickets = wickets2;
 
       // Compute Top 3 Batters & Top 2 Active Bowlers for Team A
       const topBattersA = [...teamABatCard].sort((a,b) => (b.runs || 0) - (a.runs || 0)).slice(0, 3);
