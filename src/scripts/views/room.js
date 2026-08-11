@@ -803,13 +803,51 @@ function renderDraftPhase(viewport, roomCode, room) {
           ` : `
             <div>
               <div style="background: #fdfbf7; color: #111; padding: 1.15rem; border-radius: 0px; border: 2px solid #e0d8c8; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <div style="font-size: 0.7rem; text-transform: uppercase; color: #888; font-weight: 800; letter-spacing: 1px;">DRAWN</div>
+                <div style="font-size: 0.7rem; text-transform: uppercase; color: #888; font-weight: 800; letter-spacing: 1px;">DRAWN SQUAD</div>
                 <h2 style="font-size: 1.8rem; margin: 0.2rem 0; font-weight: 900; color: #111;">
                   <span style="color: #d32f2f;">${reveal.nationalTeam}</span>
                 </h2>
                 <div style="font-size: 1.15rem; font-weight: 800; color: #d32f2f; font-family: var(--font-family-mono);">
                   Tournament ${reveal.tournamentYear}
                 </div>
+
+                ${isActiveTurn ? (() => {
+                  const rPlayers = ensureArray(reveal.players);
+                  const validBatPlayers = rPlayers.filter(p => p && typeof p.batRating === 'number' && p.batRating > 0);
+                  const avgBat = validBatPlayers.length > 0 ? (validBatPlayers.reduce((sum, p) => sum + (p.batRating || 0), 0) / validBatPlayers.length).toFixed(1) : '75.0';
+
+                  const validBowlPlayers = rPlayers.filter(p => p && typeof p.bowlRating === 'number' && p.bowlRating > 0);
+                  const avgBowl = validBowlPlayers.length > 0 ? (validBowlPlayers.reduce((sum, p) => sum + (p.bowlRating || 0), 0) / validBowlPlayers.length).toFixed(1) : '75.0';
+
+                  const avgOverall = ((parseFloat(avgBat) + parseFloat(avgBowl)) / 2).toFixed(1);
+
+                  return `
+                    <!-- Team Ratings Summary Widget (VISIBLE ONLY TO ACTIVE SELECTING PLAYER) -->
+                    <div style="margin-top: 0.85rem; background: #FAF6ED; border: 2px solid #1E1E1E; padding: 0.65rem 0.75rem; box-shadow: 2px 2px 0px #1E1E1E;">
+                      <div style="font-size: 0.68rem; font-weight: 900; text-transform: uppercase; color: #555555; letter-spacing: 0.05em; margin-bottom: 0.4rem; display: flex; align-items: center; justify-content: space-between;">
+                        <span>🔒 SQUAD POWER RATING</span>
+                        <span style="background: #111111; color: #FFFFFF; font-size: 0.58rem; padding: 1px 5px; font-weight: 900; border: 1px solid #1E1E1E;">YOUR VIEW ONLY</span>
+                      </div>
+                      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; text-align: center;">
+                        <!-- Avg Batting -->
+                        <div style="background: #FFFFFF; border: 1.5px solid #1E1E1E; padding: 0.35rem 0.2rem;">
+                          <div style="font-size: 0.62rem; font-weight: 900; color: #E53926; text-transform: uppercase;">AVG BAT</div>
+                          <div style="font-size: clamp(0.9rem, 3.5vw, 1.1rem); font-weight: 900; font-family: var(--font-family-mono); color: #111111; margin-top: 0.1rem;">${avgBat}</div>
+                        </div>
+                        <!-- Avg Bowling -->
+                        <div style="background: #FFFFFF; border: 1.5px solid #1E1E1E; padding: 0.35rem 0.2rem;">
+                          <div style="font-size: 0.62rem; font-weight: 900; color: #1E88E5; text-transform: uppercase;">AVG BOWL</div>
+                          <div style="font-size: clamp(0.9rem, 3.5vw, 1.1rem); font-weight: 900; font-family: var(--font-family-mono); color: #111111; margin-top: 0.1rem;">${avgBowl}</div>
+                        </div>
+                        <!-- Overall Rating -->
+                        <div style="background: #FFFFFF; border: 1.5px solid #C89B3C; padding: 0.35rem 0.2rem; box-shadow: 1.5px 1.5px 0px #C89B3C;">
+                          <div style="font-size: 0.62rem; font-weight: 900; color: #C89B3C; text-transform: uppercase;">OVERALL</div>
+                          <div style="font-size: clamp(0.9rem, 3.5vw, 1.1rem); font-weight: 900; font-family: var(--font-family-mono); color: #111111; margin-top: 0.1rem;">${avgOverall}</div>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                })() : ''}
               </div>
 
               <div style="margin-top: 1rem; background: #fdfbf7; border: 2px solid #e0d8c8; border-radius: 0px; padding: 0.75rem;">
