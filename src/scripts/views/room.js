@@ -42,6 +42,132 @@ function getServerTime() {
   return Date.now() + serverOffset;
 }
 
+async function resetRoomForRematch(roomCode, room, humanUids) {
+  const initialSquads = {};
+  humanUids.forEach(uid => {
+    initialSquads[uid] = {
+      slots: [],
+      ready: false,
+      rollsLeft: 2,
+      yearRollsLeft: 1
+    };
+  });
+
+  await update(ref(rtdb, `rooms/${roomCode}`), {
+    status: "drafting",
+    rematchRequest: null,
+    tossState: null,
+    simulation: null,
+    squads: initialSquads,
+    draftState: {
+      turnIndex: 0,
+      currentPick: 1,
+      claimedPlayerIds: [],
+      claimedPlayerNames: [],
+      turnOrder: humanUids
+    }
+  });
+}
+
+function checkAndRenderRematchModal(roomCode, roomData) {
+  const currentUid = auth.currentUser ? auth.currentUser.uid : "";
+  const rematchReq = roomData.rematchRequest;
+  const existingModal = document.getElementById("rematch-modal-overlay");
+
+  if (roomData.status === "drafting" || roomData.status === "lobby") {
+    if (existingModal) existingModal.remove();
+    return;
+  }
+
+  if (rematchReq && rematchReq.status === "pending") {
+    const isRequester = currentUid === rematchReq.requestedBy;
+    const hasVoted = rematchReq.votes && rematchReq.votes[currentUid] === true;
+
+    if (isRequester || hasVoted) {
+      if (existingModal) existingModal.remove();
+      const statusTicker = document.getElementById("rematch-status-ticker");
+      if (statusTicker) {
+        statusTicker.style.display = "block";
+        statusTicker.innerHTML = `⌛ Rematch request sent! Waiting for opponent response...`;
+      }
+    } else {
+      if (!existingModal) {
+        const modalDiv = document.createElement("div");
+        modalDiv.id = "rematch-modal-overlay";
+        modalDiv.style.cssText = "position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(17,17,17,0.88); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem; box-sizing: border-box;";
+        modalDiv.innerHTML = `
+          <div style="background: #FAF6ED; border: 3.5px solid #1E1E1E; box-shadow: 6px 6px 0px #1E1E1E; padding: 1.5rem; max-width: 440px; width: 100%; text-align: center; box-sizing: border-box;">
+            <div style="font-size: 0.8rem; font-weight: 900; color: #E53926; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.4rem;">
+              ★ REMATCH OFFER ★
+            </div>
+            <h3 style="font-size: clamp(1.2rem, 5vw, 1.5rem); font-weight: 900; color: #111111; margin-bottom: 0.5rem; line-height: 1.2;">
+              ${rematchReq.requestedByName || 'Opponent'} requested a Rematch!
+            </h3>
+            <p style="font-size: 0.9rem; font-weight: 800; color: #444444; margin-bottom: 1.5rem; line-height: 1.4;">
+              Would you like to restart with fresh squad rolls? The original room host will remain host.
+            </p>
+            <div style="display: flex; gap: 0.85rem; justify-content: center; flex-wrap: wrap;">
+              <button id="accept-rematch-btn" class="btn btn-primary btn-lg" style="flex: 1; min-width: 130px; font-weight: 900; background: #2E7D32; border: 2.5px solid #1E1E1E; box-shadow: 3px 3px 0px #1E1E1E; color: #FFFFFF;">
+                ✅ Accept
+              </button>
+              <button id="decline-rematch-btn" class="btn btn-secondary btn-lg" style="flex: 1; min-width: 130px; font-weight: 900; background: #D32F2F; border: 2.5px solid #1E1E1E; box-shadow: 3px 3px 0px #1E1E1E; color: #FFFFFF;">
+                ❌ Decline
+              </button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modalDiv);
+
+        document.getElementById("accept-rematch-btn")?.addEventListener("click", async () => {
+          try {
+            const playersObj = roomData.players || {};
+            const humanUids = Object.keys(playersObj).filter(uid => !playersObj[uid]?.isCpu);
+            const updatedVotes = { ...(rematchReq.votes || {}), [currentUid]: true };
+            
+            const allHumanAccepted = humanUids.every(uid => updatedVotes[uid] === true);
+
+            if (allHumanAccepted) {
+              if (modalDiv) modalDiv.remove();
+              await resetRoomForRematch(roomCode, roomData, humanUids);
+            } else {
+              await update(ref(rtdb, `rooms/${roomCode}/rematchRequest/votes`), {
+                [currentUid]: true
+              });
+              if (modalDiv) modalDiv.remove();
+              showToast("Accepted rematch request! Waiting for remaining players...");
+            }
+          } catch (err) {
+            showToast(err.message, true);
+          }
+        });
+
+        document.getElementById("decline-rematch-btn")?.addEventListener("click", async () => {
+          try {
+            const currentDisplayName = auth.currentUser?.displayName || "Player";
+            if (modalDiv) modalDiv.remove();
+            await update(ref(rtdb, `rooms/${roomCode}/rematchRequest`), {
+              status: "declined",
+              declinedBy: currentDisplayName
+            });
+            showToast("You declined the rematch request.");
+          } catch (err) {
+            showToast(err.message, true);
+          }
+        });
+      }
+    }
+  } else {
+    if (existingModal) existingModal.remove();
+    if (rematchReq && rematchReq.status === "declined") {
+      const statusTicker = document.getElementById("rematch-status-ticker");
+      if (statusTicker) {
+        statusTicker.style.display = "block";
+        statusTicker.innerHTML = `❌ Rematch request declined by ${rematchReq.declinedBy || 'opponent'}`;
+      }
+    }
+  }
+}
+
 export function renderRoom(viewport, roomCode) {
   let roomRef = ref(rtdb, `rooms/${roomCode}`);
   let roomData = null;
@@ -82,6 +208,8 @@ export function renderRoom(viewport, roomCode) {
         `;
         return;
       }
+
+      checkAndRenderRematchModal(roomCode, roomData);
 
       if (!currentSpectatorUid) {
         currentSpectatorUid = auth.currentUser ? auth.currentUser.uid : null;
@@ -2863,11 +2991,16 @@ function startCinematicHighlightLoop(rawMatches, rawStandings = [], currentUid =
             </div>
           </div>
 
-          <!-- Scorecard Image Share Action Bar (Responsive Mobile Button) -->
-          <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 2rem; width: 100%; padding: 0 0.5rem; box-sizing: border-box;">
+          <!-- Scorecard Image Share Action Bar & Rematch Button -->
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: center; justify-content: center; margin-bottom: 2rem; width: 100%; padding: 0 0.5rem; box-sizing: border-box;">
             <button id="share-scorecard-img-btn" class="btn btn-accent btn-lg" style="font-weight: 900; background: #C89B3C; color: #111111; border: 2.5px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E; padding: 0.75rem 1.25rem; font-size: clamp(0.95rem, 4vw, 1.05rem); width: 100%; max-width: 420px; box-sizing: border-box; text-align: center;">
               📸 Share Scorecard Image & Link
             </button>
+
+            <button id="request-rematch-btn" class="btn btn-primary btn-lg" style="font-weight: 900; background: #E53926; color: #FFFFFF; border: 2.5px solid #1E1E1E; box-shadow: 4px 4px 0px #1E1E1E; padding: 0.75rem 1.25rem; font-size: clamp(0.95rem, 4vw, 1.05rem); width: 100%; max-width: 420px; box-sizing: border-box; text-align: center;">
+              🔄 Request Rematch
+            </button>
+            <div id="rematch-status-ticker" style="font-weight: 900; font-size: 0.9rem; color: #E53926; background: #FAF6ED; border: 2px solid #1E1E1E; padding: 0.5rem 1rem; box-shadow: 2px 2px 0px #1E1E1E; width: 100%; max-width: 420px; box-sizing: border-box; text-align: center; display: none;"></div>
           </div>
 
           <h2 style="font-size: clamp(1.2rem, 5vw, 1.5rem); color: #C89B3C; border-bottom: 2px solid #1E1E1E; padding-bottom: 0.5rem; text-transform: uppercase; font-weight: 900;">
@@ -2988,6 +3121,40 @@ function startCinematicHighlightLoop(rawMatches, rawStandings = [], currentUid =
             } finally {
               shareImgBtn.disabled = false;
               shareImgBtn.innerText = "📸 Share Scorecard Image & Link";
+            }
+          });
+        }
+
+        const rematchBtn = document.getElementById("request-rematch-btn");
+        if (rematchBtn) {
+          rematchBtn.addEventListener("click", async () => {
+            try {
+              rematchBtn.disabled = true;
+              const currentDisplayName = auth.currentUser?.displayName || "Player";
+              const playersObj = match.players || {}; // check room players
+              const rSnap = await get(ref(rtdb, `rooms/${roomCode}/players`));
+              const livePlayers = rSnap.val() || {};
+              const humanUids = Object.keys(livePlayers).filter(uid => !livePlayers[uid]?.isCpu);
+
+              if (humanUids.length <= 1) {
+                showToast("Starting rematch...");
+                await resetRoomForRematch(roomCode, match, humanUids);
+                return;
+              }
+
+              await update(ref(rtdb, `rooms/${roomCode}/rematchRequest`), {
+                requestedBy: currentUid,
+                requestedByName: currentDisplayName,
+                status: "pending",
+                votes: {
+                  [currentUid]: true
+                },
+                requestedAt: Date.now()
+              });
+              showToast("Rematch request sent!");
+            } catch (err) {
+              rematchBtn.disabled = false;
+              showToast(err.message, true);
             }
           });
         }
