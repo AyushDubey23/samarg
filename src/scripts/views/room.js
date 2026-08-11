@@ -2362,10 +2362,38 @@ function renderSimulatingPhase(viewport, roomCode, room) {
       </div>
 
       <!-- Scoreboard screen widget -->
-      <div id="sim-screen-container" style="display: none;">
+      <div id="sim-screen-container" style="display: none; position: relative;">
+        <!-- Innings Break Overlay Banner -->
+        <div id="pb-innings-break-banner" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(17, 17, 17, 0.95); z-index: 99; flex-direction: column; align-items: center; justify-content: center; color: #FFFFFF; border: 3.5px solid #C89B3C; box-shadow: 0 8px 32px rgba(0,0,0,0.6); padding: 1.5rem; text-align: center; font-family: var(--font-family); box-sizing: border-box;">
+          <div style="font-size: clamp(0.8rem, 3.5vw, 0.95rem); font-weight: 900; color: #C89B3C; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.35rem;">
+            ★ INNINGS BREAK ★
+          </div>
+          <div style="font-size: clamp(1.3rem, 5vw, 2rem); font-weight: 900; color: #FFFFFF; text-transform: uppercase; margin-bottom: 0.5rem; line-height: 1.2;">
+            1ST INNINGS COMPLETED
+          </div>
+          <div id="pb-break-summary-card" style="font-size: clamp(1rem, 4vw, 1.35rem); font-weight: 900; color: #E53926; font-family: var(--font-family-mono); margin-bottom: 0.85rem; background: #FAF6ED; padding: 0.5rem 1.25rem; border: 2px solid #1E1E1E; border-radius: 0px; box-shadow: 3px 3px 0px #1E1E1E;">
+            TARGET: 100 RUNS
+          </div>
+          <div id="pb-break-subtext" style="font-size: clamp(0.85rem, 3.5vw, 1rem); font-weight: 800; color: #CCCCCC; margin-bottom: 1rem;">
+            Chasing team needs 100 runs off 120 balls
+          </div>
+          <div style="font-size: 2.2rem; font-weight: 900; color: #FFD54F; font-family: var(--font-family-mono);" id="pb-break-countdown-sec">
+            03s
+          </div>
+          <div style="font-size: 0.72rem; font-weight: 900; color: #888888; text-transform: uppercase; margin-top: 0.25rem; letter-spacing: 0.1em;">
+            2ND INNINGS COMMENCING
+          </div>
+        </div>
+
         <div class="match-mid-layout">
           <!-- TV scoreboard layout -->
           <div class="tv-scoreboard" style="flex: 2; border-color: var(--willow-tan);">
+            <!-- Live Rates Bar (CRR / RRR) -->
+            <div id="pb-live-rates-bar" style="display: flex; justify-content: space-between; align-items: center; background: #111111; color: #FFFFFF; padding: 0.4rem 0.85rem; font-weight: 900; font-size: 0.85rem; letter-spacing: 0.05em; font-family: var(--font-family-mono); margin-bottom: 0.85rem; border: 1.5px solid #1E1E1E;">
+              <span id="pb-crr-display">CRR: 0.00</span>
+              <span id="pb-rrr-display" style="display: none; color: #FFD54F;">RRR: 0.00</span>
+            </div>
+
             <div class="score-row flex justify-between align-center">
               <div>
                 <span class="score-team" id="pb-teamA">TEAM A</span>
@@ -2538,6 +2566,9 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
   let wickets1 = 0;
   let runs2 = 0;
   let wickets2 = 0;
+  let inn1LegalBalls = 0;
+  let inn2LegalBalls = 0;
+  let hasShownInningsBreak = false;
 
   const overOutcomes = [];
   const liveBatters = {};
@@ -2943,6 +2974,44 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
     const ball = allDeliveries[ballIndex];
     let nextDelay = delayNormal;
 
+    // Trigger 3-second Innings Break countdown overlay when transitioning to Innings 2
+    if (ball.innings === 2 && !hasShownInningsBreak) {
+      hasShownInningsBreak = true;
+      const breakBanner = document.getElementById("pb-innings-break-banner");
+      const breakSummary = document.getElementById("pb-break-summary-card");
+      const breakSub = document.getElementById("pb-break-subtext");
+      const breakSec = document.getElementById("pb-break-countdown-sec");
+
+      const inn1TeamName = i1.battingTeamName || teamAName;
+      const inn2TeamName = i2.battingTeamName || teamBName;
+      const target = i1.totalRuns + 1;
+
+      if (breakSummary) {
+        breakSummary.innerText = `${inn1TeamName.toUpperCase()} ${i1.totalRuns}/${i1.totalWickets} • TARGET: ${target}`;
+      }
+      if (breakSub) {
+        breakSub.innerText = `${inn2TeamName} needs ${target} runs off 120 balls to win`;
+      }
+      if (breakBanner) {
+        breakBanner.style.display = "flex";
+      }
+
+      let count = 3;
+      if (breakSec) breakSec.innerText = `0${count}s`;
+
+      const breakInterval = setInterval(() => {
+        count--;
+        if (breakSec) breakSec.innerText = `0${count}s`;
+        if (count <= 0) {
+          clearInterval(breakInterval);
+          if (breakBanner) breakBanner.style.display = "none";
+          setTimeout(tickPlayback, delayNormal);
+        }
+      }, 1000);
+
+      return;
+    }
+
     const commList = document.getElementById("pb-commentary-feed-list");
     const overList = document.getElementById("pb-current-over-list");
 
@@ -2956,6 +3025,13 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
     const striker = getBatter(ball.strikerId || "striker_" + ballIndex, strikerName);
     const nonStriker = getBatter(ball.nonStrikerId || "nonstriker_" + ballIndex, nonStrikerName);
     const bowler = getBowler(ball.bowlerId || "bowler_" + ballIndex, bowlerName);
+
+    // Track legal balls bowled for CRR & RRR calculations
+    const isLegal = !ball.isExtra || ball.extraType === "bye";
+    if (isLegal) {
+      if (ball.innings === 1) inn1LegalBalls++;
+      else if (ball.innings === 2) inn2LegalBalls++;
+    }
 
     // Update striker stats
     if (!ball.isExtra || ball.extraType === "bye") {
@@ -3010,35 +3086,45 @@ function startCinematicHighlightLoop(matches, standings = [], currentUid = "", r
       const oB = document.getElementById("pb-oversB");
       if (rB) rB.innerText = `${runs2}/${wickets2}`;
       if (oB) oB.innerText = formatOvers(ball.over, ball.ballInOver);
+    }
 
-      if (ball.innings === 2) {
-        const targetRuns = i1.totalRuns + 1;
-        const runsNeeded = Math.max(0, targetRuns - runs2);
-        
-        let legalBallsBowled = ball.over * 6 + (ball.ballInOver > 6 ? 6 : ball.ballInOver);
-        if (ball.isExtra && (ball.extraType === "wide" || ball.extraType === "noball")) {
-          legalBallsBowled = Math.max(0, legalBallsBowled - 1);
-        }
-        const ballsRemaining = Math.max(0, 120 - legalBallsBowled);
+    // Update CRR & RRR live rates
+    const activeTeamRuns = isTeamABat ? runs1 : runs2;
+    const activeLegalBalls = ball.innings === 1 ? inn1LegalBalls : inn2LegalBalls;
+    const crr = activeLegalBalls > 0 ? ((activeTeamRuns / activeLegalBalls) * 6).toFixed(2) : "0.00";
 
-        const tT = document.getElementById("pb-target-ticker");
-        const tR = document.getElementById("pb-target-runs");
-        const tEq = document.getElementById("pb-chase-equation");
-        if (tT) tT.style.display = "block";
-        if (tR) tR.innerText = `${targetRuns} runs`;
-        if (tEq) {
-          if (runs2 >= targetRuns) {
-            tEq.innerText = "Target Achieved!";
-            tEq.style.color = "#2E7D32";
-          } else {
-            tEq.innerText = `Need ${runsNeeded} run${runsNeeded === 1 ? '' : 's'} off ${ballsRemaining} ball${ballsRemaining === 1 ? '' : 's'}`;
-            tEq.style.color = "#1E88E5";
-          }
-        }
+    const crrEl = document.getElementById("pb-crr-display");
+    const rrrEl = document.getElementById("pb-rrr-display");
+    if (crrEl) crrEl.innerText = `CRR: ${crr}`;
 
+    if (ball.innings === 2) {
+      const targetRuns = i1.totalRuns + 1;
+      const runsNeeded = Math.max(0, targetRuns - runs2);
+      const ballsRemaining = Math.max(0, 120 - inn2LegalBalls);
+      const rrr = ballsRemaining > 0 ? ((runsNeeded / ballsRemaining) * 6).toFixed(2) : (runsNeeded > 0 ? "99.99" : "0.00");
+
+      if (rrrEl) {
+        rrrEl.style.display = "inline";
+        rrrEl.innerText = `RRR: ${rrr}`;
+      }
+
+      const tT = document.getElementById("pb-target-ticker");
+      const tR = document.getElementById("pb-target-runs");
+      const tEq = document.getElementById("pb-chase-equation");
+      if (tT) tT.style.display = "block";
+      if (tR) tR.innerText = `${targetRuns} runs`;
+      if (tEq) {
         if (runs2 >= targetRuns) {
-          ballIndex = totalBalls;
+          tEq.innerText = "Target Achieved!";
+          tEq.style.color = "#2E7D32";
+        } else {
+          tEq.innerText = `Need ${runsNeeded} run${runsNeeded === 1 ? '' : 's'} off ${ballsRemaining} ball${ballsRemaining === 1 ? '' : 's'}`;
+          tEq.style.color = "#1E88E5";
         }
+      }
+
+      if (runs2 >= targetRuns) {
+        ballIndex = totalBalls;
       }
     }
 
