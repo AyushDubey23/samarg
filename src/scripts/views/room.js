@@ -43,15 +43,23 @@ function getServerTime() {
 }
 
 async function resetRoomForRematch(roomCode, room, humanUids) {
+  const playersMap = room.players || {};
+  const allPlayerUids = Object.keys(playersMap);
+  const turnOrder = (allPlayerUids && allPlayerUids.length > 0) ? allPlayerUids : humanUids;
+
   const initialSquads = {};
-  humanUids.forEach(uid => {
+  turnOrder.forEach(uid => {
     initialSquads[uid] = {
-      slots: [],
+      slots: Array(11).fill(null),
+      bench: [],
       ready: false,
       rollsLeft: 2,
       yearRollsLeft: 1
     };
   });
+
+  const turnTimerSec = room.turnTimerSeconds || 20;
+  const firstActiveUid = turnOrder[0];
 
   await update(ref(rtdb, `rooms/${roomCode}`), {
     status: "drafting",
@@ -60,11 +68,14 @@ async function resetRoomForRematch(roomCode, room, humanUids) {
     simulation: null,
     squads: initialSquads,
     draftState: {
+      turnOrder: turnOrder,
       turnIndex: 0,
+      activePlayerUid: firstActiveUid,
       currentPick: 1,
+      currentReveal: null,
+      turnDeadline: Date.now() + turnTimerSec * 1000,
       claimedPlayerIds: [],
-      claimedPlayerNames: [],
-      turnOrder: humanUids
+      claimedPlayerNames: []
     }
   });
 }
