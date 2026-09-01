@@ -13,6 +13,7 @@ import { renderResultCard } from "./views/resultCard.js";
 import { renderSummary } from "./views/summary.js";
 import { renderLeaderboard } from "./views/leaderboard.js";
 import { renderProfile } from "./views/profile.js";
+import { renderNotFound } from "./views/notFound.js";
 
 const viewport = document.getElementById("app-viewport");
 
@@ -27,7 +28,8 @@ const routes = [
   { pattern: /^\/result\/([^/]+)$/, handler: (vp, id) => renderResultCard(vp, id) },
   { pattern: /^\/summary$/, handler: renderSummary },
   { pattern: /^\/leaderboard$/, handler: renderLeaderboard },
-  { pattern: /^\/profile$/, handler: renderProfile }
+  { pattern: /^\/profile$/, handler: renderProfile },
+  { pattern: /^\/404$/, handler: renderNotFound }
 ];
 
 let isAuthInitialized = true;
@@ -49,8 +51,9 @@ function resolveRoute() {
     }
   }
 
-  // Fallback to landing if route not found
-  window.location.hash = "#/";
+  // Fallback to 404 view if route not found
+  viewport.innerHTML = "";
+  renderNotFound(viewport);
 }
 
 // Update authentication UI elements in Header
