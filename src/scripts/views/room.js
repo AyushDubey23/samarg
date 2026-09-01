@@ -3,7 +3,7 @@ import { ref, onValue, set, update, off, get, remove } from "firebase/database";
 import { httpsCallable } from "firebase/functions";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { validateDraftXI } from "../utils/draftRules.js";
-import { isPlayerAllowedInSlot, getIneligibleReason, getAllowedSlotsForPlayer } from "../utils/positionRules.js";
+import { isPlayerAllowedInSlot, getIneligibleReason, getAllowedSlotsForPlayer, formatPlayerName } from "../utils/positionRules.js";
 import { signInAnonymously } from "firebase/auth";
 import { BallEngine } from "../engine/ballEngine.js";
 import { getRandomPoolSquad, HISTORICAL_SQUAD_POOL } from "../utils/squadPool.js";
@@ -1120,16 +1120,16 @@ function renderDraftPhase(viewport, roomCode, room) {
                   ${zone.indices.map(idx => {
                     const p = spectatedSlots[idx];
                     const selPlayerObj = selectedDraftPlayerId ? (reveal.players || []).find(player => String(player.id) === String(selectedDraftPlayerId)) : null;
-                    const isAllowed = selPlayerObj ? isPlayerAllowedInSlot(selPlayerObj, idx) : true;
+                    const isAllowed = selPlayerObj ? isPlayerAllowedInSlot(selPlayerObj, idx, spectatedSlots) : true;
                     const isTargetPulse = selectedDraftPlayerId && !p && !isViewingOpponent && isAllowed;
                     const isMutedInvalid = selectedDraftPlayerId && !p && !isViewingOpponent && !isAllowed;
                     return `
-                      <div class="pitch-player-slot ${p ? 'filled' : 'empty'} ${isTargetPulse ? 'target-pulse' : ''}" data-slot-index="${idx}" style="${isMutedInvalid ? 'opacity: 0.35; filter: grayscale(1);' : ''}" title="${selPlayerObj && !isAllowed ? getIneligibleReason(selPlayerObj, idx) : ''}">
+                      <div class="pitch-player-slot ${p ? 'filled' : 'empty'} ${isTargetPulse ? 'target-pulse' : ''}" data-slot-index="${idx}" style="${isMutedInvalid ? 'opacity: 0.35; filter: grayscale(1);' : ''}" title="${selPlayerObj && !isAllowed ? getIneligibleReason(selPlayerObj, idx, spectatedSlots) : ''}">
                         <div class="player-avatar-circle">
                           ${p ? (p.batRating || 75) : (idx + 1)}
                         </div>
                         <div class="player-name-plate">
-                          ${p ? p.name.split(" ").slice(-1)[0].toUpperCase() : POSITION_LABELS[idx]}
+                          ${p ? formatPlayerName(p, true) : POSITION_LABELS[idx]}
                         </div>
                       </div>
                     `;
@@ -1384,8 +1384,8 @@ function renderDraftPhase(viewport, roomCode, room) {
         const targetPlayer = (reveal.players || []).find(p => String(p.id) === String(selectedDraftPlayerId));
         if (!targetPlayer) return;
 
-        if (!isPlayerAllowedInSlot(targetPlayer, slotIdx)) {
-          showToast(getIneligibleReason(targetPlayer, slotIdx), true);
+        if (!isPlayerAllowedInSlot(targetPlayer, slotIdx, userSlots)) {
+          showToast(getIneligibleReason(targetPlayer, slotIdx, userSlots), true);
           return;
         }
 
@@ -1703,15 +1703,12 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
   let effectiveCaptainId = spectatorSquad.captainId || "";
   let effectiveViceCaptainId = spectatorSquad.viceCaptainId || "";
   let effectiveKeeperId = spectatorSquad.keeperId || "";
+  let effectiveArBowler1Id = spectatorSquad.arBowler1Id || "";
+  let effectiveArBowler2Id = spectatorSquad.arBowler2Id || "";
 
   if (!effectiveKeeperId && validPlaced.length > 0) {
     const naturalWK = validPlaced.find(p => p.isWicketkeeper || p.isWK || (p.role || '').toLowerCase().includes('keep'));
-    const nonBowler = validPlaced.find(p => {
-      const r = (p.role || '').toLowerCase();
-      return !r.includes('all') && !r.includes('pace') && !r.includes('fast') && !r.includes('spin') && (p.bowlRating || 0) < 45;
-    });
     if (naturalWK) effectiveKeeperId = naturalWK.id;
-    else if (nonBowler) effectiveKeeperId = nonBowler.id;
     else effectiveKeeperId = validPlaced[0].id;
   }
 
@@ -1723,6 +1720,22 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
   if (!effectiveViceCaptainId && validPlaced.length > 0) {
     const secondBest = validPlaced.find(p => String(p.id) !== String(effectiveCaptainId));
     if (secondBest) effectiveViceCaptainId = secondBest.id;
+  }
+
+  if (!effectiveArBowler1Id && validPlaced.length > 0) {
+    const ar1 = validPlaced.find(p => {
+      const r = (p.role || '').toLowerCase();
+      return r.includes('all') || (p.bowlRating || 0) >= 40;
+    });
+    if (ar1) effectiveArBowler1Id = ar1.id;
+  }
+
+  if (!effectiveArBowler2Id && validPlaced.length > 0) {
+    const ar2 = validPlaced.find(p => {
+      const r = (p.role || '').toLowerCase();
+      return (r.includes('all') || (p.bowlRating || 0) >= 40) && String(p.id) !== String(effectiveArBowler1Id);
+    });
+    if (ar2) effectiveArBowler2Id = ar2.id;
   }
 
   const isFinalizable = totalPlaced === 11 &&
@@ -1814,7 +1827,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                             `}
                           </div>
                           <div class="player-name-plate" style="margin-top: 14px; font-weight: 800;">
-                            ${player ? player.name.split(" ").slice(-1)[0] : 'EMPTY'}
+                            ${player ? formatPlayerName(player, true) : 'EMPTY'}
                           </div>
                         </div>
                       `;
@@ -1894,7 +1907,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                     <span style="display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 900; color: #111111;">Select Captain (C - 2x points):</span>
                     <select id="captain-select" style="width: 100%; background: #FFFFFF; color: #111111 !important; border: 2px solid #1E1E1E; padding: 0.6rem 0.85rem; font-weight: 800; font-size: 0.95rem; border-radius: 0px; outline: none; cursor: pointer;">
                       <option value="">-- Choose Captain --</option>
-                      ${slots.filter(s => s !== null && s.id !== (spectatorSquad.viceCaptainId || effectiveViceCaptainId)).map(p => `<option value="${p.id}" ${p.id === (spectatorSquad.captainId || effectiveCaptainId) ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
+                      ${slots.filter(s => s !== null && s.id !== (spectatorSquad.viceCaptainId || effectiveViceCaptainId)).map(p => `<option value="${p.id}" ${p.id === (spectatorSquad.captainId || effectiveCaptainId) ? 'selected' : ''}>#${getJerseyNumber(p)} - ${formatPlayerName(p)}</option>`).join("")}
                     </select>
                   </label>
 
@@ -1902,7 +1915,7 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                     <span style="display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 900; color: #111111;">Select Vice-Captain (VC - 1.5x points):</span>
                     <select id="vice-captain-select" style="width: 100%; background: #FFFFFF; color: #111111 !important; border: 2px solid #1E1E1E; padding: 0.6rem 0.85rem; font-weight: 800; font-size: 0.95rem; border-radius: 0px; outline: none; cursor: pointer;">
                       <option value="">-- Choose Vice-Captain --</option>
-                      ${slots.filter(s => s !== null && s.id !== (spectatorSquad.captainId || effectiveCaptainId)).map(p => `<option value="${p.id}" ${p.id === (spectatorSquad.viceCaptainId || effectiveViceCaptainId) ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
+                      ${slots.filter(s => s !== null && s.id !== (spectatorSquad.captainId || effectiveCaptainId)).map(p => `<option value="${p.id}" ${p.id === (spectatorSquad.viceCaptainId || effectiveViceCaptainId) ? 'selected' : ''}>#${getJerseyNumber(p)} - ${formatPlayerName(p)}</option>`).join("")}
                     </select>
                   </label>
 
@@ -1910,12 +1923,23 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
                     <span style="display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 900; color: #111111;">Select Wicketkeeper (WK):</span>
                     <select id="keeper-select" style="width: 100%; background: #FFFFFF; color: #111111 !important; border: 2px solid #1E1E1E; padding: 0.6rem 0.85rem; font-weight: 800; font-size: 0.95rem; border-radius: 0px; outline: none; cursor: pointer;">
                       <option value="">-- Choose Wicketkeeper --</option>
-                      ${slots.filter(s => {
-                        if (!s) return false;
-                        const role = (s.role || '').toLowerCase();
-                        const isBowlerOrAR = role.includes('all') || role.includes('pace') || role.includes('fast') || role.includes('spin') || (s.bowlRating || 0) >= 45;
-                        return !isBowlerOrAR;
-                      }).map(p => `<option value="${p.id}" ${p.id === (spectatorSquad.keeperId || effectiveKeeperId) || p.isWicketkeeper ? 'selected' : ''}>#${getJerseyNumber(p)} - ${p.name}</option>`).join("")}
+                      ${slots.filter(s => s !== null).map(p => `<option value="${p.id}" ${p.id === (spectatorSquad.keeperId || effectiveKeeperId) || p.isWicketkeeper || p.role === 'keeper' ? 'selected' : ''}>#${getJerseyNumber(p)} - ${formatPlayerName(p)}</option>`).join("")}
+                    </select>
+                  </label>
+
+                  <label style="position: relative; z-index: 17; margin-top: 0.25rem;">
+                    <span style="display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 900; color: #111111;">Select 1st All-Rounder Bowler (Key 5th Bowler):</span>
+                    <select id="ar-bowler-1-select" style="width: 100%; background: #FFFFFF; color: #111111 !important; border: 2px solid #1E1E1E; padding: 0.6rem 0.85rem; font-weight: 800; font-size: 0.95rem; border-radius: 0px; outline: none; cursor: pointer;">
+                      <option value="">-- Choose 1st All-Rounder Bowler --</option>
+                      ${slots.filter(s => s !== null).map(p => `<option value="${p.id}" ${p.id === (spectatorSquad.arBowler1Id || effectiveArBowler1Id) ? 'selected' : ''}>#${getJerseyNumber(p)} - ${formatPlayerName(p)} (${p.role || 'All-Rounder'})</option>`).join("")}
+                    </select>
+                  </label>
+
+                  <label style="position: relative; z-index: 16; margin-top: 0.25rem;">
+                    <span style="display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 900; color: #111111;">Select 2nd All-Rounder Bowler (Key 6th Bowler):</span>
+                    <select id="ar-bowler-2-select" style="width: 100%; background: #FFFFFF; color: #111111 !important; border: 2px solid #1E1E1E; padding: 0.6rem 0.85rem; font-weight: 800; font-size: 0.95rem; border-radius: 0px; outline: none; cursor: pointer;">
+                      <option value="">-- Choose 2nd All-Rounder Bowler --</option>
+                      ${slots.filter(s => s !== null).map(p => `<option value="${p.id}" ${p.id === (spectatorSquad.arBowler2Id || effectiveArBowler2Id) ? 'selected' : ''}>#${getJerseyNumber(p)} - ${formatPlayerName(p)} (${p.role || 'All-Rounder'})</option>`).join("")}
                     </select>
                   </label>
 
@@ -2053,11 +2077,30 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
       });
     }
 
+    const ar1Select = document.getElementById("ar-bowler-1-select");
+    const ar2Select = document.getElementById("ar-bowler-2-select");
+
+    if (ar1Select) {
+      ar1Select.addEventListener("change", async () => {
+        const val = ar1Select.value;
+        await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), { arBowler1Id: val });
+      });
+    }
+
+    if (ar2Select) {
+      ar2Select.addEventListener("change", async () => {
+        const val = ar2Select.value;
+        await update(ref(rtdb, `rooms/${roomCode}/squads/${currentUid}`), { arBowler2Id: val });
+      });
+    }
+
     // Handle Lock XI click handler
     const handleLockSubmit = async () => {
       const cId = capSelect?.value || spectatorSquad.captainId || effectiveCaptainId;
       const vcId = vcSelect?.value || spectatorSquad.viceCaptainId || effectiveViceCaptainId;
       const kId = keeperSelect?.value || spectatorSquad.keeperId || effectiveKeeperId;
+      const arB1Id = ar1Select?.value || spectatorSquad.arBowler1Id || effectiveArBowler1Id;
+      const arB2Id = ar2Select?.value || spectatorSquad.arBowler2Id || effectiveArBowler2Id;
 
       if (!cId || !vcId || !kId) {
         showToast("Please designate Captain, Vice-Captain, AND Wicketkeeper first!", true);
@@ -2084,7 +2127,9 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
             isCaptain: String(p.id) === String(cId),
             isViceCaptain: String(p.id) === String(vcId),
             isWicketkeeper: String(p.id) === String(kId),
-            isWK: String(p.id) === String(kId)
+            isWK: String(p.id) === String(kId),
+            isArBowler1: String(p.id) === String(arB1Id),
+            isArBowler2: String(p.id) === String(arB2Id)
           };
         });
 
@@ -2093,7 +2138,9 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
           slots: updatedSlots,
           captainId: cId,
           viceCaptainId: vcId,
-          keeperId: kId
+          keeperId: kId,
+          arBowler1Id: arB1Id,
+          arBowler2Id: arB2Id
         });
 
         // Verify if all players in room have locked their squad

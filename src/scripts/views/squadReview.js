@@ -2,6 +2,7 @@ import { auth, db, functions } from "../firebaseInit.js";
 import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { validateDraftXI } from "../utils/draftRules.js";
+import { formatPlayerName } from "../utils/positionRules.js";
 
 let currentCampaign = null;
 
@@ -73,7 +74,7 @@ export async function renderSquadReview(container) {
               <div class="roster-item">
                 <span class="roster-pos">${idx + 1}</span>
                 <div class="roster-details">
-                  <div class="roster-name">${player.name}</div>
+                  <div class="roster-name">${formatPlayerName(player)}</div>
                   <div class="roster-sub">${player.nationalTeam} (${player.tournamentYear}) - <span class="role-badge" style="padding:0; font-size:0.75rem;">${player.role}</span></div>
                 </div>
                 <div class="roster-stats">

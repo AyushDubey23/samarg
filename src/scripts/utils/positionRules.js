@@ -1,61 +1,57 @@
 /**
- * Position Rules Helper for SAMARG Cricket Draft
- * Enforces batting order eligibility based on player roles and specialization.
- * 
- * Batting Positions (1-indexed: 1..11, 0-indexed slot indices: 0..10):
- * Slot 0: #1 Opener
- * Slot 1: #2 Opener
- * Slot 2: #3 One-Down / Top Order
- * Slot 3: #4 Two-Down / Middle Order
- * Slot 4: #5 Middle Order
- * Slot 5: #6 Lower Middle Order / Finisher / Bowler
- * Slot 6: #7 All-Rounder / Bowler
- * Slot 7: #8 Bowler / All-Rounder (7 down)
- * Slot 8: #9 Bowler (8 down)
- * Slot 9: #10 Bowler (9 down)
- * Slot 10: #11 Tailender Bowler
+ * Position Rules & Formatting Helper for SAMARG Cricket Draft
+ * Enforces batting order eligibility and Wicketkeeper constraints.
  */
+
+/**
+ * Formats player name with a small (WK) prefix for Wicketkeepers.
+ * Example: "(WK) MS Dhoni" or "(WK) DHONI"
+ */
+export function formatPlayerName(player, isShort = false) {
+  if (!player) return "";
+  const role = String(player.role || '').toLowerCase();
+  const isWK = !!player.isWicketkeeper || !!player.isWK || role === 'keeper';
+  const prefix = isWK ? '(WK) ' : '';
+
+  if (isShort) {
+    const lastName = String(player.name || '').split(" ").slice(-1)[0].toUpperCase();
+    return prefix + lastName;
+  }
+  return prefix + player.name;
+}
 
 export function getAllowedSlotsForPlayer(player) {
   if (!player) return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   const role = String(player.role || '').toLowerCase();
   const name = String(player.name || '').toLowerCase();
-  const isKeeper = !!player.isWicketkeeper || role === 'keeper';
+  const isKeeper = !!player.isWicketkeeper || !!player.isWK || role === 'keeper';
   const batRating = player.batRating || player.battingAverage || 0;
   const bowlRating = player.bowlRating || player.economyRate || 0;
 
   // 1. Star / Specialty Player Overrides
-  // Top Order Superstars (e.g. Virat Kohli, Rohit Sharma, Gautam Gambhir, Sachin, Babar Azam, Warner, KL Rahul)
   if (name.includes('kohli') || name.includes('rohit') || name.includes('gambhir') || name.includes('sehwag') || name.includes('warner') || name.includes('sachin') || name.includes('babar')) {
-    // Can open (#1, #2), play One-down (#3), or Two-down (#4)
     return [0, 1, 2, 3];
   }
 
-  // Pure Bowlers / Specialists (e.g. Bumrah, Starc, Shami, Boult, Kuldeep, Chahal, Rashid, Rabada)
   if (name.includes('bumrah') || name.includes('starc') || name.includes('shami') || name.includes('bhuvi') || name.includes('boult') || name.includes('kuldeep') || name.includes('chahal') || name.includes('rabada')) {
-    // Bowlers have a wide lower-order range: #6 through #11 (Indices 5..10)
     return [5, 6, 7, 8, 9, 10];
   }
 
   // 2. Role-based Slot Restrictions
   if (role === 'opener') {
-    // Openers can open (#1, #2) or play 1-down (#3) or 2-down (#4)
     return [0, 1, 2, 3];
   }
 
   if (role === 'toporder' || role === 'top-order') {
-    // Top order batsmen (#1, #2, #3, #4)
     return [0, 1, 2, 3];
   }
 
   if (role === 'middleorder' || role === 'middle-order') {
-    // Middle order batsmen (#3, #4, #5, #6, #7)
     return [2, 3, 4, 5, 6];
   }
 
   if (isKeeper) {
-    // Wicketkeeper: Wicketkeeper-openers/top-order can bat #1-#7
     if (batRating >= 80) {
       return [0, 1, 2, 3, 4, 5, 6];
     }
@@ -63,12 +59,10 @@ export function getAllowedSlotsForPlayer(player) {
   }
 
   if (role === 'allrounder' || role === 'all-rounder') {
-    // All-Rounders: Flexible upper-middle to lower-order (#4 to #9)
     return [3, 4, 5, 6, 7, 8];
   }
 
   if (role === 'pacer' || role === 'spinner') {
-    // Bowlers: Enlarged lower order range (#6, #7, #8, #9, #10, #11)
     return [5, 6, 7, 8, 9, 10];
   }
 
@@ -83,8 +77,21 @@ export function getAllowedSlotsForPlayer(player) {
   return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 }
 
-export function isPlayerAllowedInSlot(player, slotIndex) {
+export function isPlayerAllowedInSlot(player, slotIndex, currentSlots = []) {
   if (!player) return true;
+
+  // Mandatory Wicketkeeper check for the final pick when 10 slots are filled and 0 Wicketkeeper selected
+  if (Array.isArray(currentSlots) && currentSlots.length > 0) {
+    const existingOtherPlaced = currentSlots.filter((p, idx) => p !== null && idx !== slotIndex);
+    const hasKeeperInOtherSlots = existingOtherPlaced.some(p => p && (p.isWicketkeeper || p.isWK || String(p.role || '').toLowerCase() === 'keeper'));
+    const isThisPlayerKeeper = !!player.isWicketkeeper || !!player.isWK || String(player.role || '').toLowerCase() === 'keeper';
+
+    // If 10 players are placed and 0 keepers exist so far, the final player MUST be a Wicketkeeper
+    if (existingOtherPlaced.length === 10 && !hasKeeperInOtherSlots && !isThisPlayerKeeper) {
+      return false;
+    }
+  }
+
   const allowedSlots = getAllowedSlotsForPlayer(player);
   return allowedSlots.includes(slotIndex);
 }
@@ -106,11 +113,22 @@ export function getSlotLabel(slotIndex) {
   return labels[slotIndex] || `Position #${slotIndex + 1}`;
 }
 
-export function getIneligibleReason(player, slotIndex) {
+export function getIneligibleReason(player, slotIndex, currentSlots = []) {
   if (!player) return "No player selected.";
+
+  if (Array.isArray(currentSlots) && currentSlots.length > 0) {
+    const existingOtherPlaced = currentSlots.filter((p, idx) => p !== null && idx !== slotIndex);
+    const hasKeeperInOtherSlots = existingOtherPlaced.some(p => p && (p.isWicketkeeper || p.isWK || String(p.role || '').toLowerCase() === 'keeper'));
+    const isThisPlayerKeeper = !!player.isWicketkeeper || !!player.isWK || String(player.role || '').toLowerCase() === 'keeper';
+
+    if (existingOtherPlaced.length === 10 && !hasKeeperInOtherSlots && !isThisPlayerKeeper) {
+      return `Mandatory Wicketkeeper Rule: No Wicketkeeper in your XI yet! Your final slot MUST be filled by a Wicketkeeper.`;
+    }
+  }
+
   const allowedSlots = getAllowedSlotsForPlayer(player);
   const allowedLabels = allowedSlots.map(s => `#${s + 1}`).join(", ");
   const targetLabel = getSlotLabel(slotIndex);
 
-  return `${player.name} (${player.role || 'Player'}) is not eligible for ${targetLabel}. Allowed positions: ${allowedLabels}.`;
+  return `${formatPlayerName(player)} is not eligible for ${targetLabel}. Allowed positions: ${allowedLabels}.`;
 }

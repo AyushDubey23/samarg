@@ -2,7 +2,7 @@ import { auth, db, functions } from "../firebaseInit.js";
 import { collection, query, where, getDocs, doc, setDoc, updateDoc } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { fetchClientRandomSquad } from "./room.js";
-import { isPlayerAllowedInSlot } from "../utils/positionRules.js";
+import { isPlayerAllowedInSlot, formatPlayerName } from "../utils/positionRules.js";
 
 // Draft Slot definitions
 export const DRAFT_SLOTS = [
@@ -204,7 +204,7 @@ function renderScoutedSquad() {
         // Find which open slots this player fits
         const eligibleSlots = DRAFT_SLOTS.filter(slot => {
           const isSlotOpen = activeCampaign.squadXI[slot.id] === null;
-          const roleAllowed = isPlayerAllowedInSlot(player, slot.id);
+          const roleAllowed = isPlayerAllowedInSlot(player, slot.id, activeCampaign.squadXI);
           return isSlotOpen && roleAllowed;
         });
 
@@ -213,7 +213,7 @@ function renderScoutedSquad() {
         return `
           <div class="player-draft-card ${isSelectable ? '' : 'disabled'}">
             <div class="pd-header">
-              <span class="pd-name">${player.name}</span>
+              <span class="pd-name">${formatPlayerName(player)}</span>
               <span class="pd-role">${player.role}</span>
             </div>
             <div class="pd-stats">
