@@ -3,6 +3,7 @@ import { ref, onValue, set, update, off, get, remove } from "firebase/database";
 import { httpsCallable } from "firebase/functions";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { validateDraftXI } from "../utils/draftRules.js";
+import { isPlayerAllowedInSlot, getIneligibleReason, getAllowedSlotsForPlayer } from "../utils/positionRules.js";
 import { signInAnonymously } from "firebase/auth";
 import { BallEngine } from "../engine/ballEngine.js";
 import { getRandomPoolSquad, HISTORICAL_SQUAD_POOL } from "../utils/squadPool.js";
@@ -806,13 +807,20 @@ function renderDraftPhase(viewport, roomCode, room) {
             const currentSlots = [...getFilledSlotsArray(botSquad.slots)];
             const currentBench = [...ensureArray(botSquad.bench)];
 
-            const emptyIndices = [];
+            const allowedSlots = getAllowedSlotsForPlayer(randomPick);
+            const validEmptyIndices = [];
             for (let i = 0; i < 11; i++) {
-              if (currentSlots[i] === null) emptyIndices.push(i);
+              if (currentSlots[i] === null && allowedSlots.includes(i)) {
+                validEmptyIndices.push(i);
+              }
             }
 
-            if (emptyIndices.length > 0) {
-              const randSlotIdx = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+            const targetIndices = validEmptyIndices.length > 0
+              ? validEmptyIndices
+              : Array.from({length: 11}, (_, i) => i).filter(i => currentSlots[i] === null);
+
+            if (targetIndices.length > 0) {
+              const randSlotIdx = targetIndices[Math.floor(Math.random() * targetIndices.length)];
               currentSlots[randSlotIdx] = randomPick;
             } else {
               currentBench.push(randomPick);
@@ -1111,9 +1119,12 @@ function renderDraftPhase(viewport, roomCode, room) {
                 <div class="pitch-grid-row">
                   ${zone.indices.map(idx => {
                     const p = spectatedSlots[idx];
-                    const isTargetPulse = selectedDraftPlayerId && !p && !isViewingOpponent;
+                    const selPlayerObj = selectedDraftPlayerId ? (reveal.players || []).find(player => String(player.id) === String(selectedDraftPlayerId)) : null;
+                    const isAllowed = selPlayerObj ? isPlayerAllowedInSlot(selPlayerObj, idx) : true;
+                    const isTargetPulse = selectedDraftPlayerId && !p && !isViewingOpponent && isAllowed;
+                    const isMutedInvalid = selectedDraftPlayerId && !p && !isViewingOpponent && !isAllowed;
                     return `
-                      <div class="pitch-player-slot ${p ? 'filled' : 'empty'} ${isTargetPulse ? 'target-pulse' : ''}" data-slot-index="${idx}">
+                      <div class="pitch-player-slot ${p ? 'filled' : 'empty'} ${isTargetPulse ? 'target-pulse' : ''}" data-slot-index="${idx}" style="${isMutedInvalid ? 'opacity: 0.35; filter: grayscale(1);' : ''}" title="${selPlayerObj && !isAllowed ? getIneligibleReason(selPlayerObj, idx) : ''}">
                         <div class="player-avatar-circle">
                           ${p ? (p.batRating || 75) : (idx + 1)}
                         </div>
@@ -1373,6 +1384,11 @@ function renderDraftPhase(viewport, roomCode, room) {
         const targetPlayer = (reveal.players || []).find(p => String(p.id) === String(selectedDraftPlayerId));
         if (!targetPlayer) return;
 
+        if (!isPlayerAllowedInSlot(targetPlayer, slotIdx)) {
+          showToast(getIneligibleReason(targetPlayer, slotIdx), true);
+          return;
+        }
+
         updatedSlots[slotIdx] = targetPlayer;
         selectedDraftPlayerId = null;
 
@@ -1456,15 +1472,21 @@ function renderDraftPhase(viewport, roomCode, room) {
             const currentSlots = [...getFilledSlotsArray(userSquad.slots)];
             const currentBench = [...ensureArray(userSquad.bench)];
 
-            // Find all empty pitch slot indices
-            const emptyIndices = [];
+            const allowedSlots = getAllowedSlotsForPlayer(randomPick);
+            const validEmptyIndices = [];
             for (let i = 0; i < 11; i++) {
-              if (currentSlots[i] === null) emptyIndices.push(i);
+              if (currentSlots[i] === null && allowedSlots.includes(i)) {
+                validEmptyIndices.push(i);
+              }
             }
 
+            const targetIndices = validEmptyIndices.length > 0
+              ? validEmptyIndices
+              : Array.from({length: 11}, (_, i) => i).filter(i => currentSlots[i] === null);
+
             let slotAssignedText = "reserves";
-            if (emptyIndices.length > 0) {
-              const randSlotIdx = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+            if (targetIndices.length > 0) {
+              const randSlotIdx = targetIndices[Math.floor(Math.random() * targetIndices.length)];
               currentSlots[randSlotIdx] = randomPick;
               slotAssignedText = `Slot #${randSlotIdx + 1}`;
             } else {
@@ -1976,7 +1998,12 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
 
           const pIndex = updatedBench.findIndex(p => String(p.id) === String(activeBenchPlayerId));
           if (pIndex !== -1) {
-            const [movedPlayer] = updatedBench.splice(pIndex, 1);
+            const movedPlayer = updatedBench[pIndex];
+            if (!isPlayerAllowedInSlot(movedPlayer, slotIdx)) {
+              showToast(getIneligibleReason(movedPlayer, slotIdx), true);
+              return;
+            }
+            updatedBench.splice(pIndex, 1);
             currentSlots[slotIdx] = movedPlayer;
 
             const sanitizedSlots = currentSlots.map(s => s || null);
