@@ -36,6 +36,11 @@ let isAuthInitialized = true;
 
 // Handles hash routing
 function resolveRoute() {
+  if (!navigator.onLine) {
+    viewport.innerHTML = "";
+    renderNotFound(viewport, { isOffline: true });
+    return;
+  }
 
   const hash = window.location.hash || "#/";
   const path = hash.slice(1); // Strip the leading '#'
@@ -159,6 +164,26 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+});
+
+// Register Service Worker for offline 404 reload support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(err => {
+      console.warn("Service Worker registration skipped:", err);
+    });
+  });
+}
+
+// Network status listeners
+window.addEventListener('offline', () => {
+  if (window.showToast) window.showToast("You are offline!", true);
+  resolveRoute();
+});
+
+window.addEventListener('online', () => {
+  if (window.showToast) window.showToast("Network connection restored!");
+  resolveRoute();
 });
 
 // Event listeners for routing

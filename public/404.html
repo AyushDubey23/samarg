@@ -285,5 +285,23 @@
     </div>
   </div>
 
+  <script>
+    function checkOfflineState() {
+      if (!navigator.onLine) {
+        const badge = document.querySelector('.badge-out');
+        if (badge) badge.innerText = '⚡ 404 • NO INTERNET / OUT OF BOUNDS';
+        const heading = document.querySelector('h1');
+        if (heading) heading.innerText = 'NO INTERNET CONNECTION';
+        const commentary = document.querySelector('.commentary-text');
+        if (commentary) commentary.innerText = '“DECISION PENDING... Third Umpire confirms: Your Internet Connection was CLEAN BOWLED! Please check your network connection to return to live match play.”';
+        const subtext = document.querySelector('.subtext');
+        if (subtext) subtext.innerText = 'You reloaded SAMARG without an active internet connection.';
+      }
+    }
+    checkOfflineState();
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
 </body>
 </html>

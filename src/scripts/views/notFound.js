@@ -1,8 +1,10 @@
 /**
- * Custom 404 Not Found View for SAMARG (Cricket Draft & World Cup Simulator)
+ * Custom 404 Not Found & Offline View for SAMARG (Cricket Draft & World Cup Simulator)
  */
 
-export function renderNotFound(container) {
+export function renderNotFound(container, options = {}) {
+  const isOfflineMode = options.isOffline || !navigator.onLine;
+
   const commentaryQuotes = [
     "“DECISION PENDING... Third Umpire confirms: The page you requested was CLEAN BOWLED outside off stump!”",
     "“EDGE AND TAKEN! The ball carried straight to slip, but the page was nowhere in sight!”",
@@ -11,7 +13,9 @@ export function renderNotFound(container) {
     "“LBW APPEAL! Plumb in front. Pitching outside off, hitting middle, page is definitely OUT!”"
   ];
 
-  const randomQuote = commentaryQuotes[Math.floor(Math.random() * commentaryQuotes.length)];
+  const offlineQuote = "“DECISION PENDING... Third Umpire confirms: Your Internet Connection was CLEAN BOWLED! Please check your Wi-Fi or mobile data connection to return to live match play.”";
+
+  const randomQuote = isOfflineMode ? offlineQuote : commentaryQuotes[Math.floor(Math.random() * commentaryQuotes.length)];
 
   container.innerHTML = `
     <div class="landing-hero" style="min-height: 80vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1rem;">
@@ -21,7 +25,7 @@ export function renderNotFound(container) {
         
         <!-- Top Status Tag -->
         <div style="display: inline-block; background: #E53926; color: #FFFFFF; font-weight: 900; font-size: 0.85rem; padding: 4px 14px; border: 2px solid #1E1E1E; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1.5rem; box-shadow: 3px 3px 0px #1E1E1E;">
-          ⚡ 404 • HIT WICKET / OUT!
+          ${isOfflineMode ? '⚡ 404 • NO INTERNET / OUT OF BOUNDS' : '⚡ 404 • HIT WICKET / OUT!'}
         </div>
 
         <!-- Animated Stumps Graphic -->
@@ -48,8 +52,8 @@ export function renderNotFound(container) {
         </div>
 
         <!-- 404 Large Header -->
-        <h1 style="font-size: 3.5rem; font-weight: 900; color: #111111; margin: 0; line-height: 1; letter-spacing: -1px; text-transform: uppercase;">
-          PAGE NOT FOUND
+        <h1 style="font-size: 3.2rem; font-weight: 900; color: #111111; margin: 0; line-height: 1; letter-spacing: -1px; text-transform: uppercase;">
+          ${isOfflineMode ? 'NO INTERNET CONNECTION' : 'PAGE NOT FOUND'}
         </h1>
 
         <!-- Commentary Box -->
@@ -60,14 +64,22 @@ export function renderNotFound(container) {
         </div>
 
         <p style="font-size: 0.95rem; color: #555555; font-weight: 600; margin-bottom: 2rem;">
-          The URL hash or page route you entered does not exist or has been removed from the tournament schedule.
+          ${isOfflineMode 
+            ? 'You reloaded SAMARG while offline. Reconnect to internet to synchronize live draft lobbies and match simulations.' 
+            : 'The URL hash or page route you entered does not exist or has been removed from the tournament schedule.'}
         </p>
 
         <!-- Navigation Buttons -->
         <div style="display: flex; flex-wrap: wrap; gap: 0.85rem; justify-content: center;">
-          <a href="#/" class="btn btn-primary" style="padding: 0.75rem 1.4rem; font-weight: 900; text-decoration: none; font-size: 0.95rem;">
-            🏠 Return to Pitch (Home)
-          </a>
+          ${isOfflineMode ? `
+            <button id="retry-net-btn" class="btn btn-primary" style="padding: 0.75rem 1.4rem; font-weight: 900; font-size: 0.95rem;">
+              ⚡ Retry Connection
+            </button>
+          ` : `
+            <a href="#/" class="btn btn-primary" style="padding: 0.75rem 1.4rem; font-weight: 900; text-decoration: none; font-size: 0.95rem;">
+              🏠 Return to Pitch (Home)
+            </a>
+          `}
           <a href="#/draft" class="btn btn-secondary" style="padding: 0.75rem 1.4rem; font-weight: 900; text-decoration: none; font-size: 0.95rem;">
             🏏 Start a Draft
           </a>
@@ -91,4 +103,17 @@ export function renderNotFound(container) {
       }
     </style>
   `;
+
+  if (isOfflineMode) {
+    const retryBtn = container.querySelector("#retry-net-btn");
+    if (retryBtn) {
+      retryBtn.addEventListener("click", () => {
+        if (navigator.onLine) {
+          window.location.reload();
+        } else {
+          if (window.showToast) window.showToast("Still offline! Check your network connection.", true);
+        }
+      });
+    }
+  }
 }
