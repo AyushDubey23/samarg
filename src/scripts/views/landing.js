@@ -420,9 +420,16 @@ export async function renderLanding(container) {
         const createdAt = r.createdAt || Date.now();
         const elapsed = Date.now() - createdAt;
         const TWO_MINS_MS = 120000;
+        const FIVE_MINS_MS = 300000;
 
         // Auto-delete 1-player rooms older than 2 minutes
         if (pKeys.length === 1 && elapsed >= TWO_MINS_MS) {
+          try { remove(ref(rtdb, `rooms/${code}`)); } catch (e) {}
+          return;
+        }
+
+        // Auto-delete 4-player cup rooms in lobby if game hasn't started after 5 minutes
+        if (r.mode === "cup" && elapsed >= FIVE_MINS_MS) {
           try { remove(ref(rtdb, `rooms/${code}`)); } catch (e) {}
           return;
         }

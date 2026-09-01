@@ -232,13 +232,17 @@ export function renderRoom(viewport, roomCode) {
       const isMember = currentUid && playerUids.includes(currentUid);
       const isHost = roomData.hostUid === currentUid;
 
-      // 2-Minute Inactivity Auto-Deletion Check for 1-Player Lobbies
-      if (roomData.status === "lobby" && playerUids.length === 1) {
+      // Inactivity Auto-Deletion Checks for Lobbies (2-min for 1-player, 5-min for 4-player cup)
+      if (roomData.status === "lobby") {
         const createdAtMs = roomData.createdAt || Date.now();
         const elapsedMs = Date.now() - createdAtMs;
         const TWO_MINS_MS = 120000;
+        const FIVE_MINS_MS = 300000;
 
-        if (elapsedMs >= TWO_MINS_MS) {
+        const is1PlayerTimeout = playerUids.length === 1 && elapsedMs >= TWO_MINS_MS;
+        const is4PlayerCupTimeout = roomData.mode === "cup" && elapsedMs >= FIVE_MINS_MS;
+
+        if (is1PlayerTimeout || is4PlayerCupTimeout) {
           clearInterval(timerInterval);
           if (window._roomLobbyExpiryTimer) {
             clearInterval(window._roomLobbyExpiryTimer);
@@ -246,13 +250,22 @@ export function renderRoom(viewport, roomCode) {
           }
           if (isHost) {
             remove(ref(rtdb, `rooms/${roomCode}`));
-            showToast("Room deleted due to inactivity: No player joined within 2 minutes.", true);
+            showToast(
+              is4PlayerCupTimeout
+                ? "4-Player Room deleted due to inactivity: Game did not start within 5 minutes."
+                : "Room deleted due to inactivity: No player joined within 2 minutes.",
+              true
+            );
             window.location.hash = "#/";
           } else {
             viewport.innerHTML = `
               <div class="text-center" style="margin-top: 10vh;">
                 <h2 style="font-size: 2.2rem; color: var(--accent-red);">Room Expired</h2>
-                <p style="color: var(--chalk-white-dim); margin-top: 1rem;">This room timed out after waiting 2 minutes for Player 2.</p>
+                <p style="color: var(--chalk-white-dim); margin-top: 1rem;">
+                  ${is4PlayerCupTimeout
+                    ? "This 4-player room timed out because the game did not start within 5 minutes."
+                    : "This room timed out after waiting 2 minutes for Player 2."}
+                </p>
                 <a href="#/" class="btn btn-primary" style="margin-top: 1.5rem;">Return Home</a>
               </div>
             `;
@@ -354,10 +367,10 @@ function renderLobby(viewport, roomCode, room) {
 
   viewport.innerHTML = `
     <div class="squad-review-container">
-      ${playerUids.length === 1 ? `
+      ${(playerUids.length === 1 || room.mode === "cup") ? `
         <div style="background: #FFF2A1; border: 2.5px solid #1E1E1E; padding: 0.65rem 1rem; margin-bottom: 1.25rem; font-weight: 900; font-size: 0.88rem; color: #111111; box-shadow: 3px 3px 0px #1E1E1E; border-radius: 0px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-          <span id="lobby-expiry-countdown">⏱️ Room auto-deletes in 02:00 if no player joins</span>
-          <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 900; color: #FFFFFF; background: #E53926; padding: 2px 6px; border: 1px solid #1E1E1E;">2 MIN TIMEOUT</span>
+          <span id="lobby-expiry-countdown">${room.mode === "cup" ? "⏱️ 4-Player Room auto-deletes in 05:00 if game does not start" : "⏱️ Room auto-deletes in 02:00 if no player joins"}</span>
+          <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 900; color: #FFFFFF; background: #E53926; padding: 2px 6px; border: 1px solid #1E1E1E;">${room.mode === "cup" ? "5 MIN TIMEOUT" : "2 MIN TIMEOUT"}</span>
         </div>
       ` : ''}
 
@@ -655,16 +668,19 @@ function renderLobby(viewport, roomCode, room) {
     });
   }
 
-  // 2-Minute Expiry Countdown Timer for 1-player lobby
-  if (room.status === "lobby" && playerUids.length === 1) {
+  // Expiry Countdown Timer for Lobbies (1-player lobby 2-min, 4-player cup lobby 5-min)
+  if (room.status === "lobby" && (playerUids.length === 1 || room.mode === "cup")) {
     const createdAtMs = room.createdAt || Date.now();
     const TWO_MINS_MS = 120000;
+    const FIVE_MINS_MS = 300000;
+    const isCup = room.mode === "cup";
+    const expiryLimit = isCup ? FIVE_MINS_MS : TWO_MINS_MS;
     
     if (window._roomLobbyExpiryTimer) clearInterval(window._roomLobbyExpiryTimer);
 
     const updateTimerUI = () => {
       const elapsed = Date.now() - createdAtMs;
-      const remMs = TWO_MINS_MS - elapsed;
+      const remMs = expiryLimit - elapsed;
       const timerBadge = document.getElementById("lobby-expiry-countdown");
 
       if (remMs <= 0) {
@@ -672,7 +688,12 @@ function renderLobby(viewport, roomCode, room) {
         window._roomLobbyExpiryTimer = null;
         if (isHost) {
           remove(ref(rtdb, `rooms/${roomCode}`));
-          showToast("Room deleted due to inactivity: No player joined within 2 minutes.", true);
+          showToast(
+            isCup
+              ? "4-Player Room deleted due to inactivity: Game did not start within 5 minutes."
+              : "Room deleted due to inactivity: No player joined within 2 minutes.",
+            true
+          );
           window.location.hash = "#/";
         }
         return;
@@ -681,7 +702,10 @@ function renderLobby(viewport, roomCode, room) {
       if (timerBadge) {
         const mins = Math.floor(remMs / 60000);
         const secs = Math.floor((remMs % 60000) / 1000);
-        timerBadge.innerText = `⏱️ Room auto-deletes in ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} if no player joins`;
+        const label = isCup
+          ? `⏱️ 4-Player Room auto-deletes in ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} if game does not start`
+          : `⏱️ Room auto-deletes in ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} if no player joins`;
+        timerBadge.innerText = label;
       }
     };
 
