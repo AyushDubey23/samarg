@@ -10,7 +10,7 @@
 export function formatPlayerName(player, isShort = false) {
   if (!player) return "";
   const role = String(player.role || '').toLowerCase();
-  const isWK = !!player.isWicketkeeper || !!player.isWK || role === 'keeper';
+  const isWK = !!player.isWicketkeeper || !!player.isWK || role === 'keeper' || role.includes('keep') || role.includes('wicket');
   const prefix = isWK ? '(WK) ' : '';
 
   if (isShort) {

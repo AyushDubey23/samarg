@@ -1074,20 +1074,33 @@ function renderDraftPhase(viewport, roomCode, room) {
                       const isClaimedById = allClaimedIds.has(p.id);
                       const isClaimedByName = allClaimedNames.has(pNameNorm) || [...allClaimedNames].some(cn => cn === pNameNorm || (cn.length > 4 && (pNameNorm.includes(cn) || cn.includes(pNameNorm))));
                       const isClaimed = isClaimedById || isClaimedByName;
+
+                      // Check if active player has ANY open eligible slot left for this player in their Playing XI
+                      const myUserSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
+                      const mySlots = getFilledSlotsArray(myUserSquad.slots);
+                      const allowedSlots = getAllowedSlotsForPlayer(p);
+                      const hasEligibleOpenSlot = allowedSlots.some(slotIndex => mySlots[slotIndex] === null && isPlayerAllowedInSlot(p, slotIndex, mySlots));
+
+                      const isUnselectable = isClaimed || !hasEligibleOpenSlot;
                       const isSelected = selectedDraftPlayerId === p.id;
+
+                      let statusBadge = "";
+                      if (isClaimed) statusBadge = `<div style="font-size: 0.62rem; font-weight: 900; margin-left: 0.35rem; color: #D32F2F;">TAKEN</div>`;
+                      else if (!hasEligibleOpenSlot) statusBadge = `<div style="font-size: 0.62rem; font-weight: 900; margin-left: 0.35rem; color: #E53926; background: #FFEBEE; padding: 2px 4px; border: 1px solid #E53926;">NO OPEN SLOT</div>`;
+
                       return `
-                        <div class="draft-card-item ${isClaimed ? 'claimed-dim' : ''} ${isSelected ? 'selected-coral' : ''}" 
+                        <div class="draft-card-item ${isClaimed ? 'claimed-dim' : ''} ${!hasEligibleOpenSlot ? 'no-slot-dim' : ''} ${isSelected ? 'selected-coral' : ''}" 
                              data-player-id="${p.id}" 
-                             style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: ${isSelected ? 'var(--primary-coral)' : (isClaimed ? '#E5E0D5' : '#FFFFFF')}; color: ${isSelected ? '#FFFFFF' : '#111111'}; border: ${isSelected ? '2px solid #1E1E1E' : '1.5px solid #D8D0C0'}; border-radius: 0px; cursor: ${isClaimed || !isActiveTurn ? 'not-allowed' : 'pointer'}; opacity: ${isClaimed ? 0.6 : 1.0};">
+                             style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 0.75rem; background: ${isSelected ? 'var(--primary-coral)' : (isUnselectable ? '#EFEBE4' : '#FFFFFF')}; color: ${isSelected ? '#FFFFFF' : '#111111'}; border: ${isSelected ? '2px solid #1E1E1E' : '1.5px solid #D8D0C0'}; border-radius: 0px; cursor: ${isUnselectable || !isActiveTurn ? 'not-allowed' : 'pointer'}; opacity: ${isUnselectable ? 0.48 : 1.0}; filter: ${isUnselectable && !isSelected ? 'grayscale(0.65)' : 'none'};">
                           <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
                             <span style="font-family: var(--font-family-mono); font-weight: 900; font-size: 0.82rem; min-width: 24px;">#${idx + 1}</span>
-                            <div style="font-weight: 800; font-size: 0.85rem;">${p.name}</div>
+                            <div style="font-weight: 800; font-size: 0.85rem;">${formatPlayerName(p)}</div>
                           </div>
                           <div style="display: flex; gap: 0.35rem; align-items: center;">
                             <span style="font-size: 0.72rem; background: ${isSelected ? '#FFFFFF' : '#E53926'}; color: ${isSelected ? '#E53926' : '#FFFFFF'}; font-weight: 900; padding: 2px 5px; border: 1px solid #1E1E1E;">BAT ${p.batRating || 75}</span>
                             <span style="font-size: 0.72rem; background: ${isSelected ? '#FFFFFF' : '#1E88E5'}; color: ${isSelected ? '#1E88E5' : '#FFFFFF'}; font-weight: 900; padding: 2px 5px; border: 1px solid #1E1E1E;">BOWL ${p.bowlRating || 0}</span>
                           </div>
-                          ${isClaimed ? `<div style="font-size: 0.62rem; font-weight: 900; margin-left: 0.35rem; color: #D32F2F;">TAKEN</div>` : ''}
+                          ${statusBadge}
                         </div>
                       `;
                     }).join("");
@@ -1348,6 +1361,18 @@ function renderDraftPhase(viewport, roomCode, room) {
         if (isClaimedById || isClaimedByName) {
           showToast(`This player (${targetP ? targetP.name : 'Player'}) has already been drafted from another tournament year!`, true);
           return;
+        }
+
+        if (targetP) {
+          const myUserSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
+          const mySlots = getFilledSlotsArray(myUserSquad.slots);
+          const allowedSlots = getAllowedSlotsForPlayer(targetP);
+          const hasEligibleOpenSlot = allowedSlots.some(slotIndex => mySlots[slotIndex] === null && isPlayerAllowedInSlot(targetP, slotIndex, mySlots));
+
+          if (!hasEligibleOpenSlot) {
+            showToast(`No eligible open positions left for ${formatPlayerName(targetP)} in your Playing XI!`, true);
+            return;
+          }
         }
 
         if (selectedDraftPlayerId === playerId) {
@@ -1680,7 +1705,7 @@ function getFilledSlotsArray(rawSlots) {
 /**
  * 3. MANUAL PLACING PHASE VIEW (Pitch Stadium graphic)
  */
-function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectatorUid) {
+async function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectatorUid) {
   const currentUid = auth.currentUser ? auth.currentUser.uid : "";
   const spectatorSquad = room.squads?.[spectatedUid] || { slots: Array(11).fill(null), bench: [], ready: false };
   const isOwnBoard = spectatedUid === currentUid;
@@ -1738,6 +1763,49 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
     if (ar2) effectiveArBowler2Id = ar2.id;
   }
 
+  const isSpectator = !auth.currentUser || !Object.keys(room.players || {}).includes(auth.currentUser.uid);
+  const spectatedPlayerName = room.players?.[currentSpectatorUid]?.displayName || "Opponent";
+
+  // Auto-lock CPU / bot squads during placing phase to prevent freezes
+  const allPlayerUids = Object.keys(room.players || {});
+  for (const pUid of allPlayerUids) {
+    if (pUid.includes("cpu") || pUid.includes("bot")) {
+      const botSquad = room.squads?.[pUid] || { slots: Array(11).fill(null), bench: [] };
+      if (!botSquad.ready) {
+        let botSlots = getFilledSlotsArray(botSquad.slots).filter(s => s !== null);
+        if (botSlots.length < 11) {
+          const authSquad = getRandomPoolSquad([]);
+          botSlots = authSquad.players.slice(0, 11);
+        }
+        const cP = [...botSlots].sort((a, b) => ((b.batRating || 0) + (b.bowlRating || 0)) - ((a.batRating || 0) + (a.bowlRating || 0)))[0];
+        const vcP = botSlots.find(p => String(p.id) !== String(cP?.id)) || botSlots[1];
+        const wkP = botSlots.find(p => p.isWicketkeeper || p.isWK || String(p.role || '').toLowerCase().includes('keep')) || botSlots[2];
+        const ar1P = botSlots.find(p => String(p.role || '').toLowerCase().includes('all') || (p.bowlRating || 0) >= 40) || botSlots[3];
+        const ar2P = botSlots.find(p => String(p.id) !== String(ar1P?.id) && (String(p.role || '').toLowerCase().includes('all') || (p.bowlRating || 0) >= 40)) || botSlots[4];
+
+        const updatedBotSlots = botSlots.map(p => ({
+          ...p,
+          isCaptain: String(p.id) === String(cP?.id),
+          isViceCaptain: String(p.id) === String(vcP?.id),
+          isWicketkeeper: String(p.id) === String(wkP?.id),
+          isWK: String(p.id) === String(wkP?.id),
+          isArBowler1: String(p.id) === String(ar1P?.id),
+          isArBowler2: String(p.id) === String(ar2P?.id)
+        }));
+
+        await update(ref(rtdb, `rooms/${roomCode}/squads/${pUid}`), {
+          ready: true,
+          slots: updatedBotSlots,
+          captainId: cP?.id || "",
+          viceCaptainId: vcP?.id || "",
+          keeperId: wkP?.id || "",
+          arBowler1Id: ar1P?.id || "",
+          arBowler2Id: ar2P?.id || ""
+        });
+      }
+    }
+  }
+
   const isFinalizable = totalPlaced === 11 &&
                         effectiveCaptainId &&
                         effectiveViceCaptainId &&
@@ -1747,6 +1815,15 @@ function renderPlacingPhase(viewport, roomCode, room, spectatedUid, setSpectator
 
   viewport.innerHTML = `
     <div style="margin-bottom: 2rem;">
+      ${(isSpectator || isViewingOpponent) ? `
+        <div style="background: #FFF2A1; border: 2.5px solid #1E1E1E; padding: 0.65rem 1rem; margin-bottom: 1rem; font-weight: 900; font-size: 0.95rem; color: #111111; box-shadow: 4px 4px 0px #1E1E1E; display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span>👁️ SPECTATING MODE</span>
+            <span style="color: #666; font-size: 0.85rem;">— Viewing ${spectatedPlayerName}'s Squad</span>
+          </div>
+          <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 900; color: #FFFFFF; background: #1E88E5; padding: 3px 8px; border: 1px solid #1E1E1E; letter-spacing: 1px;">SPECTATING</span>
+        </div>
+      ` : ''}
       <div class="flex justify-between align-center" style="margin-bottom: 1.5rem;">
         <div>
           <span class="role-badge spinner" style="font-size: 0.85rem; margin-bottom: 0.5rem;">Phase: Squad Placements</span>
@@ -2379,32 +2456,19 @@ async function runClientSimulationFallback(roomCode, room, tossWinnerUid = null,
         players: playerXI
       };
 
-      const defaultCPUTeams = [
-        { name: "Australia (2015)", country: "AUS" },
-        { name: "England (2019)", country: "ENG" },
-        { name: "Pakistan (1992)", country: "PAK" },
-        { name: "West Indies (1975)", country: "WI" },
-        { name: "Sri Lanka (1996)", country: "SL" },
-        { name: "South Africa (2015)", country: "RSA" },
-        { name: "New Zealand (2019)", country: "NZ" }
-      ];
+      // Pick 7 distinct authentic CPU opponent squads from HISTORICAL_SQUAD_POOL
+      const shuffledPool = [...HISTORICAL_SQUAD_POOL].sort(() => 0.5 - Math.random());
+      const selectedCPUSquads = shuffledPool.slice(0, 7);
 
-      defaultCPUTeams.forEach((tm, idx) => {
-        const aiPlayers = [
-          { id: `ai_${idx}_1`, name: "Opener A", role: "opener", batRating: 85, bowlRating: 0, isWicketkeeper: false },
-          { id: `ai_${idx}_2`, name: "Opener B", role: "opener", batRating: 82, bowlRating: 0, isWicketkeeper: false },
-          { id: `ai_${idx}_3`, name: "Batter C", role: "topOrder", batRating: 88, bowlRating: 0, isWicketkeeper: false },
-          { id: `ai_${idx}_4`, name: "Batter D", role: "topOrder", batRating: 84, bowlRating: 0, isWicketkeeper: false },
-          { id: `ai_${idx}_5`, name: "Keeper E", role: "keeper", batRating: 80, bowlRating: 0, isWicketkeeper: true },
-          { id: `ai_${idx}_6`, name: "All Rounder F", role: "allRounder", batRating: 78, bowlRating: 75, bowlingType: "pace-medium" },
-          { id: `ai_${idx}_7`, name: "All Rounder G", role: "allRounder", batRating: 75, bowlRating: 78, bowlingType: "off-spin" },
-          { id: `ai_${idx}_8`, name: "Spinner H", role: "spinner", batRating: 40, bowlRating: 85, bowlingType: "leg-spin" },
-          { id: `ai_${idx}_9`, name: "Pacer I", role: "pacer", batRating: 25, bowlRating: 88, bowlingType: "pace-fast" },
-          { id: `ai_${idx}_10`, name: "Pacer J", role: "pacer", batRating: 20, bowlRating: 86, bowlingType: "pace-fast" },
-          { id: `ai_${idx}_11`, name: "Pacer K", role: "pacer", batRating: 15, bowlRating: 84, bowlingType: "left-arm-pace" }
-        ];
+      selectedCPUSquads.forEach((tm, idx) => {
+        const cpuPlayers = tm.players.slice(0, 11).map(p => ({
+          ...p,
+          isWicketkeeper: !!p.isWicketkeeper || p.role === 'keeper' || String(p.role || '').toLowerCase().includes('keep'),
+          isWK: !!p.isWicketkeeper || p.role === 'keeper' || String(p.role || '').toLowerCase().includes('keep')
+        }));
 
-        const opp = { id: `ai_team_${idx + 1}`, name: tm.name, players: aiPlayers };
+        const oppName = `${tm.nationalTeam} (${tm.tournamentYear})`;
+        const opp = { id: `ai_team_${idx + 1}`, name: oppName, players: cpuPlayers };
         const forcedToss = idx === 0 ? { winner: tossWinnerUid || playerUid, decision: tossDecision } : null;
         const sim = engine.simulateMatch(playerTeam, opp, false, forcedToss);
         simulatedMatches.push({
