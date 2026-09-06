@@ -80,15 +80,12 @@ export function getAllowedSlotsForPlayer(player) {
 export function isPlayerAllowedInSlot(player, slotIndex, currentSlots = []) {
   if (!player) return true;
 
-  // Mandatory Wicketkeeper check for the final pick when 10 slots are filled and 0 Wicketkeeper selected
+  // If 10 players are already placed, the final remaining slot acts as a flex pick
+  // so the draft never deadlocks and the 11th player can always be drafted!
   if (Array.isArray(currentSlots) && currentSlots.length > 0) {
-    const existingOtherPlaced = currentSlots.filter((p, idx) => p !== null && idx !== slotIndex);
-    const hasKeeperInOtherSlots = existingOtherPlaced.some(p => p && (p.isWicketkeeper || p.isWK || String(p.role || '').toLowerCase() === 'keeper'));
-    const isThisPlayerKeeper = !!player.isWicketkeeper || !!player.isWK || String(player.role || '').toLowerCase() === 'keeper';
-
-    // If 10 players are placed and 0 keepers exist so far, the final player MUST be a Wicketkeeper
-    if (existingOtherPlaced.length === 10 && !hasKeeperInOtherSlots && !isThisPlayerKeeper) {
-      return false;
+    const filledCount = currentSlots.filter((p, idx) => p !== null && idx !== slotIndex).length;
+    if (filledCount >= 10) {
+      return true;
     }
   }
 
@@ -116,14 +113,8 @@ export function getSlotLabel(slotIndex) {
 export function getIneligibleReason(player, slotIndex, currentSlots = []) {
   if (!player) return "No player selected.";
 
-  if (Array.isArray(currentSlots) && currentSlots.length > 0) {
-    const existingOtherPlaced = currentSlots.filter((p, idx) => p !== null && idx !== slotIndex);
-    const hasKeeperInOtherSlots = existingOtherPlaced.some(p => p && (p.isWicketkeeper || p.isWK || String(p.role || '').toLowerCase() === 'keeper'));
-    const isThisPlayerKeeper = !!player.isWicketkeeper || !!player.isWK || String(player.role || '').toLowerCase() === 'keeper';
-
-    if (existingOtherPlaced.length === 10 && !hasKeeperInOtherSlots && !isThisPlayerKeeper) {
-      return `Mandatory Wicketkeeper Rule: No Wicketkeeper in your XI yet! Your final slot MUST be filled by a Wicketkeeper.`;
-    }
+  if (isPlayerAllowedInSlot(player, slotIndex, currentSlots)) {
+    return "";
   }
 
   const allowedSlots = getAllowedSlotsForPlayer(player);
@@ -132,3 +123,4 @@ export function getIneligibleReason(player, slotIndex, currentSlots = []) {
 
   return `${formatPlayerName(player)} is not eligible for ${targetLabel}. Allowed positions: ${allowedLabels}.`;
 }
+

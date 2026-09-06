@@ -17,15 +17,23 @@ export function validateDraftXI(players) {
     };
   }
 
-  // Validate position eligibility for each slot in XI
+  // Validate position eligibility for each slot in XI (allow up to 1 flex slot from final pick)
+  let invalidCount = 0;
+  let invalidReason = null;
   for (let i = 0; i < players.length; i++) {
     const p = players[i];
     if (p && !isPlayerAllowedInSlot(p, i)) {
-      return {
-        valid: false,
-        reason: getIneligibleReason(p, i)
-      };
+      invalidCount++;
+      if (!invalidReason) {
+        invalidReason = getIneligibleReason(p, i);
+      }
     }
+  }
+  if (invalidCount > 1) {
+    return {
+      valid: false,
+      reason: invalidReason
+    };
   }
 
   const hasKeeper = players.some(p => p && (p.isWicketkeeper || p.role === 'keeper'));
