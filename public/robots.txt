@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Canonical Sitemaps for Googlebot, Bingbot & Search Engines
+Sitemap: https://samarg-7be68.web.app/sitemap.xml
+Sitemap: https://samarg-7be68.firebaseapp.com/sitemap.xml

@@ -784,99 +784,188 @@ function renderDraftPhase(viewport, roomCode, room) {
   const rerollsLeft = userSquadData.rerollsLeft !== undefined ? userSquadData.rerollsLeft : 2;
   const yearRerollsLeft = userSquadData.yearRerollsLeft !== undefined ? userSquadData.yearRerollsLeft : 1;
 
-  // Automatic CPU turn handler for solo rooms
+  // Immediate guard: If all participants already have >= 11 players, transition to placing phase
+  const playersMap = room.players || {};
+  const participantUids = (draftState.turnOrder && draftState.turnOrder.length > 0)
+    ? draftState.turnOrder
+    : Object.keys(playersMap);
+
+  const allDraftsDone = participantUids.length > 0 && participantUids.every(uid => {
+    const sq = room.squads?.[uid] || {};
+    const filledCount = getFilledSlotsArray(sq.slots).filter(s => s !== null).length + ensureArray(sq.bench).length;
+    return filledCount >= 11;
+  });
+
+  if (allDraftsDone) {
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
+    if (room.status === "drafting") {
+      const isHost = room.hostUid === currentUid || Object.keys(playersMap)[0] === currentUid;
+      if (isHost) {
+        updateRoomData(roomCode, {
+          status: "placing",
+          "draftState/activePlayerUid": null,
+          "draftState/turnDeadline": null,
+          "draftState/currentReveal": null
+        });
+      }
+    }
+    return;
+  }
+
+  // Automatic CPU turn handler for solo / bot rooms
   const activePlayerObj = (room.players || {})[activeUid] || {};
-  if (activePlayerObj.isBot || activeUid === "cpu_opponent") {
+  const isBotPlayer = Boolean(activePlayerObj.isBot) ||
+    activeUid === "cpu_opponent" ||
+    (typeof activeUid === "string" && (activeUid.startsWith("cpu_") || activeUid.includes("bot")));
+
+  if (isBotPlayer) {
     const isHost = room.hostUid === currentUid || Object.keys(room.players || {})[0] === currentUid;
     if (isHost && !window.cpuTurnTimeout) {
       window.cpuTurnTimeout = setTimeout(async () => {
         window.cpuTurnTimeout = null;
         try {
-          let currentRevealData = reveal;
-          if (!currentRevealData) {
-            const rolledSquad = await fetchClientRandomSquad(draftState);
-            const squadId = rolledSquad.squadId || `${rolledSquad.nationalTeam}_${rolledSquad.tournamentYear}`;
-            currentRevealData = {
-              squadId,
-              nationalTeam: rolledSquad.nationalTeam,
-              tournamentYear: rolledSquad.tournamentYear,
-              players: rolledSquad.players,
-              rolledAt: Date.now(),
-              rolledBy: activeUid
-            };
-          }
+          const botSquad = (room.squads || {})[activeUid] || { slots: Array(11).fill(null), bench: [] };
+          const currentSlots = [...getFilledSlotsArray(botSquad.slots)];
+          const currentBench = [...ensureArray(botSquad.bench)];
+          const botCount = currentSlots.filter(s => s !== null).length + currentBench.length;
 
-          const claimedIds = draftState.claimedPlayerIds || [];
-          const claimedNames = (draftState.claimedPlayerNames || []).map(n => String(n).toLowerCase().trim());
-          const availablePlayers = ensureArray(currentRevealData.players).filter(p => {
-            const pNameNorm = String(p.name || '').toLowerCase().trim();
-            const isClaimedById = claimedIds.includes(p.id);
-            const isClaimedByName = claimedNames.some(cn => pNameNorm === cn || pNameNorm.includes(cn) || cn.includes(pNameNorm));
-            return !isClaimedById && !isClaimedByName;
-          });
+          const turnOrder = (draftState.turnOrder && draftState.turnOrder.length > 0)
+            ? draftState.turnOrder
+            : Object.keys(room.players || {});
+          const currentTurnIndex = draftState.turnIndex || 0;
 
-          if (availablePlayers.length > 0) {
-            const randomPick = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
-            const botSquad = (room.squads || {})[activeUid] || { slots: Array(11).fill(null), bench: [] };
-            const currentSlots = [...getFilledSlotsArray(botSquad.slots)];
-            const currentBench = [...ensureArray(botSquad.bench)];
-
-            const allowedSlots = getAllowedSlotsForPlayer(randomPick);
-            const validEmptyIndices = [];
-            for (let i = 0; i < 11; i++) {
-              if (currentSlots[i] === null && (allowedSlots.includes(i) || isPlayerAllowedInSlot(randomPick, i, currentSlots))) {
-                validEmptyIndices.push(i);
-              }
+          if (botCount < 11) {
+            let currentRevealData = reveal;
+            if (!currentRevealData) {
+              const rolledSquad = await fetchClientRandomSquad(draftState);
+              const squadId = rolledSquad.squadId || `${rolledSquad.nationalTeam}_${rolledSquad.tournamentYear}`;
+              currentRevealData = {
+                squadId,
+                nationalTeam: rolledSquad.nationalTeam,
+                tournamentYear: rolledSquad.tournamentYear,
+                players: rolledSquad.players,
+                rolledAt: Date.now(),
+                rolledBy: activeUid
+              };
             }
 
-            const targetIndices = validEmptyIndices.length > 0
-              ? validEmptyIndices
-              : Array.from({length: 11}, (_, i) => i).filter(i => currentSlots[i] === null);
-
-            if (targetIndices.length > 0) {
-              const randSlotIdx = targetIndices[Math.floor(Math.random() * targetIndices.length)];
-              currentSlots[randSlotIdx] = randomPick;
-            } else {
-              currentBench.push(randomPick);
-            }
-
-            const turnOrder = draftState.turnOrder || [];
-            const currentTurnIndex = draftState.turnIndex || 0;
-            const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
-            const nextActiveUid = turnOrder[nextTurnIndex];
-            const targetNameNorm = String(randomPick.name || '').toLowerCase().trim();
-            const updatedClaimedIds = [...ensureArray(claimedIds), randomPick.id];
-            const updatedClaimedNames = [...ensureArray(claimedNames), targetNameNorm];
-
-            const updates = {};
-            updates[`rooms/${roomCode}/squads/${activeUid}/slots`] = currentSlots;
-            updates[`rooms/${roomCode}/squads/${activeUid}/bench`] = currentBench;
-            updates[`rooms/${roomCode}/draftState/claimedPlayerIds`] = updatedClaimedIds;
-            updates[`rooms/${roomCode}/draftState/claimedPlayerNames`] = updatedClaimedNames;
-            updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
-            updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
-            updates[`rooms/${roomCode}/draftState/currentReveal`] = null;
-            updates[`rooms/${roomCode}/draftState/turnDeadline`] = Date.now() + (room.turnTimerSeconds || 20) * 1000;
-
-            let allComplete = true;
-            turnOrder.forEach(uid => {
-              const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
-              const sqSlots = getFilledSlotsArray((uid === activeUid) ? currentSlots : sq.slots);
-              const sqBench = ensureArray((uid === activeUid) ? currentBench : sq.bench);
-              const count = sqBench.length + sqSlots.filter(s => s !== null).length;
-              if (count < 11) allComplete = false;
+            const claimedIds = draftState.claimedPlayerIds || [];
+            const claimedNames = (draftState.claimedPlayerNames || []).map(n => String(n).toLowerCase().trim());
+            let availablePlayers = ensureArray(currentRevealData.players).filter(p => {
+              const pNameNorm = String(p.name || '').toLowerCase().trim();
+              const isClaimedById = claimedIds.includes(p.id);
+              const isClaimedByName = claimedNames.some(cn => pNameNorm === cn || pNameNorm.includes(cn) || cn.includes(pNameNorm));
+              return !isClaimedById && !isClaimedByName;
             });
 
-            if (allComplete) {
-              updates[`rooms/${roomCode}/status`] = "placing";
+            if (availablePlayers.length === 0) {
+              const fallbackSquad = getRandomPoolSquad([]);
+              availablePlayers = ensureArray(fallbackSquad?.players);
             }
 
+            if (availablePlayers.length > 0) {
+              const randomPick = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+              const allowedSlots = getAllowedSlotsForPlayer(randomPick);
+              const validEmptyIndices = [];
+              for (let i = 0; i < 11; i++) {
+                if (currentSlots[i] === null && (allowedSlots.includes(i) || isPlayerAllowedInSlot(randomPick, i, currentSlots))) {
+                  validEmptyIndices.push(i);
+                }
+              }
+
+              const targetIndices = validEmptyIndices.length > 0
+                ? validEmptyIndices
+                : Array.from({ length: 11 }, (_, i) => i).filter(i => currentSlots[i] === null);
+
+              if (targetIndices.length > 0) {
+                const randSlotIdx = targetIndices[Math.floor(Math.random() * targetIndices.length)];
+                currentSlots[randSlotIdx] = randomPick;
+              } else {
+                currentBench.push(randomPick);
+              }
+
+              const targetNameNorm = String(randomPick.name || '').toLowerCase().trim();
+              const updatedClaimedIds = [...ensureArray(claimedIds), randomPick.id];
+              const updatedClaimedNames = [...ensureArray(claimedNames), targetNameNorm];
+
+              const updates = {};
+              updates[`rooms/${roomCode}/squads/${activeUid}/slots`] = currentSlots;
+              updates[`rooms/${roomCode}/squads/${activeUid}/bench`] = currentBench;
+              updates[`rooms/${roomCode}/draftState/claimedPlayerIds`] = updatedClaimedIds;
+              updates[`rooms/${roomCode}/draftState/claimedPlayerNames`] = updatedClaimedNames;
+              updates[`rooms/${roomCode}/draftState/currentReveal`] = null;
+
+              const remainingNeedPicks = turnOrder.filter(uid => {
+                const sq = (room.squads || {})[uid] || {};
+                const s = getFilledSlotsArray((uid === activeUid) ? currentSlots : sq.slots);
+                const b = ensureArray((uid === activeUid) ? currentBench : sq.bench);
+                return (s.filter(x => x !== null).length + b.length) < 11;
+              });
+
+              if (remainingNeedPicks.length === 0) {
+                updates[`rooms/${roomCode}/status`] = "placing";
+                updates[`rooms/${roomCode}/draftState/activePlayerUid`] = null;
+                updates[`rooms/${roomCode}/draftState/turnDeadline`] = null;
+              } else {
+                let nextTurnIndex = currentTurnIndex;
+                let nextActiveUid = remainingNeedPicks[0];
+                for (let step = 1; step <= turnOrder.length; step++) {
+                  const candidateIdx = (currentTurnIndex + step) % turnOrder.length;
+                  const candidateUid = turnOrder[candidateIdx];
+                  if (remainingNeedPicks.includes(candidateUid)) {
+                    nextTurnIndex = candidateIdx;
+                    nextActiveUid = candidateUid;
+                    break;
+                  }
+                }
+                updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
+                updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
+                updates[`rooms/${roomCode}/draftState/turnDeadline`] = Date.now() + (room.turnTimerSeconds || 20) * 1000;
+              }
+
+              await updateRoomData(roomCode, updates);
+            }
+          } else {
+            // Bot already has 11 players, advance to next player or finish
+            const remainingNeedPicks = turnOrder.filter(uid => {
+              const sq = (room.squads || {})[uid] || {};
+              const s = getFilledSlotsArray(sq.slots);
+              const b = ensureArray(sq.bench);
+              return (s.filter(x => x !== null).length + b.length) < 11;
+            });
+
+            const updates = {
+              [`rooms/${roomCode}/draftState/currentReveal`]: null
+            };
+            if (remainingNeedPicks.length === 0) {
+              updates[`rooms/${roomCode}/status`] = "placing";
+              updates[`rooms/${roomCode}/draftState/activePlayerUid`] = null;
+              updates[`rooms/${roomCode}/draftState/turnDeadline`] = null;
+            } else {
+              let nextTurnIndex = currentTurnIndex;
+              let nextActiveUid = remainingNeedPicks[0];
+              for (let step = 1; step <= turnOrder.length; step++) {
+                const candidateIdx = (currentTurnIndex + step) % turnOrder.length;
+                const candidateUid = turnOrder[candidateIdx];
+                if (remainingNeedPicks.includes(candidateUid)) {
+                  nextTurnIndex = candidateIdx;
+                  nextActiveUid = candidateUid;
+                  break;
+                }
+              }
+              updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
+              updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
+              updates[`rooms/${roomCode}/draftState/turnDeadline`] = Date.now() + (room.turnTimerSeconds || 20) * 1000;
+            }
             await updateRoomData(roomCode, updates);
           }
         } catch (botErr) {
           console.warn("CPU turn execution error:", botErr);
         }
-      }, 1000);
+      }, 700);
     }
   }
 
@@ -896,11 +985,6 @@ function renderDraftPhase(viewport, roomCode, room) {
   }
 
   // Player 1 (User) and Player 2 (Opponent) identification
-  const playersMap = room.players || {};
-  const participantUids = (draftState.turnOrder && draftState.turnOrder.length > 0)
-    ? draftState.turnOrder
-    : Object.keys(playersMap);
-
   const p1Uid = currentUid;
   const p2Uid = participantUids.find(id => id !== currentUid) || (participantUids.length > 1 ? participantUids[1] : participantUids[0]);
 
@@ -1370,6 +1454,11 @@ function renderDraftPhase(viewport, roomCode, room) {
     // Helper to execute player placement into a pitch slot
     async function executePlayerPlacement(targetPlayer, slotIdx) {
       if (!targetPlayer) return;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+
       const userSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
       const userSlots = getFilledSlotsArray(userSquad.slots);
       let updatedBench = [...ensureArray(userSquad.bench)];
@@ -1380,7 +1469,10 @@ function renderDraftPhase(viewport, roomCode, room) {
         return;
       }
 
-      if (!isPlayerAllowedInSlot(targetPlayer, slotIdx, userSlots)) {
+      const openSlotsCount = updatedSlots.filter(s => s === null).length;
+      const isFinalPick = openSlotsCount === 1;
+
+      if (!isFinalPick && !isPlayerAllowedInSlot(targetPlayer, slotIdx, userSlots)) {
         showToast(getIneligibleReason(targetPlayer, slotIdx, userSlots) || "Player not eligible for this position.", true);
         return;
       }
@@ -1388,10 +1480,11 @@ function renderDraftPhase(viewport, roomCode, room) {
       updatedSlots[slotIdx] = targetPlayer;
       selectedDraftPlayerId = null;
 
-      const turnOrder = draftState.turnOrder || [];
+      const turnOrder = (draftState.turnOrder && draftState.turnOrder.length > 0)
+        ? draftState.turnOrder
+        : Object.keys(room.players || {});
       const currentTurnIndex = draftState.turnIndex || 0;
-      const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
-      const nextActiveUid = turnOrder[nextTurnIndex];
+
       const targetNameNorm = String(targetPlayer.name || '').toLowerCase().trim();
       const updatedClaimedIds = [...ensureArray(draftState.claimedPlayerIds), targetPlayer.id];
       const updatedClaimedNames = [...ensureArray(draftState.claimedPlayerNames), targetNameNorm];
@@ -1401,22 +1494,65 @@ function renderDraftPhase(viewport, roomCode, room) {
       updates[`rooms/${roomCode}/squads/${currentUid}/bench`] = updatedBench;
       updates[`rooms/${roomCode}/draftState/claimedPlayerIds`] = updatedClaimedIds;
       updates[`rooms/${roomCode}/draftState/claimedPlayerNames`] = updatedClaimedNames;
-      updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
-      updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
       updates[`rooms/${roomCode}/draftState/currentReveal`] = null;
       updates[`rooms/${roomCode}/draftState/turnDeadline`] = null;
 
-      let allComplete = true;
-      turnOrder.forEach(uid => {
-        const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
-        const sqSlots = getFilledSlotsArray((uid === currentUid) ? updatedSlots : sq.slots);
-        const sqBench = ensureArray((uid === currentUid) ? updatedBench : sq.bench);
-        const count = sqBench.length + sqSlots.filter(s => s !== null).length;
-        if (count < 11) allComplete = false;
+      // Check which participants still need players (< 11 picks)
+      const remainingNeedPicks = turnOrder.filter(uid => {
+        const sq = (room.squads || {})[uid] || {};
+        const s = getFilledSlotsArray((uid === currentUid) ? updatedSlots : sq.slots);
+        const b = ensureArray((uid === currentUid) ? updatedBench : sq.bench);
+        return (s.filter(x => x !== null).length + b.length) < 11;
       });
 
-      if (allComplete) {
+      const allRemainingAreBots = remainingNeedPicks.length > 0 && remainingNeedPicks.every(uid => {
+        const pObj = (room.players || {})[uid] || {};
+        return Boolean(pObj.isBot) || uid === "cpu_opponent" || (typeof uid === "string" && (uid.startsWith("cpu_") || uid.includes("bot")));
+      });
+
+      if (remainingNeedPicks.length === 0 || allRemainingAreBots) {
+        // If remaining participants needing picks are bots, fill their remaining slots immediately!
+        if (allRemainingAreBots) {
+          remainingNeedPicks.forEach(botUid => {
+            const bSq = (room.squads || {})[botUid] || { slots: Array(11).fill(null), bench: [] };
+            const bSlots = [...getFilledSlotsArray(bSq.slots)];
+            const emptyIndices = [];
+            for (let i = 0; i < 11; i++) {
+              if (bSlots[i] === null) emptyIndices.push(i);
+            }
+            if (emptyIndices.length > 0) {
+              const fallbackSquad = getRandomPoolSquad([]);
+              const fPlayers = (fallbackSquad && fallbackSquad.players) ? fallbackSquad.players : [];
+              let pIdx = 0;
+              emptyIndices.forEach(eIdx => {
+                if (fPlayers[pIdx]) {
+                  bSlots[eIdx] = fPlayers[pIdx];
+                  pIdx++;
+                }
+              });
+            }
+            updates[`rooms/${roomCode}/squads/${botUid}/slots`] = bSlots;
+          });
+        }
         updates[`rooms/${roomCode}/status`] = "placing";
+        updates[`rooms/${roomCode}/draftState/activePlayerUid`] = null;
+        updates[`rooms/${roomCode}/draftState/turnDeadline`] = null;
+      } else {
+        // Find next human participant who needs picks
+        let nextTurnIndex = currentTurnIndex;
+        let nextActiveUid = remainingNeedPicks[0];
+        for (let step = 1; step <= turnOrder.length; step++) {
+          const candidateIdx = (currentTurnIndex + step) % turnOrder.length;
+          const candidateUid = turnOrder[candidateIdx];
+          if (remainingNeedPicks.includes(candidateUid)) {
+            nextTurnIndex = candidateIdx;
+            nextActiveUid = candidateUid;
+            break;
+          }
+        }
+        updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
+        updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
+        updates[`rooms/${roomCode}/draftState/turnDeadline`] = Date.now() + (room.turnTimerSeconds || 20) * 1000;
       }
 
       try {
@@ -1509,7 +1645,7 @@ function renderDraftPhase(viewport, roomCode, room) {
   // Active sync timer logic
   const timerBadge = document.getElementById("draft-countdown-sec");
   if (draftState.turnDeadline && timerBadge) {
-    clearInterval(timerInterval);
+    if (timerInterval) clearInterval(timerInterval);
     let isAutoPicking = false;
     timerInterval = setInterval(async () => {
       const remainingMs = draftState.turnDeadline - getServerTime();
@@ -1517,14 +1653,72 @@ function renderDraftPhase(viewport, roomCode, room) {
       
       timerBadge.innerText = `${secondsLeft}s`;
 
-      if (secondsLeft <= 0 && isActiveTurn && !isAutoPicking) {
-        // Timer expired — auto-assign a random player from reveal (or auto-roll if unrolled) to a random empty pitch slot!
+      const isHost = room.hostUid === currentUid || Object.keys(room.players || {})[0] === currentUid;
+      const activeIsBot = Boolean(activePlayerObj.isBot) ||
+        activeUid === "cpu_opponent" ||
+        (typeof activeUid === "string" && (activeUid.startsWith("cpu_") || activeUid.includes("bot")));
+      const canActOnTimeout = isActiveTurn || (isHost && activeIsBot);
+
+      if (secondsLeft <= 0 && canActOnTimeout && !isAutoPicking) {
+        // Timer expired — auto-assign a random player from reveal (or auto-roll if unrolled)
         isAutoPicking = true;
-        clearInterval(timerInterval);
+        if (timerInterval) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+        }
+
         try {
+          const targetUserUid = isActiveTurn ? currentUid : activeUid;
+          const userSquad = (room.squads || {})[targetUserUid] || { slots: Array(11).fill(null), bench: [] };
+          const currentSlots = [...getFilledSlotsArray(userSquad.slots)];
+          const currentBench = [...ensureArray(userSquad.bench)];
+          const totalCount = currentSlots.filter(s => s !== null).length + currentBench.length;
+
+          const turnOrder = (draftState.turnOrder && draftState.turnOrder.length > 0)
+            ? draftState.turnOrder
+            : Object.keys(room.players || {});
+          const currentTurnIndex = draftState.turnIndex || 0;
+
+          if (totalCount >= 11) {
+            // Already has 11 players! Check if everyone is done, or advance to next player needing picks
+            const remainingNeedPicks = turnOrder.filter(uid => {
+              const sq = (room.squads || {})[uid] || {};
+              const s = getFilledSlotsArray(sq.slots);
+              const b = ensureArray(sq.bench);
+              return (s.filter(x => x !== null).length + b.length) < 11;
+            });
+
+            const updates = {
+              [`rooms/${roomCode}/draftState/currentReveal`]: null,
+              [`rooms/${roomCode}/draftState/turnDeadline`]: null
+            };
+
+            if (remainingNeedPicks.length === 0) {
+              updates[`rooms/${roomCode}/status`] = "placing";
+              updates[`rooms/${roomCode}/draftState/activePlayerUid`] = null;
+            } else {
+              let nextTurnIndex = currentTurnIndex;
+              let nextActiveUid = remainingNeedPicks[0];
+              for (let step = 1; step <= turnOrder.length; step++) {
+                const candidateIdx = (currentTurnIndex + step) % turnOrder.length;
+                const candidateUid = turnOrder[candidateIdx];
+                if (remainingNeedPicks.includes(candidateUid)) {
+                  nextTurnIndex = candidateIdx;
+                  nextActiveUid = candidateUid;
+                  break;
+                }
+              }
+              updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
+              updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
+              updates[`rooms/${roomCode}/draftState/turnDeadline`] = Date.now() + (room.turnTimerSeconds || 20) * 1000;
+            }
+
+            await updateRoomData(roomCode, updates);
+            return;
+          }
+
           let currentRevealData = reveal;
           if (!currentRevealData) {
-            // Auto-roll squad first if player timed out without rolling
             const rolledSquad = await fetchClientRandomSquad(draftState);
             const squadId = rolledSquad.squadId || `${rolledSquad.nationalTeam}_${rolledSquad.tournamentYear}`;
             currentRevealData = {
@@ -1533,26 +1727,26 @@ function renderDraftPhase(viewport, roomCode, room) {
               tournamentYear: rolledSquad.tournamentYear,
               players: rolledSquad.players,
               rolledAt: Date.now(),
-              rolledBy: currentUid
+              rolledBy: targetUserUid
             };
           }
 
           const claimedIds = ensureArray(draftState.claimedPlayerIds);
           const claimedNames = ensureArray(draftState.claimedPlayerNames).map(n => String(n).toLowerCase().trim());
-          const availablePlayers = ensureArray(currentRevealData.players).filter(p => {
+          let availablePlayers = ensureArray(currentRevealData.players).filter(p => {
             if (claimedIds.includes(p.id)) return false;
             const pName = String(p.name || '').toLowerCase().trim();
             if (claimedNames.includes(pName)) return false;
             return true;
           });
 
-          if (availablePlayers.length > 0) {
-            // Pick a random unclaimed player
-            const randomPick = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
+          if (availablePlayers.length === 0) {
+            const fallbackSquad = getRandomPoolSquad([]);
+            availablePlayers = ensureArray(fallbackSquad?.players);
+          }
 
-            const userSquad = (room.squads || {})[currentUid] || { slots: Array(11).fill(null), bench: [] };
-            const currentSlots = [...getFilledSlotsArray(userSquad.slots)];
-            const currentBench = [...ensureArray(userSquad.bench)];
+          if (availablePlayers.length > 0) {
+            const randomPick = availablePlayers[Math.floor(Math.random() * availablePlayers.length)];
 
             const allowedSlots = getAllowedSlotsForPlayer(randomPick);
             const validEmptyIndices = [];
@@ -1575,52 +1769,82 @@ function renderDraftPhase(viewport, roomCode, room) {
               currentBench.push(randomPick);
             }
 
-            const turnOrder = draftState.turnOrder || [];
-            const currentTurnIndex = draftState.turnIndex || 0;
-            const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
-            const nextActiveUid = turnOrder[nextTurnIndex];
             const updatedClaimedIds = [...ensureArray(claimedIds), randomPick.id];
             const updatedClaimedNames = [...ensureArray(claimedNames), String(randomPick.name || '').toLowerCase().trim()];
 
             const updates = {};
-            updates[`rooms/${roomCode}/squads/${currentUid}/slots`] = currentSlots;
-            updates[`rooms/${roomCode}/squads/${currentUid}/bench`] = currentBench;
-            updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
-            updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
+            updates[`rooms/${roomCode}/squads/${targetUserUid}/slots`] = currentSlots;
+            updates[`rooms/${roomCode}/squads/${targetUserUid}/bench`] = currentBench;
             updates[`rooms/${roomCode}/draftState/claimedPlayerIds`] = updatedClaimedIds;
             updates[`rooms/${roomCode}/draftState/claimedPlayerNames`] = updatedClaimedNames;
             updates[`rooms/${roomCode}/draftState/currentReveal`] = null;
             updates[`rooms/${roomCode}/draftState/turnDeadline`] = null;
 
-            // Check if all players reached 11 squad picks
-            let allComplete = true;
-            turnOrder.forEach(uid => {
-              const sq = (room.squads || {})[uid] || { slots: Array(11).fill(null), bench: [] };
-              const sqSlots = getFilledSlotsArray((uid === currentUid) ? currentSlots : sq.slots);
-              const sqBench = ensureArray((uid === currentUid) ? currentBench : sq.bench);
-              const count = sqBench.length + sqSlots.filter(s => s !== null).length;
-              if (count < 11) allComplete = false;
+            // Check if remaining players reached 11 squad picks
+            const remainingNeedPicks = turnOrder.filter(uid => {
+              const sq = (room.squads || {})[uid] || {};
+              const s = getFilledSlotsArray((uid === targetUserUid) ? currentSlots : sq.slots);
+              const b = ensureArray((uid === targetUserUid) ? currentBench : sq.bench);
+              return (s.filter(x => x !== null).length + b.length) < 11;
             });
 
-            if (allComplete) {
+            if (remainingNeedPicks.length === 0) {
               updates[`rooms/${roomCode}/status`] = "placing";
+              updates[`rooms/${roomCode}/draftState/activePlayerUid`] = null;
+            } else {
+              let nextTurnIndex = currentTurnIndex;
+              let nextActiveUid = remainingNeedPicks[0];
+              for (let step = 1; step <= turnOrder.length; step++) {
+                const candidateIdx = (currentTurnIndex + step) % turnOrder.length;
+                const candidateUid = turnOrder[candidateIdx];
+                if (remainingNeedPicks.includes(candidateUid)) {
+                  nextTurnIndex = candidateIdx;
+                  nextActiveUid = candidateUid;
+                  break;
+                }
+              }
+              updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
+              updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
+              updates[`rooms/${roomCode}/draftState/turnDeadline`] = Date.now() + (room.turnTimerSeconds || 20) * 1000;
             }
 
             await updateRoomData(roomCode, updates);
             showToast(`⏱ Time's up! Auto-assigned ${formatPlayerName(randomPick)} to ${slotAssignedText}`, false);
           } else {
-            // No players available — advance turn
-            const turnOrder = draftState.turnOrder || [];
-            const currentTurnIndex = draftState.turnIndex || 0;
-            const nextTurnIndex = (currentTurnIndex + 1) % turnOrder.length;
-            const nextActiveUid = turnOrder[nextTurnIndex];
-
-            await updateRoomData(roomCode, {
-              [`rooms/${roomCode}/draftState/currentReveal`]: null,
-              [`rooms/${roomCode}/draftState/turnDeadline`]: null,
-              [`rooms/${roomCode}/draftState/turnIndex`]: nextTurnIndex,
-              [`rooms/${roomCode}/draftState/activePlayerUid`]: nextActiveUid
+            // Fallback advance turn
+            const remainingNeedPicks = turnOrder.filter(uid => {
+              const sq = (room.squads || {})[uid] || {};
+              const s = getFilledSlotsArray(sq.slots);
+              const b = ensureArray(sq.bench);
+              return (s.filter(x => x !== null).length + b.length) < 11;
             });
+
+            const updates = {
+              [`rooms/${roomCode}/draftState/currentReveal`]: null,
+              [`rooms/${roomCode}/draftState/turnDeadline`]: null
+            };
+
+            if (remainingNeedPicks.length === 0) {
+              updates[`rooms/${roomCode}/status`] = "placing";
+              updates[`rooms/${roomCode}/draftState/activePlayerUid`] = null;
+            } else {
+              let nextTurnIndex = currentTurnIndex;
+              let nextActiveUid = remainingNeedPicks[0];
+              for (let step = 1; step <= turnOrder.length; step++) {
+                const candidateIdx = (currentTurnIndex + step) % turnOrder.length;
+                const candidateUid = turnOrder[candidateIdx];
+                if (remainingNeedPicks.includes(candidateUid)) {
+                  nextTurnIndex = candidateIdx;
+                  nextActiveUid = candidateUid;
+                  break;
+                }
+              }
+              updates[`rooms/${roomCode}/draftState/turnIndex`] = nextTurnIndex;
+              updates[`rooms/${roomCode}/draftState/activePlayerUid`] = nextActiveUid;
+              updates[`rooms/${roomCode}/draftState/turnDeadline`] = Date.now() + (room.turnTimerSeconds || 20) * 1000;
+            }
+
+            await updateRoomData(roomCode, updates);
             showToast("⏱ Time's up! Turn skipped.", false);
           }
         } catch (err) {
@@ -1630,7 +1854,10 @@ function renderDraftPhase(viewport, roomCode, room) {
       }
     }, 250);
   } else {
-    clearInterval(timerInterval);
+    if (timerInterval) {
+      clearInterval(timerInterval);
+      timerInterval = null;
+    }
     if (timerBadge) {
       timerBadge.innerText = "WAIT";
     }
