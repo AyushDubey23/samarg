@@ -94,36 +94,36 @@ export async function renderSquadReview(container) {
             <div class="chart-container mt-2">
               <svg viewBox="0 0 400 240" width="100%" height="240" class="balance-svg">
                 <!-- Grid Lines -->
-                <line x1="120" y1="20" x2="120" y2="210" stroke="var(--glass-border)" stroke-width="1" />
-                <line x1="190" y1="20" x2="190" y2="210" stroke="var(--glass-border)" stroke-dasharray="3" />
-                <line x1="260" y1="20" x2="260" y2="210" stroke="var(--glass-border)" stroke-dasharray="3" />
-                <line x1="330" y1="20" x2="330" y2="210" stroke="var(--glass-border)" stroke-dasharray="3" />
-                <line x1="380" y1="20" x2="380" y2="210" stroke="var(--glass-border)" stroke-width="1" />
+                <line x1="120" y1="20" x2="120" y2="210" stroke="#1E1E1E" stroke-width="1.5" />
+                <line x1="190" y1="20" x2="190" y2="210" stroke="#D8D0C0" stroke-dasharray="3" />
+                <line x1="260" y1="20" x2="260" y2="210" stroke="#D8D0C0" stroke-dasharray="3" />
+                <line x1="330" y1="20" x2="330" y2="210" stroke="#D8D0C0" stroke-dasharray="3" />
+                <line x1="380" y1="20" x2="380" y2="210" stroke="#D8D0C0" stroke-width="1" />
 
                 <!-- Bar 1: Batting Average -->
-                <text x="10" y="45" fill="var(--chalk-white-dim)" font-size="12" font-family="var(--font-family-sans)">Batting Average</text>
-                <rect x="120" y="32" width="${valBatAvg * 2.6}" height="18" fill="var(--primary)" rx="4" />
-                <text x="${120 + valBatAvg * 2.6 + 10}" y="45" fill="var(--chalk-white)" font-size="11" font-weight="600">${teamBatAvg.toFixed(1)}</text>
+                <text x="10" y="45" fill="#111111" font-size="12" font-weight="700" font-family="var(--font-family-sans)">Batting Average</text>
+                <rect x="120" y="32" width="${valBatAvg * 2.6}" height="18" fill="var(--primary)" rx="0" stroke="#1E1E1E" stroke-width="1.5" />
+                <text x="${120 + valBatAvg * 2.6 + 10}" y="46" fill="#111111" font-size="12" font-weight="900" font-family="var(--font-family-mono)">${teamBatAvg.toFixed(1)}</text>
 
                 <!-- Bar 2: Strike Rate -->
-                <text x="10" y="85" fill="var(--chalk-white-dim)" font-size="12" font-family="var(--font-family-sans)">Strike Rate</text>
-                <rect x="120" y="72" width="${valSR * 2.6}" height="18" fill="var(--primary)" rx="4" />
-                <text x="${120 + valSR * 2.6 + 10}" y="85" fill="var(--chalk-white)" font-size="11" font-weight="600">${teamSR.toFixed(0)}</text>
+                <text x="10" y="85" fill="#111111" font-size="12" font-weight="700" font-family="var(--font-family-sans)">Strike Rate</text>
+                <rect x="120" y="72" width="${valSR * 2.6}" height="18" fill="var(--primary)" rx="0" stroke="#1E1E1E" stroke-width="1.5" />
+                <text x="${120 + valSR * 2.6 + 10}" y="86" fill="#111111" font-size="12" font-weight="900" font-family="var(--font-family-mono)">${teamSR.toFixed(0)}</text>
 
                 <!-- Bar 3: Bowling Econ -->
-                <text x="10" y="125" fill="var(--chalk-white-dim)" font-size="12" font-family="var(--font-family-sans)">Bowling Econ</text>
-                <rect x="120" y="112" width="${valEcon * 2.6}" height="18" fill="var(--willow-tan)" rx="4" />
-                <text x="${120 + valEcon * 2.6 + 10}" y="125" fill="var(--chalk-white)" font-size="11" font-weight="600">${teamEcon.toFixed(2)}</text>
+                <text x="10" y="125" fill="#111111" font-size="12" font-weight="700" font-family="var(--font-family-sans)">Bowling Econ</text>
+                <rect x="120" y="112" width="${valEcon * 2.6}" height="18" fill="var(--willow-tan)" rx="0" stroke="#1E1E1E" stroke-width="1.5" />
+                <text x="${120 + valEcon * 2.6 + 10}" y="126" fill="#111111" font-size="12" font-weight="900" font-family="var(--font-family-mono)">${teamEcon.toFixed(2)}</text>
 
                 <!-- Bar 4: Bowling Strike Rate -->
-                <text x="10" y="165" fill="var(--chalk-white-dim)" font-size="12" font-family="var(--font-family-sans)">Bowling SR</text>
-                <rect x="120" y="152" width="${valBowlSR * 2.6}" height="18" fill="var(--willow-tan)" rx="4" />
-                <text x="${120 + valBowlSR * 2.6 + 10}" y="165" fill="var(--chalk-white)" font-size="11" font-weight="600">${teamBowlSR.toFixed(1)}</text>
+                <text x="10" y="165" fill="#111111" font-size="12" font-weight="700" font-family="var(--font-family-sans)">Bowling SR</text>
+                <rect x="120" y="152" width="${valBowlSR * 2.6}" height="18" fill="var(--willow-tan)" rx="0" stroke="#1E1E1E" stroke-width="1.5" />
+                <text x="${120 + valBowlSR * 2.6 + 10}" y="166" fill="#111111" font-size="12" font-weight="900" font-family="var(--font-family-mono)">${teamBowlSR.toFixed(1)}</text>
 
                 <!-- Bar 5: Fielding -->
-                <text x="10" y="205" fill="var(--chalk-white-dim)" font-size="12" font-family="var(--font-family-sans)">Fielding Rating</text>
-                <rect x="120" y="192" width="${valFielding * 2.6}" height="18" fill="var(--accent-gold)" rx="4" />
-                <text x="${120 + valFielding * 2.6 + 10}" y="205" fill="var(--chalk-white)" font-size="11" font-weight="600">${teamFielding.toFixed(0)}</text>
+                <text x="10" y="205" fill="#111111" font-size="12" font-weight="700" font-family="var(--font-family-sans)">Fielding Rating</text>
+                <rect x="120" y="192" width="${valFielding * 2.6}" height="18" fill="var(--accent-gold)" rx="0" stroke="#1E1E1E" stroke-width="1.5" />
+                <text x="${120 + valFielding * 2.6 + 10}" y="206" fill="#111111" font-size="12" font-weight="900" font-family="var(--font-family-mono)">${teamFielding.toFixed(0)}</text>
               </svg>
             </div>
           </div>

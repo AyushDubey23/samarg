@@ -10,7 +10,11 @@ const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/404.html',
-  '/favicon.svg'
+  '/favicon.svg',
+  '/privacy.html',
+  '/terms.html',
+  '/cookie-policy.html',
+  '/copyright.html'
 ];
 
 // Install Service Worker and cache 404 page & core assets

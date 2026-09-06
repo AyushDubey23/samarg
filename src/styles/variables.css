@@ -31,7 +31,13 @@
   --text-light: #FFFFFF;
 
   --willow-tan: #C89B3C;
-  --willow-tan-dark: #8C6A20;
+  --willow-tan-dark: #6C4E05;
+  --text-gold: #6C4E05;        /* WCAG AA accessible gold text (contrast > 4.8:1 on cream/white) */
+  --text-gold-hover: #523B04;
+  --text-blue: #0D62A8;        /* WCAG AA accessible blue text (contrast > 5.5:1) */
+  --text-green: #1B6535;       /* WCAG AA accessible green text (contrast > 5.2:1) */
+  --text-red: #B82212;         /* WCAG AA accessible red text (contrast > 5.4:1) */
+  --gold-badge-text: #111111;  /* High contrast dark text on gold badge backgrounds (contrast 6.8:1) */
 
   /* Typography */
   --font-family-sans: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

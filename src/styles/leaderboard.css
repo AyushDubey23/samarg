@@ -43,17 +43,19 @@
 
 /* Row highlights */
 .player-row-highlight td {
-  background: rgba(46, 117, 72, 0.12) !important;
-  color: var(--chalk-white) !important;
-  border-bottom: 1px solid rgba(46, 117, 72, 0.3) !important;
+  background: rgba(46, 117, 72, 0.15) !important;
+  color: #111111 !important;
+  font-weight: 800;
+  border-bottom: 1.5px solid rgba(46, 117, 72, 0.4) !important;
 }
 
 .you-tag {
   background: var(--willow-tan);
-  color: var(--bg-dark);
+  color: #111111;
+  border: 1px solid #1E1E1E;
   font-size: 0.65rem;
-  font-weight: 800;
-  padding: 0.1rem 0.3rem;
+  font-weight: 900;
+  padding: 0.1rem 0.35rem;
   border-radius: 3px;
   vertical-align: middle;
   margin-left: 0.5rem;
@@ -61,11 +63,11 @@
 
 /* Badge tags */
 .perfect-trophy-badge {
-  background: var(--accent-gold-glow);
-  border: 1px solid var(--accent-gold);
-  color: var(--accent-gold);
+  background: rgba(108, 78, 5, 0.12);
+  border: 1.5px solid var(--text-gold);
+  color: var(--text-gold);
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 900;
   padding: 0.2rem 0.5rem;
   border-radius: var(--border-radius-sm);
   display: inline-block;

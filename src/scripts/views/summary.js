@@ -131,8 +131,8 @@ function renderSummaryLayout(container) {
 
             <div class="submit-form mt-2">
               <div class="form-group">
-                <label for="leaderboard-name-input" style="font-size: 0.85rem; font-weight:600; color: var(--chalk-white-dim);">Display Name</label>
-                <input type="text" id="leaderboard-name-input" class="name-input mt-1" value="${auth.currentUser.displayName || ""}" placeholder="Enter name for leaderboard..." style="width: 100%; padding: 0.75rem; border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border); background: var(--bg-dark); color: white;">
+                <label for="leaderboard-name-input" style="font-size: 0.85rem; font-weight:700; color: #111111;">Display Name</label>
+                <input type="text" id="leaderboard-name-input" class="name-input mt-1" value="${auth.currentUser.displayName || ""}" placeholder="Enter name for leaderboard..." style="width: 100%; padding: 0.75rem; border: 2px solid #1E1E1E; background: #FFFFFF; color: #111111; font-weight: 800; font-size: 0.95rem;">
               </div>
 
               <button id="submit-leaderboard-btn" class="btn btn-accent mt-2" style="width: 100%;">

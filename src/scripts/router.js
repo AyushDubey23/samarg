@@ -14,6 +14,8 @@ import { renderSummary } from "./views/summary.js";
 import { renderLeaderboard } from "./views/leaderboard.js";
 import { renderProfile } from "./views/profile.js";
 import { renderNotFound } from "./views/notFound.js";
+import { renderPrivacyPolicy, renderTermsConditions, renderCookiePolicy, renderCopyrightDisclaimer } from "./views/legal.js";
+import { initCookieConsentUI, openCookiePreferencesModal } from "./cookieConsent.js";
 
 const viewport = document.getElementById("app-viewport");
 
@@ -29,6 +31,10 @@ const routes = [
   { pattern: /^\/summary$/, handler: renderSummary },
   { pattern: /^\/leaderboard$/, handler: renderLeaderboard },
   { pattern: /^\/profile$/, handler: renderProfile },
+  { pattern: /^\/privacy$/, handler: renderPrivacyPolicy },
+  { pattern: /^\/terms$/, handler: renderTermsConditions },
+  { pattern: /^\/cookie-policy$/, handler: renderCookiePolicy },
+  { pattern: /^\/copyright$/, handler: renderCopyrightDisclaimer },
   { pattern: /^\/404$/, handler: renderNotFound }
 ];
 
@@ -109,6 +115,7 @@ function initApp() {
   hasResolvedInitialRoute = true;
   isAuthInitialized = true;
   resolveRoute();
+  initCookieConsentUI();
 }
 
 // Fallback safety timer: Ensure route is resolved within 1.5s even if auth response is delayed
@@ -137,8 +144,16 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// Global Share Button Handler
+// Global Share & Footer Preferences Handlers
 document.addEventListener("DOMContentLoaded", () => {
+  // Footer Cookie Preferences button handler
+  const cookieSettingsBtn = document.getElementById("footer-cookie-settings-btn");
+  if (cookieSettingsBtn) {
+    cookieSettingsBtn.addEventListener("click", () => {
+      openCookiePreferencesModal();
+    });
+  }
+
   const shareBtn = document.getElementById("share-game-btn");
   if (shareBtn) {
     shareBtn.addEventListener("click", async () => {

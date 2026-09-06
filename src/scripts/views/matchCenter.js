@@ -418,31 +418,31 @@ function renderGraph() {
   const i2PathStr = i2Points.map(p => `${mapX(p.over)},${mapY(p.runs)}`).join(" ");
 
   graphContainer.innerHTML = `
-    <svg viewBox="0 0 380 150" width="100%" height="150" style="background: var(--bg-medium); border-radius: var(--border-radius-sm); border: 1px solid var(--glass-border);">
+    <svg viewBox="0 0 380 150" width="100%" height="150" style="background: #FFFFFF; border: 2px solid #1E1E1E;">
       <!-- Grid -->
-      <line x1="40" y1="20" x2="360" y2="20" stroke="rgba(255,255,255,0.03)" />
-      <line x1="40" y1="75" x2="360" y2="75" stroke="rgba(255,255,255,0.03)" />
-      <line x1="40" y1="130" x2="360" y2="130" stroke="var(--glass-border)" stroke-width="1.5" />
-      <line x1="40" y1="20" x2="40" y2="130" stroke="var(--glass-border)" stroke-width="1.5" />
-      <line x1="360" y1="20" x2="360" y2="130" stroke="rgba(255,255,255,0.05)" />
+      <line x1="40" y1="20" x2="360" y2="20" stroke="#EAE4D6" stroke-width="1" stroke-dasharray="3" />
+      <line x1="40" y1="75" x2="360" y2="75" stroke="#EAE4D6" stroke-width="1" stroke-dasharray="3" />
+      <line x1="40" y1="130" x2="360" y2="130" stroke="#1E1E1E" stroke-width="1.5" />
+      <line x1="40" y1="20" x2="40" y2="130" stroke="#1E1E1E" stroke-width="1.5" />
+      <line x1="360" y1="20" x2="360" y2="130" stroke="#EAE4D6" stroke-width="1" />
 
       <!-- Y Axis Labels -->
-      <text x="32" y="24" fill="var(--chalk-white-dark)" font-size="9" text-anchor="end">${maxRuns}</text>
-      <text x="32" y="79" fill="var(--chalk-white-dark)" font-size="9" text-anchor="end">${Math.round(maxRuns / 2)}</text>
-      <text x="32" y="134" fill="var(--chalk-white-dark)" font-size="9" text-anchor="end">0</text>
+      <text x="32" y="24" fill="#111111" font-size="9" font-weight="700" text-anchor="end">${maxRuns}</text>
+      <text x="32" y="79" fill="#111111" font-size="9" font-weight="700" text-anchor="end">${Math.round(maxRuns / 2)}</text>
+      <text x="32" y="134" fill="#111111" font-size="9" font-weight="700" text-anchor="end">0</text>
 
       <!-- X Axis Labels -->
-      <text x="40" y="142" fill="var(--chalk-white-dark)" font-size="8" text-anchor="middle">0</text>
-      <text x="120" y="142" fill="var(--chalk-white-dark)" font-size="8" text-anchor="middle">5</text>
-      <text x="200" y="142" fill="var(--chalk-white-dark)" font-size="8" text-anchor="middle">10</text>
-      <text x="280" y="142" fill="var(--chalk-white-dark)" font-size="8" text-anchor="middle">15</text>
-      <text x="360" y="142" fill="var(--chalk-white-dark)" font-size="8" text-anchor="middle">20 ov</text>
+      <text x="40" y="142" fill="#111111" font-size="8" font-weight="700" text-anchor="middle">0</text>
+      <text x="120" y="142" fill="#111111" font-size="8" font-weight="700" text-anchor="middle">5</text>
+      <text x="200" y="142" fill="#111111" font-size="8" font-weight="700" text-anchor="middle">10</text>
+      <text x="280" y="142" fill="#111111" font-size="8" font-weight="700" text-anchor="middle">15</text>
+      <text x="360" y="142" fill="#111111" font-size="8" font-weight="700" text-anchor="middle">20 ov</text>
 
-      <!-- Innings 1 Path (Willow Tan / Darker Line) -->
-      <polyline fill="none" stroke="var(--willow-tan)" stroke-width="2.5" opacity="0.75" points="${i1PathStr}" />
+      <!-- Innings 1 Path (High Contrast Dark Gold Line) -->
+      <polyline fill="none" stroke="var(--text-gold)" stroke-width="2.5" opacity="1" points="${i1PathStr}" />
       
-      <!-- Innings 2 Path (Bright Green Line) -->
-      ${i2Points.length > 1 ? `<polyline fill="none" stroke="var(--primary)" stroke-width="3" points="${i2PathStr}" />` : ""}
+      <!-- Innings 2 Path (Bright Coral Line) -->
+      ${i2Points.length > 1 ? `<polyline fill="none" stroke="var(--primary-coral)" stroke-width="3" points="${i2PathStr}" />` : ""}
     </svg>
   `;
 }

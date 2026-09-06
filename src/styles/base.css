@@ -276,7 +276,7 @@ input::placeholder {
 }
 
 .career-stats-widget h3, .user-stats-card h3, .graph-card h3, .controls-card h3 {
-  color: #C89B3C !important;
+  color: var(--text-gold) !important;
   font-weight: 900 !important;
   font-size: 1.1rem !important;
 }

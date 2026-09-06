@@ -21,7 +21,7 @@
 
 .bh-vs {
   background: var(--willow-tan);
-  color: #FFFFFF;
+  color: #111111;
   font-size: 0.75rem;
   font-weight: 900;
   width: 28px;
@@ -76,7 +76,7 @@
   padding-top: 0.5rem;
   font-size: 0.9rem;
   font-weight: 800;
-  color: var(--willow-tan);
+  color: var(--text-gold);
 }
 
 /* Active batsman and bowler cards */
@@ -104,7 +104,7 @@
   font-size: 0.85rem;
   font-weight: 900;
   text-transform: uppercase;
-  color: #C89B3C;
+  color: var(--text-gold);
   margin-bottom: 0.5rem;
   border-bottom: 1.5px solid #1E1E1E;
   padding-bottom: 0.25rem;
@@ -199,7 +199,7 @@
   font-size: 0.85rem;
   font-weight: 900;
   text-transform: uppercase;
-  color: #C89B3C;
+  color: var(--text-gold);
   margin-bottom: 0.5rem;
 }
 
@@ -221,7 +221,7 @@
   font-size: 0.85rem;
   font-weight: 900;
   text-transform: uppercase;
-  color: #C89B3C;
+  color: var(--text-gold);
   margin-bottom: 0.5rem;
 }
 
