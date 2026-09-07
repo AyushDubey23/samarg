@@ -1,13 +1,13 @@
-# SAMARG - Cricket Draft & World Cup Simulator
+# 6a0 - Cricket Draft & World Cup Simulator
 
-SAMARG is a premium, browser-based cricket draft and World Cup simulator. It is a cricket-themed reinterpretation of the viral football game "7a0 (Sete a Zero)".
+6a0 is a premium, browser-based cricket draft and World Cup simulator. It is a cricket-themed reinterpretation of the viral football game "7a0 (Sete a Zero)".
 
 ## Product Concept
 
 1. **Scout & Draft**: The player drafts a Playing XI one cricketer at a time. Each "draw" pulls a random real national cricket squad from a specific historical tournament year (e.g., India 2011, Australia 2003, West Indies 1979). The player must select exactly one player from the squad to add to their XI into an open slot.
 2. **Squad Validation**: The Playing XI must satisfy cricket role balance: exactly 11 players, at least one wicketkeeper, and at least 5 recognized bowling options.
 3. **Simulate World Cup**: The player enters an 8-team round-robin league stage (7 rounds, each team plays all other teams once). Matches are simulated server-side ball-by-ball using a statistically grounded probabilistic engine driven by real historical statistics.
-4. **Go Undefeated (7-0)**: The player's goal is to go undefeated (7 wins, 0 losses) to claim the Samarg Cup trophy.
+4. **Go Undefeated (7-0)**: The player's goal is to go undefeated (7 wins, 0 losses) to claim the 6a0 Cup trophy.
 5. **Share Card**: At the end of matches, players can render and download a stylized match card (exported to a PNG via HTML5 Canvas) to share on social media.
 
 ---
@@ -27,7 +27,7 @@ SAMARG is a premium, browser-based cricket draft and World Cup simulator. It is 
 ## Directory Structure
 
 ```
-samarg/
+6a0/
 ├── package.json               # Root scripts & dependencies (Vite, Jest)
 ├── vite.config.js             # Vite compiler config
 ├── firebase.json              # Firebase settings & emulator configurations

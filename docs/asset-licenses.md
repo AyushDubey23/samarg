@@ -1,13 +1,13 @@
-# SAMARG Asset Licensing & Sources
+# 6a0 Asset Licensing & Sources
 
-To ensure compliance, SAMARG does not use scraped or copyrighted images, prose, or player photos. All assets are self-contained, lightweight SVGs or sourced from permissively licensed open-source packages.
+To ensure compliance, 6a0 does not use scraped or copyrighted images, prose, or player photos. All assets are self-contained, lightweight SVGs or sourced from permissively licensed open-source packages.
 
 ---
 
 ## 1. Player Silhouettes
 
 All player headshots and avatars are flat-color SVG silhouettes categorized by role (batter, bowler, wicketkeeper, all-rounder).
-- **Source**: Created in-house for the SAMARG project.
+- **Source**: Created in-house for the 6a0 project.
 - **License**: Creative Commons Zero (CC0) / Public Domain.
 
 ---

@@ -1,5 +1,5 @@
 /**
- * Custom 404 Not Found & Offline View for SAMARG (Cricket Draft & World Cup Simulator)
+ * Custom 404 Not Found & Offline View for 6a0 (Cricket Draft & World Cup Simulator)
  */
 
 export function renderNotFound(container, options = {}) {
@@ -65,7 +65,7 @@ export function renderNotFound(container, options = {}) {
 
         <p style="font-size: 0.95rem; color: #555555; font-weight: 600; margin-bottom: 2rem;">
           ${isOfflineMode 
-            ? 'You reloaded SAMARG while offline. Reconnect to internet to synchronize live draft lobbies and match simulations.' 
+            ? 'You reloaded 6a0 while offline. Reconnect to internet to synchronize live draft lobbies and match simulations.' 
             : 'The URL hash or page route you entered does not exist or has been removed from the tournament schedule.'}
         </p>
 

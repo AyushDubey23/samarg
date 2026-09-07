@@ -1,6 +1,6 @@
-# SAMARG Design System
+# 6a0 Design System
 
-This document outlines the visual guidelines, typography, grids, layout scales, and animations for SAMARG v2.
+This document outlines the visual guidelines, typography, grids, layout scales, and animations for 6a0 v2.
 
 ---
 

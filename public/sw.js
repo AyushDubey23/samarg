@@ -1,9 +1,9 @@
 /**
- * SAMARG Offline & 404 Service Worker
+ * 6a0 Offline & 404 Service Worker
  * Caches custom 404 error page and serves 404.html on offline reloads / network failures.
  */
 
-const CACHE_NAME = 'samarg-offline-v1';
+const CACHE_NAME = '6a0-offline-v1';
 const OFFLINE_URL = '/404.html';
 
 const ASSETS_TO_CACHE = [

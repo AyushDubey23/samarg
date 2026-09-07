@@ -1,6 +1,6 @@
 {
   "name": "functions",
-  "description": "Cloud Functions for SAMARG",
+  "description": "Cloud Functions for 6a0",
   "scripts": {
     "lint": "eslint .",
     "serve": "firebase emulators:start --only functions",

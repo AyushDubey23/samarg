@@ -24,92 +24,92 @@ const routes = [
   { 
     pattern: /^\/$/, 
     handler: renderLanding, 
-    title: "SAMARG — Free Cricket Draft Game & World Cup Simulator | Online Multiplayer",
-    description: "Play SAMARG, the premier free online cricket draft game and World Cup tournament simulator. Scout iconic international squads, draft your dream Playing XI, challenge friends in live multiplayer rooms, and simulate realistic ball-by-ball matches."
+    title: "6a0 — Free Cricket Draft Game & World Cup Simulator | Online Multiplayer",
+    description: "Play 6a0, the premier free online cricket draft game and World Cup tournament simulator. Scout iconic international squads, draft your dream Playing XI, challenge friends in live multiplayer rooms, and simulate realistic ball-by-ball matches."
   },
   { 
     pattern: /^\/draft$/, 
     handler: renderDraft, 
-    title: "Scout & Draft Playing XI | SAMARG Cricket Draft Game",
+    title: "Scout & Draft Playing XI | 6a0 Cricket Draft Game",
     description: "Scout authentic historical squads and draft your ultimate Playing XI with tactical roles for openers, middle-order batsmen, all-rounders, and bowlers."
   },
   { 
     pattern: /^\/room\/([^/]+)$/, 
     handler: (vp, code) => renderRoom(vp, code),
-    title: (param) => `Live Multiplayer Draft Room (${param || 'Active'}) | SAMARG Cricket`,
-    description: "Join a real-time multiplayer cricket draft room on SAMARG. Draft squads head-to-head with friends and simulate live cricket matches."
+    title: (param) => `Live Multiplayer Draft Room (${param || 'Active'}) | 6a0 Cricket`,
+    description: "Join a real-time multiplayer cricket draft room on 6a0. Draft squads head-to-head with friends and simulate live cricket matches."
   },
   { 
     pattern: /^\/squad$/, 
     handler: renderSquadReview, 
-    title: "Squad Review & Team Balance | SAMARG Cricket Draft",
+    title: "Squad Review & Team Balance | 6a0 Cricket Draft",
     description: "Review your Playing XI, inspect batting and bowling balance charts, assign captain & vice-captain, and finalize your roster for the tournament."
   },
   { 
     pattern: /^\/tournament$/, 
     handler: renderTournament, 
-    title: "World Cup Tournament Fixtures & Knockouts | SAMARG Cricket",
-    description: "Compete across tournament group stages, semi-finals, and finals in the SAMARG World Cup Cricket Simulator."
+    title: "World Cup Tournament Fixtures & Knockouts | 6a0 Cricket",
+    description: "Compete across tournament group stages, semi-finals, and finals in the 6a0 World Cup Cricket Simulator."
   },
   { 
     pattern: /^\/match\/([^/]+)$/, 
     handler: (vp, id) => renderMatchCenter(vp, id),
-    title: "Ball-by-Ball Match Center | SAMARG Cricket Simulator",
-    description: "Experience live ball-by-ball match simulation with real-time wagon wheels, run chases, and commentary in SAMARG."
+    title: "Ball-by-Ball Match Center | 6a0 Cricket Simulator",
+    description: "Experience live ball-by-ball match simulation with real-time wagon wheels, run chases, and commentary in 6a0."
   },
   { 
     pattern: /^\/result\/([^/]+)$/, 
     handler: (vp, id) => renderResultCard(vp, id),
-    title: "Match Result & Scorecard | SAMARG Cricket Simulator",
-    description: "View the official cricket match scorecard, player stats, and download the custom retro result card on SAMARG."
+    title: "Match Result & Scorecard | 6a0 Cricket Simulator",
+    description: "View the official cricket match scorecard, player stats, and download the custom retro result card on 6a0."
   },
   { 
     pattern: /^\/summary$/, 
     handler: renderSummary, 
-    title: "Campaign Summary & Trophy | SAMARG Cricket Simulator",
+    title: "Campaign Summary & Trophy | 6a0 Cricket Simulator",
     description: "Review your tournament campaign performance, trophies won, and submit your score to the global Hall of Fame."
   },
   { 
     pattern: /^\/leaderboard$/, 
     handler: renderLeaderboard, 
-    title: "Global Hall of Fame & Leaderboard | SAMARG Cricket Draft",
-    description: "See the top cricket managers and undefeated World Cup champions on the SAMARG global leaderboard."
+    title: "Global Hall of Fame & Leaderboard | 6a0 Cricket Draft",
+    description: "See the top cricket managers and undefeated World Cup champions on the 6a0 global leaderboard."
   },
   { 
     pattern: /^\/profile$/, 
     handler: renderProfile, 
-    title: "User Profile & Career Stats | SAMARG Cricket Draft",
-    description: "Track your total campaigns, trophy cabinet, perfect runs, and best net run rate on SAMARG Cricket Draft."
+    title: "User Profile & Career Stats | 6a0 Cricket Draft",
+    description: "Track your total campaigns, trophy cabinet, perfect runs, and best net run rate on 6a0 Cricket Draft."
   },
   { 
     pattern: /^\/privacy$/, 
     handler: renderPrivacyPolicy, 
-    title: "Privacy Policy | SAMARG Cricket Draft",
-    description: "Read the official Privacy Policy for SAMARG Cricket Draft, detailing data protection, anonymous session handling, and user rights."
+    title: "Privacy Policy | 6a0 Cricket Draft",
+    description: "Read the official Privacy Policy for 6a0 Cricket Draft, detailing data protection, anonymous session handling, and user rights."
   },
   { 
     pattern: /^\/terms$/, 
     handler: renderTermsConditions, 
-    title: "Terms of Service | SAMARG Cricket Draft",
-    description: "Review the Terms of Service and non-monetary simulation disclaimers for SAMARG Cricket Draft."
+    title: "Terms of Service | 6a0 Cricket Draft",
+    description: "Review the Terms of Service and non-monetary simulation disclaimers for 6a0 Cricket Draft."
   },
   { 
     pattern: /^\/cookie-policy$/, 
     handler: renderCookiePolicy, 
-    title: "Cookie Policy & Tracking Preferences | SAMARG Cricket",
-    description: "Understand how SAMARG uses essential cookies and manage your analytical tracking preferences."
+    title: "Cookie Policy & Tracking Preferences | 6a0 Cricket",
+    description: "Understand how 6a0 uses essential cookies and manage your analytical tracking preferences."
   },
   { 
     pattern: /^\/copyright$/, 
     handler: renderCopyrightDisclaimer, 
-    title: "Copyright Notice & Fair Use Disclaimers | SAMARG Cricket",
-    description: "Review copyright notices, nominative fair use disclaimers, open-source attributions, and DMCA contact details for SAMARG."
+    title: "Copyright Notice & Fair Use Disclaimers | 6a0 Cricket",
+    description: "Review copyright notices, nominative fair use disclaimers, open-source attributions, and DMCA contact details for 6a0."
   },
   { 
     pattern: /^\/404$/, 
     handler: renderNotFound, 
-    title: "Page Not Found (404) | SAMARG Cricket Draft",
-    description: "The requested cricket pitch or match could not be found. Return to SAMARG Cricket Home."
+    title: "Page Not Found (404) | 6a0 Cricket Draft",
+    description: "The requested cricket pitch or match could not be found. Return to 6a0 Cricket Home."
   }
 ];
 
@@ -132,7 +132,7 @@ function updateRouteSEO(title, description, path) {
   }
   const canonical = document.querySelector('link[rel="canonical"]');
   if (canonical) {
-    const base = window.location.origin || "https://samarg-7be68.web.app";
+    const base = window.location.origin || "https://6a0.vercel.app";
     canonical.setAttribute("href", `${base}/#${path}`);
   }
 }
@@ -143,7 +143,7 @@ let isAuthInitialized = true;
 function resolveRoute() {
   if (!navigator.onLine) {
     viewport.innerHTML = "";
-    updateRouteSEO("Offline | SAMARG Cricket", "You are currently offline. Connect to the internet to resume draft and match simulation.", "/offline");
+    updateRouteSEO("Offline | 6a0 Cricket", "You are currently offline. Connect to the internet to resume draft and match simulation.", "/offline");
     renderNotFound(viewport, { isOffline: true });
     return;
   }
@@ -167,7 +167,7 @@ function resolveRoute() {
   }
 
   // Fallback to 404 view if route not found
-  updateRouteSEO("Page Not Found (404) | SAMARG Cricket Draft", "The requested cricket pitch could not be found.", "/404");
+  updateRouteSEO("Page Not Found (404) | 6a0 Cricket Draft", "The requested cricket pitch could not be found.", "/404");
   viewport.innerHTML = "";
   renderNotFound(viewport);
 }
@@ -264,8 +264,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (shareBtn) {
     shareBtn.addEventListener("click", async () => {
       const shareData = {
-        title: "SAMARG — Cricket Draft & World Cup Simulator",
-        text: "Draft legendary World Cup cricket XI and simulate ball-by-ball matches in SAMARG!",
+        title: "6a0 — Cricket Draft & World Cup Simulator",
+        text: "Draft legendary World Cup cricket XI and simulate ball-by-ball matches in 6a0!",
         url: window.location.href.includes("#/room/") ? window.location.href : window.location.origin
       };
       if (navigator.share) {

@@ -68,7 +68,7 @@ function renderLeaderboardLayout(container, entries) {
                     <td class="font-mono">${entry.nrr > 0 ? "+" : ""}${entry.nrr.toFixed(3)}</td>
                     <td style="text-align: right;">
                       ${isPerfect ? `
-                        <span class="perfect-trophy-badge">👑 Samarg Run</span>
+                        <span class="perfect-trophy-badge">👑 6a0 Run</span>
                       ` : `
                         <span class="active-trophy-badge" style="background: var(--bg-light); color: var(--chalk-white-dim);">Completed</span>
                       `}

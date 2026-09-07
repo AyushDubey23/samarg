@@ -54,7 +54,7 @@ export async function renderLanding(container) {
   container.innerHTML = `
     <div class="landing-hero">
       <div class="hero-content">
-        <h1>SAMARG</h1>
+        <h1>6a0</h1>
         <p class="hero-sub">
           Draft cricket legends from real World Cups. Race your friends to a perfect undefeated campaign!
         </p>

@@ -1,5 +1,5 @@
 /**
- * Position Rules & Formatting Helper for SAMARG Cricket Draft
+ * Position Rules & Formatting Helper for 6a0 Cricket Draft
  * Enforces batting order eligibility and Wicketkeeper constraints.
  */
 

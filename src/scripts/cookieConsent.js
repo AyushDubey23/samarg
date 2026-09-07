@@ -1,12 +1,12 @@
 /**
- * SAMARG Cookie Consent & Tracing Control Manager
+ * 6a0 Cookie Consent & Tracing Control Manager
  * Handles ePrivacy / GDPR compliant cookie consent, preferences management,
  * and guarded initialization of third-party analytics / tracing.
  */
 
 import { app } from "./firebaseInit.js";
 
-const CONSENT_STORAGE_KEY = "samarg_cookie_consent_v1";
+const CONSENT_STORAGE_KEY = "6a0_cookie_consent_v1";
 
 let analyticsInstance = null;
 
@@ -50,7 +50,7 @@ export function saveCookieConsent(preferences) {
   }
 
   // Dispatch global event for listeners across views
-  window.dispatchEvent(new CustomEvent("samarg:cookie-consent-updated", { detail: consentRecord }));
+  window.dispatchEvent(new CustomEvent("6a0:cookie-consent-updated", { detail: consentRecord }));
 
   // Handle analytics tracing based on user choice
   if (consentRecord.analytics) {
@@ -123,7 +123,7 @@ export function showCookieBanner() {
           <strong>COOKIE & PRIVACY NOTICE</strong>
         </div>
         <p>
-          SAMARG uses essential cookies and local storage to preserve your anonymous player session, draft state, and real-time multiplayer room connections. We also request optional analytical cookies to help us improve simulator match engine performance and draft balance.
+          6a0 uses essential cookies and local storage to preserve your anonymous player session, draft state, and real-time multiplayer room connections. We also request optional analytical cookies to help us improve simulator match engine performance and draft balance.
           <a href="#/cookie-policy" class="cookie-policy-link">Learn more in our Cookie Policy</a>.
         </p>
       </div>
@@ -193,7 +193,7 @@ export function openCookiePreferencesModal() {
       </div>
 
       <p class="cookie-modal-intro">
-        Customize which categories of storage and cookies you allow SAMARG XI to use. You can revisit and change these settings anytime via the "Cookie Settings" link in the footer.
+        Customize which categories of storage and cookies you allow 6a0 to use. You can revisit and change these settings anytime via the "Cookie Settings" link in the footer.
       </p>
 
       <div class="cookie-options-list">
@@ -206,7 +206,7 @@ export function openCookiePreferencesModal() {
             </div>
           </div>
           <p class="cookie-option-desc">
-            Required for the core functionality of SAMARG: preserving anonymous player authentication tokens, maintaining active World Cup drafts, storing tournament bracket progression, and managing real-time multiplayer websocket connections.
+            Required for the core functionality of 6a0: preserving anonymous player authentication tokens, maintaining active World Cup drafts, storing tournament bracket progression, and managing real-time multiplayer websocket connections.
           </p>
         </div>
 

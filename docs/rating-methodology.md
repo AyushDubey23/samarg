@@ -1,4 +1,4 @@
-# SAMARG v2 Rating Normalization & Chemistry Methodology
+# 6a0 v2 Rating Normalization & Chemistry Methodology
 
 This document outlines the formulas and guidelines used to compute the composite gameplay ratings, hidden behavior attributes, and dynamic partnership chemistry modifiers.
 

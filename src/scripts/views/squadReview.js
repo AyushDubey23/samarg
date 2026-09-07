@@ -62,7 +62,7 @@ export async function renderSquadReview(container) {
     <div class="squad-review-container">
       <div class="sr-header text-center">
         <h2>Playing XI Lineup</h2>
-        <p>Review your squad composition and team attributes before entering the Samarg Cup.</p>
+        <p>Review your squad composition and team attributes before entering the 6a0 Cup.</p>
       </div>
 
       <div class="sr-layout-grid mt-4">
@@ -134,7 +134,7 @@ export async function renderSquadReview(container) {
                 <span>✓ All selection requirements satisfied! Ready to enter tournament.</span>
               </div>
               <button id="start-wc-btn" class="btn btn-primary btn-lg mt-2" style="width:100%;">
-                Enter Samarg World Cup
+                Enter 6a0 World Cup
               </button>
             ` : `
               <div class="validation-error-alert">
@@ -173,6 +173,6 @@ async function startWorldCup() {
     console.error("Tournament finalization failed:", err);
     showToast("Setup failed: " + err.message, true);
     btn.disabled = false;
-    btn.innerText = "Enter Samarg World Cup";
+    btn.innerText = "Enter 6a0 World Cup";
   }
 }

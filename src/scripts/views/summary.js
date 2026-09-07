@@ -64,7 +64,7 @@ function renderSummaryLayout(container) {
       <div class="summary-card-hero text-center">
         ${isPerfect ? `
           <div class="trophy-seal" style="font-size: 4.5rem; animation: pulse 2s infinite;">🏆</div>
-          <h1 class="text-gold" style="font-size: 2.2rem; font-weight: 800;">PERFECT SAMARG RUN!</h1>
+          <h1 class="text-gold" style="font-size: 2.2rem; font-weight: 800;">PERFECT 6a0 RUN!</h1>
           <p class="summary-subtitle">7 Matches Played. 7 Wins. 0 Losses. Undefeated Greatness!</p>
         ` : `
           <div class="trophy-seal" style="font-size: 4rem;">🏏</div>

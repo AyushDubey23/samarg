@@ -497,8 +497,8 @@ function renderLobby(viewport, roomCode, room) {
     copyBtn.addEventListener("click", async () => {
       const link = `${window.location.origin}/#/room/${roomCode}`;
       const shareData = {
-        title: "SAMARG Cricket Draft Room",
-        text: `Join my SAMARG Cricket Draft room! Room Code: ${roomCode}`,
+        title: "6a0 Cricket Draft Room",
+        text: `Join my 6a0 Cricket Draft room! Room Code: ${roomCode}`,
         url: link
       };
       if (navigator.share) {
@@ -3357,7 +3357,7 @@ function startCinematicHighlightLoop(rawMatches, rawStandings = [], currentUid =
           <div id="final-winning-scorecard-card" style="background: #FAF6ED; border: 3.5px solid #1E1E1E; padding: 1.25rem 0.65rem; max-width: 580px; width: 100%; margin: 0 auto 1.5rem auto; box-shadow: 6px 6px 0px #1E1E1E; font-family: var(--font-family); color: #111111; text-align: center; border-radius: 0px; position: relative; box-sizing: border-box; overflow: hidden;">
             <!-- Header row -->
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #1E1E1E; padding-bottom: 0.65rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-              <span style="font-weight: 900; font-size: clamp(1rem, 4vw, 1.2rem); letter-spacing: 0.05em; font-family: var(--font-family-mono); color: #111111;">SAMARG XI</span>
+              <span style="font-weight: 900; font-size: clamp(1rem, 4vw, 1.2rem); letter-spacing: 0.05em; font-family: var(--font-family-mono); color: #111111;">6a0</span>
               <span style="font-size: clamp(0.65rem, 2.5vw, 0.75rem); font-weight: 900; text-transform: uppercase; color: #444444; letter-spacing: 0.05em;">WORLD CUP FINAL • ROOM ${roomCode}</span>
             </div>
 
@@ -3463,7 +3463,7 @@ function startCinematicHighlightLoop(rawMatches, rawStandings = [], currentUid =
 
             <!-- Card Footer -->
             <div style="border-top: 2px solid #1E1E1E; margin-top: 1.25rem; padding-top: 0.6rem; font-size: 0.75rem; font-weight: 900; color: #444444; letter-spacing: 0.05em;">
-              samarg.vercel.app • build your squad
+              6a0.vercel.app • build your squad
             </div>
           </div>
 
@@ -3539,8 +3539,8 @@ function startCinematicHighlightLoop(rawMatches, rawStandings = [], currentUid =
               shareImgBtn.disabled = true;
               shareImgBtn.innerText = "⏳ Preparing Scorecard Image...";
               const cardEl = document.getElementById("final-winning-scorecard-card");
-              const shareUrl = "https://samarg.vercel.app/";
-              const shareNote = `🏆 SAMARG T20 WORLD CUP FINAL SCORECARD 🏆\n★ CHAMPION: ${championName.toUpperCase()}\nRoom Code: ${roomCode}\n\n${teamAName}: ${teamARuns}/${teamAWickets}\n${teamBName}: ${teamBRuns}/${teamBWickets}\n\nBuild your squad & play live:\n${shareUrl}`;
+              const shareUrl = "https://6a0.vercel.app/";
+              const shareNote = `🏆 6a0 T20 WORLD CUP FINAL SCORECARD 🏆\n★ CHAMPION: ${championName.toUpperCase()}\nRoom Code: ${roomCode}\n\n${teamAName}: ${teamARuns}/${teamAWickets}\n${teamBName}: ${teamBRuns}/${teamBWickets}\n\nBuild your squad & play live:\n${shareUrl}`;
 
               if (!cardEl) {
                 showToast("Scorecard element not found", true);
@@ -3555,12 +3555,12 @@ function startCinematicHighlightLoop(rawMatches, rawStandings = [], currentUid =
                   return;
                 }
 
-                const file = new File([blob], `samarg_scorecard_${roomCode}.png`, { type: "image/png" });
+                const file = new File([blob], `6a0_scorecard_${roomCode}.png`, { type: "image/png" });
 
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                   try {
                     await navigator.share({
-                      title: "SAMARG T20 World Cup Scorecard",
+                      title: "6a0 T20 World Cup Scorecard",
                       text: shareNote,
                       files: [file]
                     });
@@ -3574,7 +3574,7 @@ function startCinematicHighlightLoop(rawMatches, rawStandings = [], currentUid =
                 if (navigator.share) {
                   try {
                     await navigator.share({
-                      title: "SAMARG T20 World Cup Scorecard",
+                      title: "6a0 T20 World Cup Scorecard",
                       text: shareNote,
                       url: shareUrl
                     });

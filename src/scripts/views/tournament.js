@@ -67,7 +67,7 @@ function renderTournamentLayout(container) {
   container.innerHTML = `
     <div class="tournament-hub">
       <div class="hub-header">
-        <h2>Samarg World Cup Hub</h2>
+        <h2>6a0 World Cup Hub</h2>
         <p>Round-Robin Stage &bull; Round ${Math.min(7, currentRound)} of 7</p>
       </div>
 
@@ -111,7 +111,7 @@ function renderTournamentLayout(container) {
               </tbody>
             </table>
           </div>
-          <p class="standings-sub mt-1">Top of the table wins the Samarg Cup after 7 rounds.</p>
+          <p class="standings-sub mt-1">Top of the table wins the 6a0 Cup after 7 rounds.</p>
         </div>
 
         <!-- Fixtures Column -->

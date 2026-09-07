@@ -1,5 +1,5 @@
 /**
- * SAMARG Legal Views
+ * 6a0 Legal Views
  * Renders dedicated pages for:
  * - Privacy Policy (#/privacy)
  * - Terms & Conditions (#/terms)
@@ -40,7 +40,7 @@ export function renderPrivacyPolicy(viewport) {
         <section class="legal-section">
           <h2>1. Introduction & Overview</h2>
           <p>
-            Welcome to <strong>SAMARG XI</strong> ("SAMARG", "we", "our", or "us"). We operate the cricket draft strategy game and ball-by-ball World Cup simulation platform at this web application. We value your personal privacy and are committed to safeguarding any data processed while you draft teams, compete in tournaments, or host multiplayer lobbies.
+            Welcome to <strong>6a0</strong> ("we", "our", or "us"). We operate the cricket draft strategy game and ball-by-ball World Cup simulation platform at this web application. We value your personal privacy and are committed to safeguarding any data processed while you draft teams, compete in tournaments, or host multiplayer lobbies.
           </p>
           <p>
             This Privacy Policy explains how information is collected, used, disclosed, and secured when you use our web application, as well as your statutory rights under data protection laws including the General Data Protection Regulation (GDPR) and the California Consumer Privacy Act (CCPA).
@@ -89,7 +89,7 @@ export function renderPrivacyPolicy(viewport) {
           <h2>5. Database Security & Client Access Policy</h2>
           <div class="legal-callout-box">
             <strong>Defensive Security Commitment:</strong>
-            SAMARG enforces strict database security rules. Direct arbitrary reading or writing to our root databases is forbidden. Access to real-time room lobbies is restricted strictly to authenticated sessions, and critical match calculations and leaderboard writes are executed authoritatively via server-side Cloud Functions or isolated administrative rules.
+            6a0 enforces strict database security rules. Direct arbitrary reading or writing to our root databases is forbidden. Access to real-time room lobbies is restricted strictly to authenticated sessions, and critical match calculations and leaderboard writes are executed authoritatively via server-side Cloud Functions or isolated administrative rules.
           </div>
         </section>
 
@@ -109,9 +109,9 @@ export function renderPrivacyPolicy(viewport) {
             For privacy inquiries, data deletion requests, or questions regarding our data practices, please contact our Data Protection Officer:
           </p>
           <p>
-            <strong>SAMARG Engineering Team</strong><br>
-            Email: <a href="mailto:privacy@samarg-cricket.app">privacy@samarg-cricket.app</a><br>
-            Project Repository: <a href="https://github.com/AyushDubey23/samarg" target="_blank" rel="noopener noreferrer">github.com/AyushDubey23/samarg</a>
+            <strong>6a0 Engineering Team</strong><br>
+            Email: <a href="mailto:privacy@6a0.vercel.app">privacy@6a0.vercel.app</a><br>
+            Project Repository: <a href="https://github.com/AyushDubey23/6a0" target="_blank" rel="noopener noreferrer">github.com/AyushDubey23/6a0</a>
           </p>
         </section>
       </div>
@@ -141,7 +141,7 @@ export function renderTermsConditions(viewport) {
         <section class="legal-section">
           <h2>1. Agreement to Terms</h2>
           <p>
-            By accessing or playing <strong>SAMARG XI</strong> (including the drafting tool, tournament simulator, multiplayer lobbies, and leaderboard services), you confirm that you have read, understood, and agreed to be bound by these Terms and Conditions ("Terms"). If you do not agree with any part of these Terms, you must discontinue use immediately.
+            By accessing or playing <strong>6a0</strong> (including the drafting tool, tournament simulator, multiplayer lobbies, and leaderboard services), you confirm that you have read, understood, and agreed to be bound by these Terms and Conditions ("Terms"). If you do not agree with any part of these Terms, you must discontinue use immediately.
           </p>
         </section>
 
@@ -149,10 +149,10 @@ export function renderTermsConditions(viewport) {
           <h2>2. Non-Gambling & Free-to-Play Disclaimer</h2>
           <div class="legal-callout-box">
             <strong>CRITICAL LEGAL NOTICE: FREE STRATEGY SIMULATION ONLY</strong><br>
-            SAMARG XI is strictly a free-to-play sports strategy drafting game and statistical simulation tool built for entertainment, analytical study, and cricket fan engagement.
+            6a0 is strictly a free-to-play sports strategy drafting game and statistical simulation tool built for entertainment, analytical study, and cricket fan engagement.
             <ul>
               <li><strong>NO REAL MONEY:</strong> There are no deposits, wagers, real-money transactions, paid loot boxes, cash prizes, or monetary payouts of any kind.</li>
-              <li><strong>NO BETTING:</strong> SAMARG XI does not provide, facilitate, or endorse sports betting, gambling, or fantasy wagering. Any in-game "points," "coins," or "trophies" possess zero monetary or real-world cash value.</li>
+              <li><strong>NO BETTING:</strong> 6a0 does not provide, facilitate, or endorse sports betting, gambling, or fantasy wagering. Any in-game "points," "coins," or "trophies" possess zero monetary or real-world cash value.</li>
             </ul>
           </div>
         </section>
@@ -174,28 +174,28 @@ export function renderTermsConditions(viewport) {
         <section class="legal-section">
           <h2>4. Multiplayer Room Codes & Passwords</h2>
           <p>
-            When you create a multiplayer room, you are assigned a 6-character room code. If you choose to configure a room password, it is your responsibility to safeguard it. SAMARG is not liable for unauthorized access resulting from room codes or passwords shared publicly by players on streaming or social channels.
+            When you create a multiplayer room, you are assigned a 6-character room code. If you choose to configure a room password, it is your responsibility to safeguard it. 6a0 is not liable for unauthorized access resulting from room codes or passwords shared publicly by players on streaming or social channels.
           </p>
         </section>
 
         <section class="legal-section">
           <h2>5. Intellectual Property Rights</h2>
           <p>
-            All original code, algorithms, physics calculations, mathematical probability models, visual design, custom graphics, and retro UI design systems comprising SAMARG XI are the proprietary intellectual property of the SAMARG project and its contributors. All rights are reserved under applicable international copyright laws.
+            All original code, algorithms, physics calculations, mathematical probability models, visual design, custom graphics, and retro UI design systems comprising 6a0 are the proprietary intellectual property of the 6a0 project and its contributors. All rights are reserved under applicable international copyright laws.
           </p>
         </section>
 
         <section class="legal-section">
           <h2>6. Disclaimer of Warranties</h2>
           <p>
-            SAMARG XI IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR UNINTERRUPTED OPERATION. WE DO NOT GUARANTEE THAT MULTIPLAYER DRAFT SESSIONS OR MATCH CALCULATIONS WILL BE 100% ERROR-FREE OR IMMUNE TO NETWORK DISCONNECTIONS.
+            6a0 IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR UNINTERRUPTED OPERATION. WE DO NOT GUARANTEE THAT MULTIPLAYER DRAFT SESSIONS OR MATCH CALCULATIONS WILL BE 100% ERROR-FREE OR IMMUNE TO NETWORK DISCONNECTIONS.
           </p>
         </section>
 
         <section class="legal-section">
           <h2>7. Limitation of Liability</h2>
           <p>
-            TO THE MAXIMUM EXTENT PERMITTED BY LAW, SAMARG AND ITS DEVELOPERS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF YOUR ACCESS TO, USE OF, OR INABILITY TO ACCESS THE GAME, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+            TO THE MAXIMUM EXTENT PERMITTED BY LAW, 6a0 AND ITS DEVELOPERS SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF YOUR ACCESS TO, USE OF, OR INABILITY TO ACCESS THE GAME, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
           </p>
         </section>
 
@@ -235,7 +235,7 @@ export function renderCookiePolicy(viewport) {
             Cookies are small text files placed on your computer or mobile device by websites that you visit. Web storage technologies, including <code>localStorage</code> and <code>sessionStorage</code>, are modern browser standards that allow web applications to store data securely on your client machine without transmitting it over every HTTP request header.
           </p>
           <p>
-            SAMARG XI relies primarily on standard browser <code>localStorage</code> and minimal essential cookies to keep you logged in and ensure continuous multiplayer gameplay.
+            6a0 relies primarily on standard browser <code>localStorage</code> and minimal essential cookies to keep you logged in and ensure continuous multiplayer gameplay.
           </p>
         </section>
 
@@ -248,7 +248,7 @@ export function renderCookiePolicy(viewport) {
               <span class="cookie-status-badge required">Essential</span>
             </div>
             <p class="cookie-option-desc">
-              These items are technically required for SAMARG to operate. They cannot be turned off because without them, core game features like drafting and multiplayer synchronization would break.
+              These items are technically required for 6a0 to operate. They cannot be turned off because without them, core game features like drafting and multiplayer synchronization would break.
             </p>
             <table style="width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.85rem;">
               <thead>
@@ -261,8 +261,8 @@ export function renderCookiePolicy(viewport) {
               </thead>
               <tbody>
                 <tr style="border-bottom: 1px solid #1E1E1E;">
-                  <td style="padding: 6px 10px; font-family: var(--font-family-mono); font-weight: 700;">samarg_cookie_consent_v1</td>
-                  <td style="padding: 6px 10px;">SAMARG</td>
+                  <td style="padding: 6px 10px; font-family: var(--font-family-mono); font-weight: 700;">6a0_cookie_consent_v1</td>
+                  <td style="padding: 6px 10px;">6a0</td>
                   <td style="padding: 6px 10px;">Stores your cookie & privacy preferences so the banner doesn't repeatedly ask.</td>
                   <td style="padding: 6px 10px;">1 Year</td>
                 </tr>
@@ -273,8 +273,8 @@ export function renderCookiePolicy(viewport) {
                   <td style="padding: 6px 10px;">Persistent</td>
                 </tr>
                 <tr style="border-bottom: 1px solid #1E1E1E;">
-                  <td style="padding: 6px 10px; font-family: var(--font-family-mono); font-weight: 700;">samarg_active_draft</td>
-                  <td style="padding: 6px 10px;">SAMARG</td>
+                  <td style="padding: 6px 10px; font-family: var(--font-family-mono); font-weight: 700;">6a0_active_draft</td>
+                  <td style="padding: 6px 10px;">6a0</td>
                   <td style="padding: 6px 10px;">Safeguards your drafted XI squad buffer locally in case of sudden network disconnection.</td>
                   <td style="padding: 6px 10px;">Session</td>
                 </tr>
@@ -314,7 +314,7 @@ export function renderCookiePolicy(viewport) {
         <section class="legal-section">
           <h2>3. Managing Your Cookie Choices</h2>
           <p>
-            You have full control over non-essential cookies. You can grant, customize, or revoke your consent at any time directly through SAMARG using the control below:
+            You have full control over non-essential cookies. You can grant, customize, or revoke your consent at any time directly through 6a0 using the control below:
           </p>
           <div style="margin: 1.5rem 0;">
             <button id="legal-open-cookie-modal-btn" class="btn btn-accent">
@@ -357,17 +357,17 @@ export function renderCopyrightDisclaimer(viewport) {
           <span class="legal-badge">Fair Use & Disclaimers</span>
         </div>
         <h1 class="legal-title">Copyright Notice & Legal Disclaimers</h1>
-        <div class="legal-last-updated">&copy; 2026 SAMARG Cricket Project &bull; All Rights Reserved</div>
+        <div class="legal-last-updated">&copy; 2026 6a0 Cricket Project &bull; All Rights Reserved</div>
       </header>
 
       <div class="legal-body">
         <section class="legal-section">
           <h2>1. Copyright Notice</h2>
           <p>
-            &copy; 2026 <strong>SAMARG Cricket Simulator</strong>. All rights reserved.
+            &copy; 2026 <strong>6a0 Cricket Simulator</strong>. All rights reserved.
           </p>
           <p>
-            The software, source code, interactive architecture, simulation probability formulas, ball-by-ball commentary engines, visual layouts, retro styling themes, and UI elements comprising SAMARG XI are the proprietary property of the SAMARG development project. Unauthorized reproduction, modification, decompilation, public redistribution, or commercial resale of the software without express written permission is strictly prohibited.
+            The software, source code, interactive architecture, simulation probability formulas, ball-by-ball commentary engines, visual layouts, retro styling themes, and UI elements comprising 6a0 are the proprietary property of the 6a0 development project. Unauthorized reproduction, modification, decompilation, public redistribution, or commercial resale of the software without express written permission is strictly prohibited.
           </p>
         </section>
 
@@ -375,11 +375,11 @@ export function renderCopyrightDisclaimer(viewport) {
           <h2>2. Cricket Player Likeness & Nominative Fair Use Disclaimer</h2>
           <div class="legal-callout-box">
             <strong>FAIR USE & HISTORICAL CRICKET STATISTICAL DATA</strong><br>
-            SAMARG XI includes references to real-world international cricket players, historic national teams, batting/bowling statistics, and World Cup tournament records solely for historical accuracy, statistical simulation, and educational commentary.
+            6a0 includes references to real-world international cricket players, historic national teams, batting/bowling statistics, and World Cup tournament records solely for historical accuracy, statistical simulation, and educational commentary.
             <ul>
-              <li><strong>NON-AFFILIATION:</strong> SAMARG XI is an independent simulation project. It is <strong>NOT</strong> affiliated with, endorsed by, sponsored by, or associated with the International Cricket Council (ICC), the Board of Control for Cricket in India (BCCI), England and Wales Cricket Board (ECB), Cricket Australia, Cricket South Africa, Pakistan Cricket Board (PCB), or any national cricket governing body, commercial league (such as the IPL, BBL, or PSL), or player franchise.</li>
+              <li><strong>NON-AFFILIATION:</strong> 6a0 is an independent simulation project. It is <strong>NOT</strong> affiliated with, endorsed by, sponsored by, or associated with the International Cricket Council (ICC), the Board of Control for Cricket in India (BCCI), England and Wales Cricket Board (ECB), Cricket Australia, Cricket South Africa, Pakistan Cricket Board (PCB), or any national cricket governing body, commercial league (such as the IPL, BBL, or PSL), or player franchise.</li>
               <li><strong>STATISTICAL HISTORICAL FACTS:</strong> Player names, historical career averages, strike rates, economy rates, and past World Cup match dates represent factual historical sports records protected under nominative fair use principles in copyright and trademark law.</li>
-              <li><strong>NO ENDORSEMENT:</strong> The inclusion of any player's name or historical record does not imply endorsement, authorization, or sponsorship of SAMARG XI by that individual or team.</li>
+              <li><strong>NO ENDORSEMENT:</strong> The inclusion of any player's name or historical record does not imply endorsement, authorization, or sponsorship of 6a0 by that individual or team.</li>
             </ul>
           </div>
         </section>
@@ -387,7 +387,7 @@ export function renderCopyrightDisclaimer(viewport) {
         <section class="legal-section">
           <h2>3. Open Source Software Licenses & Attributions</h2>
           <p>
-            SAMARG XI is proudly built using premier open-source technologies. We gratefully acknowledge the creators and maintainers of the following software libraries:
+            6a0 is proudly built using premier open-source technologies. We gratefully acknowledge the creators and maintainers of the following software libraries:
           </p>
           <ul>
             <li><strong>Firebase SDK:</strong> Apache License 2.0 &bull; Developed by Google LLC.</li>
@@ -406,7 +406,7 @@ export function renderCopyrightDisclaimer(viewport) {
         <section class="legal-section">
           <h2>4. DMCA / Copyright Infringement Takedown Notice</h2>
           <p>
-            SAMARG respects the intellectual property rights of others and complies with the provisions of the Digital Millennium Copyright Act (17 U.S.C. &sect; 512). If you believe in good faith that any content hosted on this application infringes upon your copyright or trademark, please transmit a formal written notice containing the following details to our Designated Agent:
+            6a0 respects the intellectual property rights of others and complies with the provisions of the Digital Millennium Copyright Act (17 U.S.C. &sect; 512). If you believe in good faith that any content hosted on this application infringes upon your copyright or trademark, please transmit a formal written notice containing the following details to our Designated Agent:
           </p>
           <ol>
             <li>Identification of the copyrighted work claimed to have been infringed, or a representative list if multiple works are involved.</li>
@@ -418,8 +418,8 @@ export function renderCopyrightDisclaimer(viewport) {
           </ol>
           <p>
             Please send copyright infringement notices to:<br>
-            <strong>SAMARG Copyright Agent</strong><br>
-            Email: <a href="mailto:copyright@samarg-cricket.app">copyright@samarg-cricket.app</a><br>
+            <strong>6a0 Copyright Agent</strong><br>
+            Email: <a href="mailto:copyright@6a0.vercel.app">copyright@6a0.vercel.app</a><br>
             Subject: <em>DMCA Copyright Takedown Request</em>
           </p>
         </section>

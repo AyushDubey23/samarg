@@ -180,7 +180,7 @@ function drawShareCard() {
   ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
   ctx.font = "800 24px 'Inter', sans-serif";
   ctx.letterSpacing = "6px";
-  ctx.fillText("SAMARG XI", 40, 60);
+  ctx.fillText("6a0", 40, 60);
 
   ctx.fillStyle = "#b89d70"; // Willow tan light
   ctx.font = "600 12px 'Inter', sans-serif";
@@ -238,7 +238,7 @@ function drawShareCard() {
   ctx.textAlign = "right";
   ctx.fillStyle = "rgba(255,255,255,0.15)";
   ctx.font = "600 11px 'Inter', sans-serif";
-  ctx.fillText("SAMARG.WEB.APP", 560, 362);
+  ctx.fillText("6A0.VERCEL.APP", 560, 362);
 }
 
 function downloadShareCard() {
@@ -247,7 +247,7 @@ function downloadShareCard() {
 
   const url = canvas.toDataURL("image/png");
   const link = document.createElement("a");
-  link.download = `samarg_match_${Date.now()}.png`;
+  link.download = `6a0_match_${Date.now()}.png`;
   link.href = url;
   link.click();
 }
