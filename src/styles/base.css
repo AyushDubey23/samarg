@@ -80,7 +80,7 @@ a:hover {
   border-bottom: 2px solid var(--border-dark);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
   padding: 0.85rem 2rem;
   display: flex;
   justify-content: space-between;

@@ -148,6 +148,14 @@ function resolveRoute() {
     return;
   }
 
+  // Ensure header info dropdown is closed upon route change
+  const infoDropdown = document.getElementById("header-info-dropdown");
+  const infoBtn = document.getElementById("header-info-btn");
+  if (infoDropdown && !infoDropdown.hasAttribute("hidden")) {
+    infoDropdown.setAttribute("hidden", "");
+    if (infoBtn) infoBtn.setAttribute("aria-expanded", "false");
+  }
+
   const hash = window.location.hash || "#/";
   const path = hash.slice(1); // Strip the leading '#'
 
@@ -250,8 +258,68 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// Global Share & Footer Preferences Handlers
+// Header Info & Developer Links Dropdown
+function setupHeaderInfoDropdown() {
+  const infoBtn = document.getElementById("header-info-btn");
+  const infoDropdown = document.getElementById("header-info-dropdown");
+  const closeInfoBtn = document.getElementById("close-info-dropdown-btn");
+
+  if (!infoBtn || !infoDropdown || infoBtn.dataset.bound === "true") return;
+  infoBtn.dataset.bound = "true";
+
+  function openDropdown() {
+    infoDropdown.removeAttribute("hidden");
+    infoBtn.setAttribute("aria-expanded", "true");
+  }
+
+  function closeDropdown() {
+    infoDropdown.setAttribute("hidden", "");
+    infoBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function toggleDropdown() {
+    if (infoDropdown.hasAttribute("hidden")) {
+      openDropdown();
+    } else {
+      closeDropdown();
+    }
+  }
+
+  infoBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleDropdown();
+  });
+
+  if (closeInfoBtn) {
+    closeInfoBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeDropdown();
+      infoBtn.focus();
+    });
+  }
+
+  // Close when clicking outside dropdown & info button
+  document.addEventListener("click", (e) => {
+    if (!infoDropdown.hasAttribute("hidden")) {
+      if (!infoDropdown.contains(e.target) && !infoBtn.contains(e.target)) {
+        closeDropdown();
+      }
+    }
+  });
+
+  // Close when pressing Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !infoDropdown.hasAttribute("hidden")) {
+      closeDropdown();
+      infoBtn.focus();
+    }
+  });
+}
+
+// Global Share, Info & Footer Preferences Handlers
 document.addEventListener("DOMContentLoaded", () => {
+  setupHeaderInfoDropdown();
+
   // Footer Cookie Preferences button handler
   const cookieSettingsBtn = document.getElementById("footer-cookie-settings-btn");
   if (cookieSettingsBtn) {
@@ -286,6 +354,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+// Also initialize info dropdown immediately if DOM is already parsed
+if (document.readyState === "interactive" || document.readyState === "complete") {
+  setupHeaderInfoDropdown();
+}
 
 // Register Service Worker for offline 404 reload support
 if ('serviceWorker' in navigator) {

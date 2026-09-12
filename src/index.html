@@ -185,6 +185,75 @@
       <a href="#/" class="nav-link">Home</a>
       <a href="#/leaderboard" class="nav-link">Leaderboard</a>
       <button id="share-game-btn" class="btn btn-secondary btn-sm" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" aria-label="Share Game Link">Share 🔗</button>
+
+      <!-- Project Info & Developer Dropdown -->
+      <div class="header-info-wrapper" id="header-info-wrapper">
+        <button id="header-info-btn" class="header-info-btn" aria-label="About 6a0 & Developer Information" aria-haspopup="dialog" aria-expanded="false" title="About 6a0, GitHub Repo & Portfolio">
+          <span class="info-btn-symbol" aria-hidden="true">i</span>
+        </button>
+        <div id="header-info-dropdown" class="header-info-dropdown" role="dialog" aria-modal="false" aria-label="About 6a0 & Developer Information" hidden>
+          <div class="info-dropdown-header">
+            <div class="info-dropdown-title-row">
+              <span class="info-badge">About &bull; 6a0</span>
+              <button id="close-info-dropdown-btn" class="info-close-btn" aria-label="Close information dialog">&times;</button>
+            </div>
+            <h3 class="info-title">Cricket Draft &amp; WC Sim</h3>
+          </div>
+          
+          <div class="info-dropdown-body">
+            <!-- Creator Profile Card -->
+            <div class="info-creator-card">
+              <div class="info-avatar">AD</div>
+              <div class="info-creator-text">
+                <span class="info-creator-tag">Crafted by</span>
+                <strong class="info-creator-name">Ayush Dubey</strong>
+                <span class="info-creator-role">Software &amp; Web Developer</span>
+              </div>
+            </div>
+
+            <!-- Bug report / Contribution prompt -->
+            <div class="info-callout">
+              <span class="info-callout-icon" aria-hidden="true">🐛</span>
+              <p class="info-callout-text">
+                Found a bug, have feedback, or want to inspect the source code? Visit the GitHub repository to report or solve bugs!
+              </p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="info-actions-list">
+              <a href="https://github.com/AyushDubey23/6-0" target="_blank" rel="noopener noreferrer" class="info-action-btn info-btn-repo" id="info-repo-link">
+                <svg class="info-action-svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                </svg>
+                <div class="info-action-text-group">
+                  <span class="info-action-title">GitHub Repository</span>
+                  <span class="info-action-desc">github.com/AyushDubey23/6-0</span>
+                </div>
+                <span class="info-arrow" aria-hidden="true">↗</span>
+              </a>
+
+              <a href="https://ayushdubey23.vercel.app" target="_blank" rel="noopener noreferrer" class="info-action-btn info-btn-portfolio" id="info-portfolio-link">
+                <svg class="info-action-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="2" y1="12" x2="22" y2="12"></line>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+                <div class="info-action-text-group">
+                  <span class="info-action-title">Ayush's Portfolio</span>
+                  <span class="info-action-desc">ayushdubey23.vercel.app</span>
+                </div>
+                <span class="info-arrow" aria-hidden="true">↗</span>
+              </a>
+            </div>
+          </div>
+
+          <div class="info-dropdown-footer">
+            <span>Free &amp; Open Source Simulator</span>
+            <span class="info-tag-code">v1.0 &bull; 6-0</span>
+          </div>
+        </div>
+      </div>
+
       <a href="#/draft" id="draft-nav-btn" class="btn btn-accent btn-sm" style="padding: 0.4rem 1rem; font-size: 0.85rem;">Scout XI</a>
       <div id="auth-status-container"></div>
     </nav>

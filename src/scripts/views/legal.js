@@ -111,7 +111,7 @@ export function renderPrivacyPolicy(viewport) {
           <p>
             <strong>6a0 Engineering Team</strong><br>
             Email: <a href="mailto:privacy@6a0.vercel.app">privacy@6a0.vercel.app</a><br>
-            Project Repository: <a href="https://github.com/AyushDubey23/6a0" target="_blank" rel="noopener noreferrer">github.com/AyushDubey23/6a0</a>
+            Project Repository: <a href="https://github.com/AyushDubey23/6-0" target="_blank" rel="noopener noreferrer">github.com/AyushDubey23/6-0</a>
           </p>
         </section>
       </div>
